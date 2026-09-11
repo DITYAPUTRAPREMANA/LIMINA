@@ -1,125 +1,125 @@
 # Limina
 
-Sistem peringatan dini risiko suspensi untuk emiten Bursa Efek Indonesia.
+An early-warning system for suspension risk of issuers listed on the Indonesia Stock Exchange (IDX).
 
-> Nama Limina berasal dari kata Latin *limen* (ambang, batas). Inti produk ini bukan meramal peristiwa, melainkan mengukur jarak sebuah emiten terhadap ambang batas risiko yang sudah dipublikasikan oleh BEI.
+> The name Limina comes from the Latin word *limen* (threshold, boundary). The core of this product isn't predicting events — it's measuring how far an issuer stands from the risk thresholds that IDX has already published.
 
-**Status:** dalam pengembangan · **Kompetisi:** Sectors Hackathon 2026, Track 03 Market Intelligence
-
----
-
-## Ringkasan
-
-Investor ritel pemegang saham lapis dua dan tiga umumnya baru mengetahui ada masalah pada emitennya ketika sahamnya sudah tidak bisa dijual. BEI menerbitkan Notasi Khusus dan memindahkan emiten bermasalah ke Papan Pemantauan Khusus, tetapi kedua mekanisme itu bersifat menandai kondisi yang sudah terjadi — bukan memperingatkan kondisi yang sedang terbentuk.
-
-Limina menghitung ulang kriteria risiko tersebut secara berkelanjutan dari data [Sectors](https://sectors.app), lalu menampilkan emiten mana yang sedang bergerak mendekati ambang batas, beserta alasan kuantitatif mengapa skornya naik.
-
-**Klaim produk:** bukan "kami memprediksi suspensi", melainkan **"kami menghitung rubrik risiko yang sudah dipublikasikan, lebih cepat daripada labelnya diterbitkan."**
+**Status:** in development · **Competition:** Sectors Hackathon 2026, Track 03 Market Intelligence
 
 ---
 
-## Untuk siapa
+## Summary
 
-- **Pengguna utama** — investor ritel yang memegang saham lapis dua dan tiga, memantau portofolionya sendiri, tanpa akses ke riset sekuritas
-- **Pengguna sekunder** — penulis dan pengelola komunitas investasi yang membutuhkan dasar kuantitatif saat membahas emiten berisiko
-- **Bukan target** — investor institusional dan analis profesional yang sudah punya proses pemantauan sendiri
+Retail investors holding second- and third-tier stocks typically only find out something is wrong with their issuer once the stock can no longer be sold. IDX publishes Special Notations and moves troubled issuers to the Special Monitoring Board, but both mechanisms mark conditions that have already happened — they don't warn about conditions that are still forming.
+
+Limina continuously recalculates those risk criteria from [Sectors](https://sectors.app) data, then shows which issuers are moving closer to the threshold, along with the quantitative reasons their score is rising.
+
+**Product claim:** not "we predict suspensions," but **"we calculate the already-published risk rubric, faster than the label itself gets issued."**
 
 ---
 
-## Yang diklaim, yang tidak
+## Who it's for
 
-| Diklaim | Tidak diklaim |
+- **Primary user** — retail investors holding second- and third-tier stocks, monitoring their own portfolio, without access to securities research
+- **Secondary user** — writers and investment community managers who need a quantitative basis when discussing at-risk issuers
+- **Not the target** — institutional investors and professional analysts who already have their own monitoring process
+
+---
+
+## What is claimed, what isn't
+
+| Claimed | Not claimed |
 |---|---|
-| Menghitung indikator risiko dari kriteria publik BEI, berkelanjutan, untuk seluruh emiten cakupan | Bukan prediksi kebangkrutan, kecurangan, atau delisting |
-| Menampilkan peringkat emiten berdasarkan skor risiko, disertai penjelasan kontribusi tiap indikator | Bukan rekomendasi beli, jual, atau tahan |
-| Menunjukkan bukti historis berupa selisih waktu antara naiknya skor dan terbitnya label resmi | Bukan pengganti pengumuman resmi BEI |
-| | Tidak memberikan estimasi durasi suspensi |
+| Calculates risk indicators from IDX's public criteria, continuously, for all covered issuers | Not a prediction of bankruptcy, fraud, or delisting |
+| Displays issuer rankings based on risk score, with an explanation of each indicator's contribution | Not a buy, sell, or hold recommendation |
+| Shows historical evidence of the time gap between a rising score and the official label being issued | Not a substitute for official IDX announcements |
+| | Does not provide an estimated suspension duration |
 
 ---
 
-## Fitur
+## Features
 
-- **Halaman Peringkat** — daftar emiten diurutkan dari skor risiko tertinggi, dengan arah pergerakan 30 hari terakhir dan indikator paling dominan
-- **Halaman Detail Emiten** — rincian kontribusi tiap indikator, grafik pergerakan skor, nilai mentah berdampingan dengan ambang batasnya
-- **Halaman Bukti** — studi kasus emiten yang pernah disuspensi, ditampilkan sebagai garis waktu dengan distribusi selisih waktu terhadap label resmi
-- **Halaman Metodologi** — definisi label, daftar indikator dan rumusnya, aturan point-in-time, keterbatasan yang diketahui
+- **Ranking Page** — list of issuers sorted by highest risk score, with 30-day movement direction and the most dominant indicator
+- **Issuer Detail Page** — breakdown of each indicator's contribution, score movement chart, raw values shown alongside their thresholds
+- **Evidence Page** — case studies of previously suspended issuers, shown as a timeline with the distribution of time gaps relative to the official label
+- **Methodology Page** — label definitions, list of indicators and their formulas, point-in-time rules, known limitations
 
 ---
 
-## Arsitektur
+## Architecture
 
-Perhitungan dilakukan luring, hasilnya diekspor sebagai berkas statis, dan antarmuka hanya membaca berkas tersebut.
+Computation is done offline, the results are exported as static files, and the interface only reads those files.
 
 ```
-Sectors API → Lapisan pengambilan → Cache lokal → Model & indikator → Artefak JSON → Antarmuka statis
+Sectors API → Ingestion layer → Local cache → Models & indicators → JSON artifacts → Static interface
 ```
 
-Konsekuensi yang disengaja:
-- Tidak ada server yang perlu dijaga hidup untuk fitur inti
-- Kunci API tidak pernah berada di sisi klien
-- Antarmuka dapat ditempatkan di layanan hosting statis tanpa biaya
+Deliberate consequences:
+- No server needs to stay alive for core features
+- API keys never live on the client side
+- The interface can be hosted on a free static hosting service
 
 ---
 
-## Tumpukan teknologi
+## Tech stack
 
-| Lapisan | Teknologi |
+| Layer | Technology |
 |---|---|
 | Data & model | Python |
-| Antarmuka | Vue 3 / React, Vite, Tailwind |
-| Grafik | ApexCharts |
-| Akun pengguna (opsional) | Supabase (Postgres + Auth + Row Level Security) |
+| Interface | Vue 3 / React, Vite, Tailwind |
+| Charts | ApexCharts |
+| User accounts (optional) | Supabase (Postgres + Auth + Row Level Security) |
 | Progressive Web App | Manifest + service worker |
 
 ---
 
-## Struktur proyek
+## Project structure
 
 ```
 limina/
-  src/            Pembungkus API, pengelompokan label, indikator,
-                   pemeriksa point-in-time, sampling, model, ekspor
+  src/            API wrapper, label grouping, indicators,
+                  point-in-time checker, sampling, model, export
   data/
-    cache/        Respons mentah (tidak masuk kontrol versi)
-    labels/       Pemetaan alasan suspensi
-    artifacts/    scores.json, backtest.json — keluaran untuk antarmuka
-  web/            Antarmuka, PWA
-  supabase/       Skema dan migrasi (jika fitur akun diaktifkan)
-  scheduler/      Job pembaruan berkala
-  notebooks/      Eksplorasi, bukan jalur produksi
-  docs/           Metodologi dan dokumentasi tambahan
+    cache/        Raw responses (not version-controlled)
+    labels/       Suspension reason mapping
+    artifacts/    scores.json, backtest.json — outputs for the interface
+  web/            Interface, PWA
+  supabase/       Schema and migrations (if account features are enabled)
+  scheduler/      Periodic update jobs
+  notebooks/      Exploration, not part of the production pipeline
+  docs/           Methodology and additional documentation
 ```
 
 ---
 
-## Metodologi singkat
+## Methodology overview
 
-- **Label positif** hanya berasal dari suspensi kategori kepatuhan/distress (keterlambatan laporan keuangan, sanksi, going concern) — suspensi sukarela atau teknis jangka pendek dibuang dari label utama
-- **Aturan point-in-time**: tidak ada indikator yang memakai data yang baru tersedia setelah T dikurangi 30 hari, ditegakkan lewat fungsi pemeriksa otomatis pada setiap sampel
-- **Pemisahan data bersifat temporal**, bukan acak — peristiwa sebelum 2025 untuk pelatihan, 2025–2026 untuk pengujian
-- **Metrik utama**: Precision@20 dan rata-rata selisih waktu terhadap label resmi. Akurasi tidak dilaporkan karena menyesatkan pada kelas yang timpang
-- Jalur cadangan rule-based tersedia jika jumlah sampel atau performa model tidak memadai
+- **Positive labels** come only from compliance/distress-category suspensions (late financial reports, sanctions, going concern) — voluntary or short-term technical suspensions are excluded from the main label
+- **Point-in-time rule**: no indicator uses data that only became available after T minus 30 days, enforced through an automated checker function on every sample
+- **Data splitting is temporal**, not random — events before 2025 for training, 2025–2026 for testing
+- **Primary metrics**: Precision@20 and the average time gap relative to the official label. Accuracy is not reported since it is misleading on an imbalanced class
+- A rule-based fallback path is available if the sample size or model performance is insufficient
 
-Detail lengkap ada di `docs/metodologi.md`.
+Full details are in `docs/methodology.md`.
 
 ---
 
-## Keterbatasan
+## Limitations
 
-- Jumlah sampel positif kemungkinan kecil, sehingga selang kepercayaan pada metrik lebar
-- Pengelompokan alasan suspensi bersifat penilaian manusia, dipublikasikan agar dapat diperdebatkan
-- Skor tidak berlaku untuk emiten dengan data tidak lengkap — dikeluarkan dari cakupan dan ditandai, bukan diberi skor rendah diam-diam
-- Tidak dapat melihat informasi non-publik
-- Selisih waktu historis bukan jaminan masa depan
+- The number of positive samples is likely small, so confidence intervals on the metrics are wide
+- Grouping of suspension reasons involves human judgment, published so it can be debated
+- Scores do not apply to issuers with incomplete data — they are excluded from coverage and flagged, not silently given a low score
+- Cannot see non-public information
+- Historical time gaps are not a guarantee of future performance
 
 ---
 
 ## Disclaimer
 
-Limina bukan nasihat investasi. Seluruh angka dan skor bersifat informatif, dihitung dari data publik, dan tidak menggantikan verifikasi ke sumber resmi seperti laporan keuangan atau pengumuman Bursa Efek Indonesia. Keputusan investasi sepenuhnya tanggung jawab pengguna.
+Limina is not investment advice. All figures and scores are informational, calculated from public data, and do not replace verification against official sources such as financial statements or Indonesia Stock Exchange announcements. Investment decisions are entirely the user's responsibility.
 
 ---
 
-## Lisensi
+## License
 
-Belum ditentukan.
+Not yet determined.
