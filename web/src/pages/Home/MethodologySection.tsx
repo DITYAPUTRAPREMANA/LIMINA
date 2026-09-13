@@ -4,47 +4,47 @@ const MethodologySection: React.FC = () => {
   return (
     <section
       id="methodology"
-      className="w-full py-24 px-4 sm:px-6 lg:px-10 bg-white"
+      className="w-full py-24 px-4 sm:px-6 lg:px-10 bg-white dark:bg-slate-950"
     >
       <div className="w-full mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
             <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-              <Info className="w-4 h-4" /> MATHEMATICAL RIGOR & TRANSPARENCY
+              <Info className="w-4 h-4" /> MATHEMATICAL RIGOR &amp; TRANSPARENCY
             </div>
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900">
-              Methodology & Calculation Architecture
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-50">
+              Methodology &amp; Calculation Architecture
             </h2>
-            <p className="text-slate-500 mt-3 max-w-2xl">
+            <p className="text-slate-500 dark:text-slate-400 mt-3 max-w-2xl">
               Skeptical of algorithmic claims? Limina provides complete
               mathematical transparency into its Point-in-Time (PIT) models and
               static data extraction from Sectors API.
             </p>
           </div>
-          <div className="text-xs font-mono bg-slate-100 text-slate-600 px-3 py-1 rounded border border-slate-200">
+          <div className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1 rounded border border-slate-200 dark:border-slate-700">
             Data Source: Sectors API (Static JSON)
           </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
           <div className="space-y-8">
-            <div className="border border-slate-200 rounded-2xl p-8">
+            <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-8 bg-white dark:bg-slate-900">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
                   <Clock className="w-5 h-5 text-red-500" /> Point-in-Time (PIT)
                   Calculation Rules
                 </h3>
-                <span className="text-[10px] font-mono bg-slate-100 px-2 py-1 rounded text-slate-500">
+                <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded text-slate-500 dark:text-slate-400">
                   No Look-Ahead Bias
                 </span>
               </div>
-              <p className="text-sm text-slate-500 mb-6">
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
                 Calculations are executed strictly at discrete 15-minute
                 intervals during active IDX trading sessions. Financial report
                 disclosures are ingested only when formally stamped by the
                 exchange:
               </p>
-              <ul className="space-y-3 text-sm text-slate-600">
+              <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5"></div>{" "}
                   PIT Snapshot Frequency: 15-minute intervals during active IDX
@@ -53,7 +53,7 @@ const MethodologySection: React.FC = () => {
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5"></div>{" "}
                   Corporate Actions: Ex-date adjustments for splits, reverse
-                  splits & rights issues
+                  splits &amp; rights issues
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5"></div>{" "}
@@ -63,9 +63,9 @@ const MethodologySection: React.FC = () => {
               </ul>
             </div>
 
-            <div className="border border-slate-200 rounded-2xl p-8 bg-slate-50">
+            <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-8 bg-slate-50 dark:bg-slate-900">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
                   <Activity className="w-5 h-5 text-red-500" /> Indicator
                   Formulations
                 </h3>
@@ -74,7 +74,7 @@ const MethodologySection: React.FC = () => {
                 </span>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-slate-900 text-white p-4 rounded-xl">
+                <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-xl">
                   <div className="text-[10px] text-slate-400 font-bold mb-1">
                     LIQUIDITY STRESS INDEX (LSI)
                   </div>
@@ -85,7 +85,7 @@ const MethodologySection: React.FC = () => {
                     Detects severe book thinning before trading halts.
                   </div>
                 </div>
-                <div className="bg-slate-900 text-white p-4 rounded-xl">
+                <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-xl">
                   <div className="text-[10px] text-slate-400 font-bold mb-1">
                     EQUITY RISK PREMIUM (ERP)
                   </div>
@@ -100,13 +100,13 @@ const MethodologySection: React.FC = () => {
             </div>
           </div>
 
-          <div className="border border-slate-200 rounded-2xl p-8">
-            <h3 className="text-lg font-bold flex items-center gap-2 mb-2">
+          <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-8 bg-white dark:bg-slate-900">
+            <h3 className="text-lg font-bold flex items-center gap-2 mb-2 text-slate-900 dark:text-slate-100">
               <Filter className="w-5 h-5 text-red-500" /> Specific IDX Risk
               Criteria Employed
             </h3>
-            <p className="text-sm text-slate-500 mb-8">
-              Weighted components derived directly from IDX suspension rules &
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">
+              Weighted components derived directly from IDX suspension rules &amp;
               Special Monitoring Board criteria:
             </p>
 
@@ -115,7 +115,7 @@ const MethodologySection: React.FC = () => {
                 {
                   label: "Financial Reporting Delay & Negative Equity",
                   weight: "40% Weight",
-                  desc: "Unsubmitted audited financial reports > 90-days.",
+                  desc: "Unsubmitted audited financial reports >90-days.",
                   color: "bg-red-500",
                   width: "w-[40%]",
                 },
@@ -127,7 +127,7 @@ const MethodologySection: React.FC = () => {
                   width: "w-[30%]",
                 },
                 {
-                  label: "Public Float Compliance (< 7.5%)",
+                  label: "Public Float Compliance (<7.5%)",
                   weight: "15% Weight",
                   desc: "Non-compliance with free-float statutory minimums.",
                   color: "bg-slate-800",
@@ -142,22 +142,22 @@ const MethodologySection: React.FC = () => {
                 },
               ].map((crit, i) => (
                 <div key={i}>
-                  <div className="flex justify-between text-sm font-bold text-slate-900 mb-1">
+                  <div className="flex justify-between text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
                     <span>{crit.label}</span>
                     <span className="text-red-500 text-xs">{crit.weight}</span>
                   </div>
-                  <div className="w-full bg-slate-100 h-1.5 rounded-full mb-1">
+                  <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mb-1">
                     <div
                       className={`h-1.5 rounded-full ${crit.color} ${crit.width}`}
                     ></div>
                   </div>
-                  <p className="text-[11px] text-slate-500">{crit.desc}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">{crit.desc}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center text-sm">
-              <span className="text-slate-500">
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center text-sm">
+              <span className="text-slate-500 dark:text-slate-400">
                 Read comprehensive technical documentation:
               </span>
               <a

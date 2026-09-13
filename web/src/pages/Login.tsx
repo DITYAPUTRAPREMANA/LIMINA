@@ -28,19 +28,19 @@ const riskBars = [
 
 const LoginPage = ({ onNavigate }: LoginPageProps) => {
   return (
-    <div className="min-h-screen w-full bg-[#f5f3ee] text-slate-800">
+    <div className="min-h-screen w-full bg-[#f5f3ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="flex min-h-screen flex-col bg-[#f3f2ee] px-5 py-6 sm:px-8 md:px-10 xl:px-14">
+        <div className="flex min-h-screen flex-col bg-[#f3f2ee] dark:bg-[#13141a] px-5 py-6 sm:px-8 md:px-10 xl:px-14">
           <header className="flex items-center justify-between gap-3">
             <div className="flex items-center">
               <BrandLogo className="h-9 w-auto" alt="Limina logo" />
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="rounded-lg border border-[#d7d6d4] bg-white/40 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a]">
+              <span className="rounded-lg border border-[#d7d6d4] dark:border-slate-600 bg-white/40 dark:bg-slate-800/40 px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a] dark:text-slate-300">
                 Auth Gateway
               </span>
-              <span className="flex items-center gap-2 rounded-full border border-[#d7d6d4] bg-white/40 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a]">
+              <span className="flex items-center gap-2 rounded-full border border-[#d7d6d4] dark:border-slate-600 bg-white/40 dark:bg-slate-800/40 px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a] dark:text-slate-300">
                 <span className="h-2 w-2 rounded-full bg-[#25c28a]" />
                 PIT Feed Live
               </span>
@@ -52,11 +52,11 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
               — Independent Market Intelligence
             </div>
 
-            <h1 className="max-w-105 text-4xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#111827] sm:text-5xl xl:text-[3.7rem]">
+            <h1 className="max-w-105 text-4xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#111827] dark:text-slate-50 sm:text-5xl xl:text-[3.7rem]">
               Log in to the System
             </h1>
 
-            <p className="mt-4 max-w-130 text-[17px] leading-relaxed text-[#536174]">
+            <p className="mt-4 max-w-130 text-[17px] leading-relaxed text-[#536174] dark:text-slate-400">
               Enter your credentials to access deterministic IDX early warning
               analytics, suspension probability matrices, and live order-flow
               alerts.
@@ -68,15 +68,15 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
                   <label htmlFor="email">Analyst Email</label>
                   <span className="text-[#6d788a]">Primary Access Point</span>
                 </div>
-                <div className="flex items-center rounded-xl border border-[#dfe2ea] bg-white/80 px-3 py-3 shadow-sm ring-1 ring-white/70">
-                  <span className="mr-2 text-gray-500">
+                <div className="flex items-center rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white/80 dark:bg-slate-800 px-3 py-3 shadow-sm">
+                  <span className="mr-2 text-gray-500 dark:text-slate-400">
                     <Circle className="h-4 w-4" />
                   </span>
                   <input
                     id="email"
                     type="email"
                     defaultValue="retail.analyst@limina.market"
-                    className="w-full bg-transparent text-[15px] text-slate-700 outline-none"
+                    className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none"
                   />
                 </div>
               </div>
@@ -92,15 +92,15 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
                     Forgot password?
                   </button>
                 </div>
-                <div className="flex items-center rounded-xl border border-[#dfe2ea] bg-white/80 px-3 py-3 shadow-sm ring-1 ring-white/70">
-                  <span className="mr-2 text-gray-500">
+                <div className="flex items-center rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white/80 dark:bg-slate-800 px-3 py-3 shadow-sm">
+                  <span className="mr-2 text-gray-500 dark:text-slate-400">
                     <ShieldCheck className="h-4 w-4" />
                   </span>
                   <input
                     id="password"
                     type="password"
                     defaultValue="1234567890"
-                    className="w-full bg-transparent text-[15px] text-slate-700 outline-none"
+                    className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none"
                   />
                   <button
                     type="button"
@@ -129,18 +129,17 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
               </button>
             </form>
 
-            <div className="mt-5 w-full max-w-140 rounded-xl border border-[#dfe2ea] bg-white/40 px-4 py-3 text-sm text-[#4c5d72] shadow-sm">
+            <div className="mt-5 w-full max-w-140 rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white/40 dark:bg-slate-800/60 px-4 py-3 text-sm text-[#4c5d72] dark:text-slate-400 shadow-sm">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[#7db7b8] bg-[#ecfafa] text-[#1e7a73]">
                   <Check className="h-3 w-3" />
                 </span>
                 <span>
                   Demo Prototype: Click{" "}
-                  <span className="font-semibold text-[#111827]">
+                  <span className="font-semibold text-[#111827] dark:text-slate-200">
                     Enter Dashboard
                   </span>{" "}
-                  to authenticate and seamlessly view the active RISK Rankings
-                  table.
+                  to authenticate and seamlessly view the active RISK Rankings table.
                 </span>
               </div>
             </div>
@@ -157,7 +156,7 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
             </div>
           </main>
 
-          <footer className="flex items-center justify-between gap-3 border-t border-[#ddd7cf] pt-4 text-[11px] text-[#7a8190]">
+          <footer className="flex items-center justify-between gap-3 border-t border-[#ddd7cf] dark:border-slate-700 pt-4 text-[11px] text-[#7a8190] dark:text-slate-500">
             <span>© 2025 Lima Financial Analytics</span>
             <span>Zero Server Footprint</span>
           </footer>

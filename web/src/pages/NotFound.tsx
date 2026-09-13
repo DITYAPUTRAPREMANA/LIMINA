@@ -7,7 +7,7 @@ type NotFoundPageProps = {
 
 const NotFoundPage = ({ onNavigate }: NotFoundPageProps) => {
   return (
-    <div className="min-h-screen w-full bg-[#030d1d] text-white">
+    <div className="min-h-screen w-full bg-[#030d1d] text-white transition-colors duration-300">
       <header className="border-b border-[#112239] bg-[#020d1a] px-6 py-4 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:px-8 lg:px-10">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between">
           <div className="flex items-center gap-3">

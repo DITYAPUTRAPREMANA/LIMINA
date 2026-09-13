@@ -71,19 +71,19 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
         : "from-[#2fc483] to-[#16a673]";
 
   return (
-    <div className="min-h-screen w-full bg-[#f5f3ee] text-slate-800">
+    <div className="min-h-screen w-full bg-[#f5f3ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="bg-[#f5f3ee] px-5 sm:px-8 md:px-10 lg:px-12 xl:px-16 py-8 sm:py-10 lg:py-8 flex flex-col">
+        <div className="bg-[#f5f3ee] dark:bg-[#13141a] px-5 sm:px-8 md:px-10 lg:px-12 xl:px-16 py-8 sm:py-10 lg:py-8 flex flex-col">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center">
               <BrandLogo className="h-10 w-auto" alt="Limina logo" />
             </div>
 
             <div className="flex items-center gap-3">
-              <button className="rounded-lg border border-[#d7d6d4] bg-white/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a]">
+              <button className="rounded-lg border border-[#d7d6d4] dark:border-slate-600 bg-white/40 dark:bg-slate-800/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a] dark:text-slate-300">
                 Registration
               </button>
-              <button className="rounded-lg border border-[#d7d6d4] bg-white/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a]">
+              <button className="rounded-lg border border-[#d7d6d4] dark:border-slate-600 bg-white/40 dark:bg-slate-800/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#2f3b4a] dark:text-slate-300">
                 Free Retail Tier
               </button>
             </div>
@@ -94,11 +94,11 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
               Independent Market Intelligence
             </div>
 
-            <h1 className="max-w-105 text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[#0f172a]">
+            <h1 className="max-w-105 text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold leading-[0.95] tracking-[-0.07em] text-[#0f172a] dark:text-slate-50">
               Create Your Account
             </h1>
 
-            <p className="mt-4 max-w-md text-[17px] leading-relaxed text-[#536174]">
+            <p className="mt-4 max-w-md text-[17px] leading-relaxed text-[#536174] dark:text-slate-400">
               Gain immediate access to verified point-in-time suspension models,
               issuer watchlists, and algorithmic lead-time metrics.
             </p>
@@ -248,7 +248,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-between border-t border-[#ddd7cf] pt-4 text-[11px] text-[#7a8190]">
+          <div className="mt-8 flex items-center justify-between border-t border-[#ddd7cf] dark:border-slate-700 pt-4 text-[11px] text-[#7a8190] dark:text-slate-500">
             <span>© 2025 Limina Financial Analytics</span>
             <span>Zero Server Footprint</span>
           </div>

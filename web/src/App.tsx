@@ -80,7 +80,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white text-slate-900 font-sans selection:bg-red-100 selection:text-red-900">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-100 selection:text-red-900 transition-colors duration-300">
       <Navbar onNavigate={setView} />
       <HeroSection />
       <VisionSection />

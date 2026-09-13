@@ -4,18 +4,18 @@ const VisionSection: React.FC = () => {
   return (
     <section
       id="vision"
-      className="w-full py-24 bg-slate-50 px-4 sm:px-6 lg:px-10 border-y border-slate-200"
+      className="w-full py-24 bg-slate-50 dark:bg-slate-900 px-4 sm:px-6 lg:px-10 border-y border-slate-200 dark:border-slate-700"
     >
       <div className="w-full mx-auto">
         <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-          <Activity className="w-4 h-4" /> LIMINA VISION & PROJECT GENESIS
+          <Activity className="w-4 h-4" /> LIMINA VISION &amp; PROJECT GENESIS
         </div>
-        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4">
+        <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-50 mb-4">
           Democratizing Market Intelligence for
           <br />
           Indonesian Retail Investors
         </h2>
-        <p className="text-slate-500 max-w-3xl mb-12">
+        <p className="text-slate-500 dark:text-slate-400 max-w-3xl mb-12">
           Developed as part of <strong>Track 03: Market Intelligence</strong>,
           Limina directly addresses the structural information asymmetry
           prevalent across the Indonesia Stock Exchange (IDX), especially among
@@ -45,18 +45,18 @@ const VisionSection: React.FC = () => {
           ].map((item, i) => (
             <div
               key={i}
-              className="bg-white border border-slate-200 rounded-2xl p-8 hover:shadow-lg transition-shadow"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:shadow-lg transition-shadow"
             >
-              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center mb-6">
+              <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/50 text-red-500 flex items-center justify-center mb-6">
                 <item.icon className="w-5 h-5" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
                 {item.title}
               </h3>
-              <p className="text-sm text-slate-500 leading-relaxed mb-8">
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-8">
                 {item.desc}
               </p>
-              <div className="text-xs font-mono text-slate-400 pt-4 border-t border-slate-100">
+              <div className="text-xs font-mono text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
                 {item.pillar}
               </div>
             </div>

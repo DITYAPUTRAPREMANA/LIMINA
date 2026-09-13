@@ -21,7 +21,7 @@ type ForgotPasswordPageProps = {
 
 const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
   return (
-    <div className="min-h-screen w-full bg-[#f2f1ee] text-slate-800">
+    <div className="min-h-screen w-full bg-[#f2f1ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <header className="flex items-center justify-between border-b border-[#dfe4ea] bg-[#f2f1ee] px-5 py-4 sm:px-8 lg:px-10">
         <div className="flex items-center gap-3">
           <BrandLogo className="h-9 w-auto" alt="Limina logo" />

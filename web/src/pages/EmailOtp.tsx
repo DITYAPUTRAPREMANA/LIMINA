@@ -21,9 +21,9 @@ const otpDigits = ["4", "8", "1", "9", "", ""];
 
 const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
   return (
-    <div className="min-h-screen w-full bg-[#f5f3ee] text-slate-800">
+    <div className="min-h-screen w-full bg-[#f5f3ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <div className="flex min-h-screen flex-col bg-[#f5f3ee] px-5 py-6 sm:px-8 md:px-10 xl:px-14">
+        <div className="flex min-h-screen flex-col bg-[#f5f3ee] dark:bg-[#13141a] px-5 py-6 sm:px-8 md:px-10 xl:px-14">
           <header className="flex items-center justify-between gap-3">
             <div className="flex items-center">
               <BrandLogo className="h-9 w-auto" alt="Limina logo" />
@@ -45,7 +45,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
               — Two-factor Identity Protocol
             </div>
 
-            <h1 className="max-w-105t-4xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#111827] sm:text-5xl xl:text-[3.7rem]">
+            <h1 className="max-w-105t-4xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#111827] dark:text-slate-50 sm:text-5xl xl:text-[3.7rem]">
               Verify Your Email
             </h1>
 
@@ -55,7 +55,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
               analyst access.
             </p>
 
-            <div className="mt-8 w-full max-w-130nded-xl border border-[#dfe2ea] bg-[#f1f4f5] px-3 py-3 shadow-sm">
+            <div className="mt-8 w-full max-w-130nded-xl border border-[#dfe2ea] dark:border-slate-600 bg-[#f1f4f5] dark:bg-slate-800 px-3 py-3 shadow-sm">
               <div className="flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
                 <span className="flex items-center gap-2 text-[#6d788a]">
                   <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#dff8ee] text-[#1d9d75]">
@@ -141,7 +141,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
             </div>
           </main>
 
-          <footer className="flex items-center justify-between gap-3 border-t border-[#ddd7cf] pt-4 text-[11px] text-[#7a8190]">
+          <footer className="flex items-center justify-between gap-3 border-t border-[#ddd7cf] dark:border-slate-700 pt-4 text-[11px] text-[#7a8190] dark:text-slate-500">
             <span>© 2025 Lima Financial Analytics</span>
             <span>Zero Server Footprint</span>
           </footer>
