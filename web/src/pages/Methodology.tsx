@@ -373,13 +373,12 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                 <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
                   <span>Hasil Skor Simulasi</span>
                   <span
-                    className={`rounded-full px-2.5 py-0.5 font-black text-xs ${
-                      simResult.levelColor === "red"
-                        ? "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400"
-                        : simResult.levelColor === "amber"
+                    className={`rounded-full px-2.5 py-0.5 font-black text-xs ${simResult.levelColor === "red"
+                      ? "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400"
+                      : simResult.levelColor === "amber"
                         ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400"
                         : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400"
-                    }`}
+                      }`}
                   >
                     {simResult.level}
                   </span>
@@ -395,13 +394,12 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                 {/* Progress Bar */}
                 <div className="mt-3 h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-300 ${
-                      simResult.score >= 75
-                        ? "bg-red-500"
-                        : simResult.score >= 40
+                    className={`h-full transition-all duration-300 ${simResult.score >= 75
+                      ? "bg-red-500"
+                      : simResult.score >= 40
                         ? "bg-amber-500"
                         : "bg-emerald-500"
-                    }`}
+                      }`}
                     style={{ width: `${simResult.score}%` }}
                   />
                 </div>
@@ -489,11 +487,10 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                   key={cat}
                   type="button"
                   onClick={() => setSelectedNotationCat(cat)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
-                    selectedNotationCat === cat
-                      ? "bg-[#f26a4d] text-white"
-                      : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100"
-                  }`}
+                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${selectedNotationCat === cat
+                    ? "bg-[#f26a4d] text-white"
+                    : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-100"
+                    }`}
                 >
                   {cat}
                 </button>
