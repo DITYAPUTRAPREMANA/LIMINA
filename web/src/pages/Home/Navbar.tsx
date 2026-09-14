@@ -1,15 +1,18 @@
-import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
+import { ArrowRight, LayoutDashboard, Menu, Moon, Sun, User, X } from "lucide-react";
 import { useState } from "react";
 import BrandLogo from "../../components/BrandLogo";
+import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import type { View } from "../../App";
 
 type NavbarProps = {
-  onNavigate: (view: "home" | "register" | "login" | "otp" | "success") => void;
+  onNavigate: (view: View) => void;
 };
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { session } = useAuth();
 
   const menuItems = [
     { label: "Home", href: "#" },
@@ -56,13 +59,32 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => onNavigate("register")}
-            className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-slate-800 dark:hover:bg-violet-500"
-          >
-            Launch App <ArrowRight className="h-4 w-4" />
-          </button>
+          {session ? (
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => onNavigate("dashboard")}
+                className="flex items-center gap-2 rounded-lg bg-[#f26a4d] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#f26a4d]/20 transition-all hover:bg-[#d95e39]"
+              >
+                <LayoutDashboard className="h-4 w-4" /> Go to Dashboard
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate("profile")}
+                className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 transition-all hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                <User className="h-4 w-4 text-[#f26a4d]" /> Profile
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onNavigate("login")}
+              className="flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-slate-800 dark:hover:bg-violet-500"
+            >
+              Launch App <ArrowRight className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
@@ -106,16 +128,41 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
               </a>
             ))}
 
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                onNavigate("register");
-              }}
-              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-slate-900 dark:bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white"
-            >
-              Launch App <ArrowRight className="h-4 w-4" />
-            </button>
+            {session ? (
+              <div className="mt-2 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onNavigate("dashboard");
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#f26a4d] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#f26a4d]/20"
+                >
+                  <LayoutDashboard className="h-4 w-4" /> Go to Dashboard
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onNavigate("profile");
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200"
+                >
+                  <User className="h-4 w-4 text-[#f26a4d]" /> Profile
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onNavigate("login");
+                }}
+                className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-slate-900 dark:bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white"
+              >
+                Launch App <ArrowRight className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       )}

@@ -1,290 +1,405 @@
-import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
+/**
+ * EmailOtp.tsx — LIMINA
+ *
+ * Magic Link & Passwordless Authentication Verification Page
+ *
+ * Features:
+ * - Clear instructions to check email inbox for the magic verification link
+ * - Direct shortcut button to open webmail provider
+ * - Resend Magic Link button with 60s cooldown
+ * - Fallback: expandable 6-digit passcode input in case user receives a numerical token
+ * - Masked email display to protect PII
+ */
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  Check,
+  ExternalLink,
+  KeyRound,
+  Loader2,
+  Mail,
+  RefreshCw,
+  ShieldCheck,
+} from "lucide-react";
 import BrandLogo from "../components/BrandLogo";
+import { useAuth } from "../context/AuthContext";
+import { maskEmail, validateOtp } from "../lib/validation";
+import { OTP_EMAIL_KEY } from "./Register";
+import type { View } from "../App";
 
 type EmailOtpPageProps = {
-  onNavigate: (
-    view:
-      | "home"
-      | "register"
-      | "login"
-      | "otp"
-      | "not-found"
-      | "success"
-      | "dashboard"
-      | "search"
-      | "evidence"
-      | "methodology",
-  ) => void;
+  onNavigate: (view: View) => void;
 };
 
-const otpDigits = ["4", "8", "1", "9", "", ""];
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
+  const { verifyEmailOtp, sendMagicLink, resendOtp } = useAuth();
+
+  // Retrieve email from sessionStorage
+  const [pendingEmail] = useState<string>(() => {
+    return sessionStorage.getItem(OTP_EMAIL_KEY) ?? "";
+  });
+
+  const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(RESEND_COOLDOWN_SECONDS);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [showManualCode, setShowManualCode] = useState(false);
+
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Redirect to register if no pending email
+  useEffect(() => {
+    if (!pendingEmail) {
+      onNavigate("register");
+    }
+  }, [pendingEmail, onNavigate]);
+
+  // Resend cooldown countdown
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(
+      () => setResendCooldown((s) => Math.max(0, s - 1)),
+      1000
+    );
+    return () => clearInterval(id);
+  }, [resendCooldown]);
+
+  // Determine webmail link based on email domain
+  const getWebmailUrl = (email: string) => {
+    const domain = email.split("@")[1]?.toLowerCase() ?? "";
+    if (domain.includes("gmail")) return "https://mail.google.com";
+    if (domain.includes("outlook") || domain.includes("hotmail"))
+      return "https://outlook.live.com";
+    if (domain.includes("yahoo")) return "https://mail.yahoo.com";
+    return `https://${domain}`;
+  };
+
+  // Handle manual digit input
+  const handleDigitChange = useCallback((index: number, value: string) => {
+    const cleaned = value.replace(/\D/g, "").slice(-1);
+    setDigits((prev) => {
+      const next = [...prev];
+      next[index] = cleaned;
+      return next;
+    });
+    if (cleaned && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Backspace" && !digits[index] && index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
+    },
+    [digits]
+  );
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const pasted = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+    if (pasted.length === 6) {
+      e.preventDefault();
+      setDigits(pasted.split(""));
+      inputRefs.current[5]?.focus();
+    }
+  }, []);
+
+  const handleVerifyManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    const token = digits.join("");
+    const result = validateOtp(token);
+    if (!result.valid) {
+      setError(result.error);
+      return;
+    }
+
+    setLoading(true);
+    const { error: authError } = await verifyEmailOtp(pendingEmail, token);
+    setLoading(false);
+
+    if (authError) {
+      setError(authError);
+      setDigits(Array(6).fill(""));
+      inputRefs.current[0]?.focus();
+      return;
+    }
+
+    sessionStorage.removeItem(OTP_EMAIL_KEY);
+    onNavigate("dashboard");
+  };
+
+  const handleResendMagicLink = async () => {
+    if (resendCooldown > 0 || resendLoading) return;
+    setResendLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+
+    // Try sending magic link first
+    const { error: magicErr } = await sendMagicLink(pendingEmail);
+    if (magicErr) {
+      // Fallback to resendOtp
+      const { error: fallbackErr } = await resendOtp(pendingEmail);
+      if (fallbackErr) {
+        setError(fallbackErr);
+        setResendLoading(false);
+        return;
+      }
+    }
+
+    setResendLoading(false);
+    setSuccessMsg("Link login baru telah dikirimkan ke email Anda!");
+    setResendCooldown(RESEND_COOLDOWN_SECONDS);
+  };
+
   return (
     <div className="min-h-screen w-full bg-[#f5f3ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="grid min-h-screen lg:grid-cols-2">
+        {/* ── Left panel: Magic Link status & actions ── */}
         <div className="flex min-h-screen flex-col bg-[#f5f3ee] dark:bg-[#13141a] px-5 py-6 sm:px-8 md:px-10 xl:px-14">
           <header className="flex items-center justify-between gap-3">
-            <div className="flex items-center">
-              <BrandLogo className="h-9 w-auto" alt="Limina logo" />
-            </div>
-
+            <BrandLogo className="h-9 w-auto" alt="Limina logo" />
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#2b3c4a]">
-                Verification
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#2b3c4a] dark:text-slate-300">
+                Magic Link
               </span>
               <span className="flex items-center gap-2 rounded-full border border-[#cfe9dd] bg-[#ebfff6] px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#0f7a59]">
                 <span className="h-2 w-2 rounded-full bg-[#25c28a]" />
-                Secure Auth Session
+                Passwordless Auth
               </span>
             </div>
           </header>
 
-          <main className="mt-14 flex flex-1 flex-col justify-center pb-8">
+          <main className="mt-10 flex flex-1 flex-col justify-center pb-8">
+            {/* Tagline */}
             <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.22em] text-[#f26a4d]">
-              — Two-factor Identity Protocol
+              — Instant Verification Link
             </div>
 
-            <h1 className="max-w-105t-4xl font-semibold leading-[0.95] tracking-[-0.07em] text-[#111827] dark:text-slate-50 sm:text-5xl xl:text-[3.7rem]">
-              Verify Your Email
+            <h1 className="text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[#111827] dark:text-slate-50 sm:text-5xl">
+              Periksa Email Anda
             </h1>
 
-            <p className="mt-4 max-w-130t-[17px] leading-relaxed text-[#536174]">
-              We&apos;ve dispatched a 6-digit cryptographic verification token
-              to your registered address. Enter the code below to activate your
-              analyst access.
+            <p className="mt-4 text-[16px] leading-relaxed text-[#536174] dark:text-slate-400">
+              Kami telah mengirimkan <strong>Magic Link</strong> ke email Anda.
+              Cukup buka email dan klik link tersebut untuk langsung masuk ke LIMINA tanpa perlu password.
             </p>
 
-            <div className="mt-8 w-full max-w-130nded-xl border border-[#dfe2ea] dark:border-slate-600 bg-[#f1f4f5] dark:bg-slate-800 px-3 py-3 shadow-sm">
-              <div className="flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
-                <span className="flex items-center gap-2 text-[#6d788a]">
-                  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#dff8ee] text-[#1d9d75]">
-                    <Check className="h-3 w-3" />
+            {/* Email destination pill */}
+            {pendingEmail && (
+              <div className="mt-6 w-full max-w-130 rounded-xl border border-[#dfe2ea] dark:border-slate-700 bg-[#f1f4f5] dark:bg-slate-800/80 px-4 py-3.5 shadow-sm">
+                <div className="flex items-center justify-between gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
+                  <span className="flex items-center gap-2">
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#dff8ee] text-[#1d9d75]">
+                      <Check className="h-3 w-3" />
+                    </span>
+                    Tujuan Pengiriman
                   </span>
-                  Destination Endpoint
-                </span>
-                <span className="text-[#f26a4d]">Wrong email? Edit</span>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate("login")}
+                    className="text-[#f26a4d] hover:underline"
+                  >
+                    Ganti Email
+                  </button>
+                </div>
+                <div className="mt-2 text-[15px] font-semibold text-slate-800 dark:text-slate-100">
+                  {maskEmail(pendingEmail)}
+                </div>
               </div>
+            )}
 
-              <div className="mt-3 flex items-center gap-2 text-[15px] font-medium text-slate-700">
-                <span className="text-[#2c4a5f]">arya.investor@gmail.com</span>
+            {/* Alerts */}
+            {error && (
+              <div
+                role="alert"
+                className="mt-4 w-full max-w-130 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-700 dark:text-red-300"
+              >
+                {error}
               </div>
-            </div>
+            )}
 
-            <div className="mt-8 w-full max-w-130">
-              <div className="mb-3 flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
-                <span>Authentication Passcode</span>
-                <span>6-digit numeric</span>
+            {successMsg && (
+              <div
+                role="alert"
+                className="mt-4 w-full max-w-130 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300 flex items-center gap-2"
+              >
+                <Check className="h-4 w-4 shrink-0" />
+                {successMsg}
               </div>
+            )}
 
-              <div className="grid grid-cols-6 gap-3">
-                {otpDigits.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    defaultValue={digit}
-                    className={`h-16 rounded-xl border bg-white text-center text-2xl font-semibold text-slate-700 outline-none transition focus:border-[#2f6ef4] focus:ring-2 focus:ring-[#2f6ef4]/20 ${
-                      index === 4 || index === 5
-                        ? "border-[#d8dfe9] bg-white/90"
-                        : "border-[#dfe2ea]"
-                    }`}
-                  />
-                ))}
-              </div>
+            {/* Action buttons */}
+            <div className="mt-8 w-full max-w-130 space-y-3">
+              {/* Primary: Open Webmail */}
+              <a
+                href={getWebmailUrl(pendingEmail)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#f26a4d] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#f26a4d]/25 transition hover:bg-[#d95e39] active:scale-[0.99]"
+              >
+                <Mail className="h-4 w-4" />
+                Buka Email Sekarang
+                <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+              </a>
 
-              <div className="mt-4 flex items-center justify-between text-[12px] text-[#6d788a]">
-                <span className="flex items-center gap-2">
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#f3f5f7] text-[#8895a6]">
-                    <Sparkles className="h-3 w-3" />
-                  </span>
-                  Code expires in: 04:42
-                </span>
-                <button type="button" className="font-medium text-[#f26a4d]">
-                  Resend Code (42s)
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-6 w-full max-w-[520px] rounded-xl border border-[#dfe2ea] bg-white/40 px-4 py-3 text-sm text-[#4c5d72] shadow-sm">
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[#d5dfe5] bg-[#eef3f7] text-[#7d8ca0]">
-                  <Check className="h-3 w-3" />
-                </span>
-                <span>
-                  Tokens are time-locked and cryptographically bound to your
-                  current browser session. Never disclose this code to anyone.
-                </span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onNavigate("dashboard")}
-              className="mt-8 flex w-full max-w-[520px] items-center justify-center gap-3 rounded-xl bg-[#101a2b] px-5 py-4 text-lg font-semibold text-white shadow-[0_12px_30px_rgba(16,26,43,0.22)] transition hover:bg-[#18273d]"
-            >
-              Confirm &amp; Enter Dashboard <ArrowRight className="h-5 w-5" />
-            </button>
-
-            <div className="mt-6 flex w-full max-w-[520px] items-center justify-between text-sm text-[#4c5d72]">
+              {/* Secondary: Resend Link */}
               <button
                 type="button"
-                onClick={() => onNavigate("register")}
-                className="font-medium text-[#2a3547]"
+                onClick={handleResendMagicLink}
+                disabled={resendCooldown > 0 || resendLoading}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfe2ea] dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-slate-700/60 disabled:opacity-50"
               >
-                ← Back to Registration
+                {resendLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Mengirim Link Baru...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4" />
+                    {resendCooldown > 0
+                      ? `Kirim Ulang Link (${resendCooldown}s)`
+                      : "Kirim Ulang Magic Link"}
+                  </>
+                )}
               </button>
-              <button type="button" className="font-medium text-[#4d5c72]">
-                Use Hardware Key instead
+            </div>
+
+            {/* Optional Fallback: Manual 6-digit Code */}
+            <div className="mt-8 w-full max-w-130 border-t border-slate-200 dark:border-slate-800 pt-6">
+              {!showManualCode ? (
+                <button
+                  type="button"
+                  onClick={() => setShowManualCode(true)}
+                  className="flex items-center gap-2 text-xs font-semibold text-[#6d788a] dark:text-slate-400 hover:text-[#f26a4d] transition"
+                >
+                  <KeyRound className="h-3.5 w-3.5" />
+                  Menerima kode 6 digit di email? Masukkan kode secara manual
+                </button>
+              ) : (
+                <form onSubmit={handleVerifyManual} className="space-y-4">
+                  <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#6d788a]">
+                    <span>Masukkan Kode 6 Digit</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowManualCode(false)}
+                      className="text-xs text-[#f26a4d] hover:underline normal-case"
+                    >
+                      Tutup
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-6 gap-2 sm:gap-3" onPaste={handlePaste}>
+                    {digits.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => {
+                          inputRefs.current[index] = el;
+                        }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => handleDigitChange(index, e.target.value)}
+                        onKeyDown={(e) => handleKeyDown(index, e)}
+                        aria-label={`Digit ${index + 1}`}
+                        className="h-14 rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white dark:bg-slate-800 text-center text-xl font-semibold text-slate-700 dark:text-slate-200 outline-none transition focus:border-[#f26a4d] focus:ring-2 focus:ring-[#f26a4d]/20"
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || digits.join("").length !== 6}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-700 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <>
+                        Verifikasi Kode
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* Back to Login */}
+            <div className="mt-8 text-center text-xs text-slate-500 w-full max-w-130">
+              Sudah verifikasi atau ingin mencoba cara lain?{" "}
+              <button
+                type="button"
+                onClick={() => onNavigate("login")}
+                className="font-bold text-[#f26a4d] hover:underline"
+              >
+                Kembali ke Login
               </button>
             </div>
           </main>
-
-          <footer className="flex items-center justify-between gap-3 border-t border-[#ddd7cf] dark:border-slate-700 pt-4 text-[11px] text-[#7a8190] dark:text-slate-500">
-            <span>© 2025 Lima Financial Analytics</span>
-            <span>Zero Server Footprint</span>
-          </footer>
         </div>
 
-        <aside className="relative hidden overflow-hidden bg-[#070d17] text-white lg:flex">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,140,80,0.18),transparent_28%),radial-gradient(circle_at_70%_20%,rgba(255,118,0,0.15),transparent_30%),linear-gradient(180deg,#070d17_0%,#0d1525_100%)]" />
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              backgroundImage: "radial-gradient(#f7a45b 1px, transparent 1px)",
-              backgroundSize: "12px 12px",
-              maskImage:
-                "radial-gradient(circle at 50% 50%, black, transparent 85%)",
-            }}
-          />
+        {/* ── Right panel: Visual decoration ── */}
+        <div className="relative hidden flex-col justify-between overflow-hidden bg-[#1a1c24] p-12 text-white lg:flex xl:p-16">
+          <div className="absolute inset-0 bg-[radial-gradient(#2d3345_1px,transparent_1px)] [background-size:20px_20px] opacity-25" />
+          <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-[#f26a4d]/15 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-[#3b82f6]/15 blur-3xl" />
 
-          <div className="relative z-10 flex w-full flex-col px-10 py-8 xl:px-12 xl:py-10">
-            <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#d5dff5]">
-              <span className="inline-flex h-3 w-3 items-center justify-center rounded-full bg-[#f9a15d] text-[8px] text-[#0b1222]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0b1222]" />
-              </span>
-              Identity Federation
-              <span className="text-[#8ea4c7]">// Cluster: IDX-JKT-01</span>
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-slate-400 backdrop-blur-md">
+              Passwordless · PKCE Flow
+            </span>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <ShieldCheck className="h-4 w-4 text-[#25c28a]" />
+              End-to-End Encrypted Session
+            </div>
+          </div>
+
+          <div className="relative z-10 my-auto max-w-lg space-y-6">
+            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-[#f26a4d]/10 border border-[#f26a4d]/30 text-[#f26a4d]">
+              <Mail className="h-8 w-8 animate-pulse" />
             </div>
 
-            <div className="mt-8 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#9ad6c0]">
-              <span className="rounded-md border border-[#2b9f7a] bg-[#0e1e1b] px-2 py-1 text-[#98f0c7]">
-                Encryption: AES-GCM-256
-              </span>
-              <span className="text-[#8ea4c7]">• Sync: Active</span>
-            </div>
-
-            <div className="mt-10 flex items-center gap-2 rounded-full border border-[#f7a15d]/50 bg-[#20160d] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#f7b364]">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Zero-Trust Retail Defense
-            </div>
-
-            <h2 className="mt-8 max-w-[580px] text-[3.1rem] font-semibold leading-[0.96] tracking-[-0.06em] text-white xl:text-[3.4rem]">
-              Protecting your portfolio with mathematical rigor.
+            <h2 className="text-3xl font-bold tracking-tight text-white xl:text-4xl">
+              Autentikasi Aman, Cepat, Tanpa Password.
             </h2>
 
-            <p className="mt-5 max-w-[600px] text-lg leading-relaxed text-[#a9b8d0]">
-              Limina executes deterministic market-suspension modeling inside
-              isolated browser memory. Confirmation of your primary endpoint
-              guarantees exclusive custody of early alerts.
+            <p className="text-base text-slate-400 leading-relaxed">
+              Magic Link menggunakan token kriptografis sekali pakai yang menjamin hanya pemilik email sah yang dapat mengakses akun analisis pasar LIMINA.
             </p>
 
-            <div className="mt-8 space-y-4">
+            <div className="space-y-3 pt-2">
               {[
-                {
-                  title: "Instant Activation",
-                  detail:
-                    "Upon verification, your workspace unlocks instant point-in-time scanning across all IDX listed equities without server latency.",
-                  tag: "920+ Tickers",
-                  icon: "⚡",
-                  accent: "bg-[#1f2d3d] text-[#c7d9ff]",
-                },
-                {
-                  title: "FIDO2 & TOTP Compatibility",
-                  detail:
-                    "Pair physical YubiKeys or offline authenticator applications in Settings to enforce stronger biometrics for all session refreshes.",
-                  tag: "Hardware Ready",
-                  icon: "🔐",
-                  accent: "bg-[#183b31] text-[#9fe7d9]",
-                },
-                {
-                  title: "Client-Side Zero Query Telemetry",
-                  detail:
-                    "Calculations operate locally on pre-compiled WASM binaries. Your watchlists, open positions, and queries are never logged off-device.",
-                  tag: "WASM Enclave",
-                  icon: "🛰️",
-                  accent: "bg-[#1b2c46] text-[#b8c9ff]",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-[#23314f] bg-[#0d1728]/90 px-4 py-4 shadow-[inset_0_0_0_1px_rgba(138,167,204,0.08)]"
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.accent}`}
-                    >
-                      {item.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-[15px] font-semibold text-[#eef5ff]">
-                          {item.title}
-                        </div>
-                        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8ea4c7]">
-                          {item.tag}
-                        </div>
-                      </div>
-                      <p className="mt-2 text-sm leading-relaxed text-[#a9b8d0]">
-                        {item.detail}
-                      </p>
-                    </div>
+                "Tidak ada password yang rentan dicuri atau bocor",
+                "Verifikasi otomatis sekali klik langsung dari browser Anda",
+                "Sesi terenkripsi dengan standar perlindungan enterprise",
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-3 text-sm text-slate-300">
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                    <Check className="h-3 w-3" />
                   </div>
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
-
-            <div className="mt-8 grid max-w-[620px] grid-cols-3 gap-3 rounded-2xl border border-[#213150] bg-[#0b1424] px-4 py-4 text-left">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8fa3c3]">
-                  Disp. SLA
-                </div>
-                <div className="mt-2 text-[30px] font-semibold text-[#ffc77f]">
-                  142 ms
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8fa3c3]">
-                  Cipher Suite
-                </div>
-                <div className="mt-2 text-[30px] font-semibold text-[#ffc77f]">
-                  TLS 1.3
-                </div>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8fa3c3]">
-                  Auth Level
-                </div>
-                <div className="mt-2 text-[30px] font-semibold text-[#49e2a5]">
-                  2- Tier
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 border-t border-[#1d2d46] pt-5 text-[11px] uppercase tracking-[0.18em] text-[#9ab0d6]">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-sm border border-[#fe9e63] text-[#fe9e63]">
-                  <Check className="h-2.5 w-2.5" />
-                </span>
-                Part of Track 03: Market Intelligence • Secure Gateway Auth
-              </div>
-              <div className="mt-2 font-medium text-[#d4dff7]">
-                Limina Kernel v2.4.8-rc • IDX Feeds
-              </div>
-            </div>
           </div>
-        </aside>
+
+          <div className="relative z-10 text-xs text-slate-500">
+            &copy; 2026 LIMINA · Market Intelligence Platform
+          </div>
+        </div>
       </div>
     </div>
   );

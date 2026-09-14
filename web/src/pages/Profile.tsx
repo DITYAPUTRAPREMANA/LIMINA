@@ -1,30 +1,35 @@
-import { useState } from "react";
+/**
+ * Profile.tsx — LIMINA
+ *
+ * Security:
+ * - User data loaded from Supabase session (server-authoritative)
+ * - Profile updates sent to Supabase auth.updateUser (not directly editable client-side)
+ * - Logout triggers full page reload (clears all in-memory state)
+ * - Email field read-only (changing email requires Supabase re-verification flow)
+ * - Name/alias inputs validated before saving
+ * - No sensitive data logged
+ */
+
+import { useCallback, useEffect, useState } from "react";
 import {
   BarChart3,
   FileText,
   Landmark,
+  Loader2,
+  LogOut,
   Save,
   Search,
   ShieldCheck,
   User,
 } from "lucide-react";
 import AppShell from "../components/AppShell";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import { validateName } from "../lib/validation";
+import type { View } from "../App";
 
 type ProfilePageProps = {
-  onNavigate: (
-    view:
-      | "home"
-      | "register"
-      | "login"
-      | "otp"
-      | "success"
-      | "dashboard"
-      | "search"
-      | "evidence"
-      | "methodology"
-      | "profile"
-      | "not-found",
-  ) => void;
+  onNavigate: (view: View) => void;
 };
 
 const menuItems = [
@@ -36,28 +41,103 @@ const menuItems = [
 ];
 
 const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
+  const { user, signOut, updateProfile } = useAuth();
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "Raden Arya",
-    alias: "Arya",
-    email: "r.arya@limina.id",
-    phone: "+62 812 3456 7890",
-    company: "Limina Research",
-    role: "Retail Analyst",
-    location: "Jakarta, Indonesia",
-    plan: "Free Retail Tier",
-  });
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  // Initialize form data from Supabase session user metadata.
+  // Using a lazy initializer avoids the setState-in-effect anti-pattern.
+  const [formData, setFormData] = useState(() => ({
+    full_name: user?.user_metadata?.full_name ?? "",
+    alias: user?.user_metadata?.alias ?? "",
+    phone: user?.user_metadata?.phone ?? "",
+    company: user?.user_metadata?.company ?? "",
+    role: user?.user_metadata?.role ?? "",
+    location: user?.user_metadata?.location ?? "",
+  }));
+
+  // Sync profile data from Supabase `profiles` table if available
+  useEffect(() => {
+    let mounted = true;
+    async function loadProfileFromDb() {
+      if (!user?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (!error && data && mounted) {
+          setFormData((prev) => ({
+            full_name: data.full_name || prev.full_name,
+            alias: data.alias || prev.alias,
+            phone: data.phone || prev.phone,
+            company: data.company || prev.company,
+            role: data.role || prev.role,
+            location: data.location || prev.location,
+          }));
+        }
+      } catch (err) {
+        console.warn("[Profile] Error loading DB profile:", err);
+      }
+    }
+    loadProfileFromDb();
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
 
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setSaveSuccess(false);
+    setSaveError(null);
   };
+
+  const handleSave = useCallback(async () => {
+    setSaveError(null);
+    setSaveSuccess(false);
+
+    // Validate name before saving
+    const nameResult = validateName(formData.full_name);
+    if (!nameResult.valid) {
+      setSaveError(nameResult.error ?? "Nama tidak valid.");
+      return;
+    }
+
+    setSaving(true);
+    const { error } = await updateProfile(formData);
+    setSaving(false);
+
+    if (error) {
+      setSaveError(error);
+      return;
+    }
+    setSaveSuccess(true);
+  }, [formData, updateProfile]);
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true);
+    await signOut();
+    // signOut() triggers window.location.href = '/' so we don't need to navigate
+  }, [signOut]);
 
   const navItems = menuItems.map((item) => ({
     ...item,
     onClick: () => { setSidebarOpen(false); onNavigate(item.view); },
   }));
 
-  const inputClass = "w-full rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-3 text-[15px] text-slate-700 dark:text-slate-200 outline-none focus:border-[#b5c6d9]";
+  const inputClass =
+    "w-full rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-3 text-[15px] text-slate-700 dark:text-slate-200 outline-none focus:border-[#b5c6d9] transition";
+
+  // Initials for avatar (from full name)
+  const initials = formData.full_name
+    ? formData.full_name.split(" ").slice(0, 2).map((w: string) => w[0] ?? "").join("").toUpperCase()
+    : user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
     <AppShell
@@ -65,59 +145,120 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
       onSidebarOpen={() => setSidebarOpen(true)}
       onSidebarClose={() => setSidebarOpen(false)}
       navItems={navItems}
+      onNavigate={onNavigate}
+      currentView="profile"
     >
       <div className="mx-auto max-w-[1100px]">
         <div className="flex flex-col gap-4 border-b border-[#d8d3cd] dark:border-slate-700 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-[-0.07em] text-[#111827] dark:text-slate-100 sm:text-4xl lg:text-5xl">Profile</h1>
-            <p className="mt-2 text-[1.05rem] text-[#5b6675] dark:text-slate-400">Manage your account and user details</p>
+            <h1 className="text-3xl font-bold tracking-[-0.07em] text-[#111827] dark:text-slate-100 sm:text-4xl lg:text-5xl">
+              Profile
+            </h1>
+            <p className="mt-2 text-[1.05rem] text-[#5b6675] dark:text-slate-400">
+              Kelola akun dan informasi pengguna Anda
+            </p>
           </div>
-          <button
-            type="button"
-            onClick={() => onNavigate("dashboard")}
-            className="inline-flex items-center justify-center rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-[#273244] dark:text-slate-200"
-          >
-            Back to Dashboard
-          </button>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => onNavigate("dashboard")}
+              className="inline-flex items-center justify-center rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-[#273244] dark:text-slate-200"
+            >
+              Ke Dashboard
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-4 py-2.5 text-sm font-semibold text-red-600 dark:text-red-400 transition hover:bg-red-100 disabled:opacity-60"
+            >
+              {loggingOut ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <LogOut className="h-4 w-4" />
+              )}
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+          {/* ── Avatar card ── */}
           <div className="rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 p-5 shadow-sm">
             <div className="flex flex-col items-center text-center">
               <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#101a2b] dark:bg-violet-700 text-3xl font-black text-white shadow-lg">
-                {formData.name.split(" ").slice(0, 2).map((w) => w[0]).join("")}
+                {initials}
               </div>
-              <h2 className="mt-4 text-2xl font-bold tracking-[-0.06em] text-[#111827] dark:text-slate-100">{formData.name}</h2>
-              <p className="mt-1 text-[#58677a] dark:text-slate-400">{formData.role}</p>
-              <div className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfe4ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-[#1f2937] dark:text-slate-200">
+              <h2 className="mt-4 text-2xl font-bold tracking-[-0.06em] text-[#111827] dark:text-slate-100">
+                {formData.full_name || "Pengguna"}
+              </h2>
+              <p className="mt-1 text-[#58677a] dark:text-slate-400">
+                {formData.role || "Retail Analyst"}
+              </p>
+
+              {/* Email — read only (cannot change without re-verification) */}
+              <div className="mt-3 w-full rounded-xl border border-[#dfe4ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-[#536174] dark:text-slate-400">
+                {user?.email ?? "—"}
+              </div>
+
+              <div className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfe4ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-[#1f2937] dark:text-slate-200">
                 <ShieldCheck className="h-4 w-4 text-[#2ec784]" />
-                {formData.plan}
+                Free Retail Tier
               </div>
             </div>
           </div>
 
+          {/* ── Edit form ── */}
           <div className="rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 p-5 shadow-sm sm:p-6">
             <div className="mb-6 flex items-center justify-between gap-3">
               <div>
-                <div className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#7a8697] dark:text-slate-400">Account Settings</div>
-                <h3 className="mt-2 text-2xl font-bold tracking-[-0.06em] text-[#111827] dark:text-slate-100">Personal Information</h3>
+                <div className="text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#7a8697] dark:text-slate-400">
+                  Account Settings
+                </div>
+                <h3 className="mt-2 text-2xl font-bold tracking-[-0.06em] text-[#111827] dark:text-slate-100">
+                  Personal Information
+                </h3>
               </div>
-              <button type="button" className="inline-flex items-center gap-2 rounded-xl bg-[#101a2b] dark:bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white">
-                <Save className="h-4 w-4" /> Save Changes
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#101a2b] dark:bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {saving ? "Menyimpan…" : "Simpan"}
               </button>
             </div>
 
+            {/* Status messages */}
+            {saveSuccess && (
+              <div className="mb-4 rounded-xl border border-[#cfe7dd] bg-[#ebfff7] px-4 py-3 text-sm text-[#1f7d5d]">
+                ✓ Profil berhasil disimpan.
+              </div>
+            )}
+            {saveError && (
+              <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+                {saveError}
+              </div>
+            )}
+
             <div className="grid gap-5 md:grid-cols-2">
               {[
-                { label: "Full Name", field: "name" },
+                { label: "Full Name *", field: "full_name" },
                 { label: "Alias", field: "alias" },
-                { label: "Email", field: "email" },
                 { label: "Phone", field: "phone" },
                 { label: "Company", field: "company" },
                 { label: "Role", field: "role" },
               ].map(({ label, field }) => (
                 <div key={field}>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">{label}</label>
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">
+                    {label}
+                  </label>
                   <input
                     value={formData[field as keyof typeof formData]}
                     onChange={(e) => handleChange(field as keyof typeof formData, e.target.value)}
@@ -126,12 +267,30 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 </div>
               ))}
               <div className="md:col-span-2">
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">Location</label>
-                <input value={formData.location} onChange={(e) => handleChange("location", e.target.value)} className={inputClass} />
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">
+                  Location
+                </label>
+                <input
+                  value={formData.location}
+                  onChange={(e) => handleChange("location", e.target.value)}
+                  className={inputClass}
+                />
               </div>
+
+              {/* Email — read-only */}
               <div className="md:col-span-2">
-                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">Current Plan</label>
-                <input value={formData.plan} onChange={(e) => handleChange("plan", e.target.value)} className={inputClass} />
+                <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a] dark:text-slate-400">
+                  Email (read-only)
+                </label>
+                <input
+                  readOnly
+                  value={user?.email ?? ""}
+                  className={`${inputClass} cursor-not-allowed opacity-60`}
+                  title="Email tidak dapat diubah langsung. Hubungi support jika perlu mengubah email."
+                />
+                <p className="mt-1 text-[11px] text-[#7a8697] dark:text-slate-500">
+                  Untuk mengubah email, diperlukan verifikasi ulang via Supabase.
+                </p>
               </div>
             </div>
           </div>
