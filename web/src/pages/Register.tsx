@@ -1,17 +1,3 @@
-/**
- * Register.tsx — LIMINA
- *
- * Security:
- * - All fields validated with allow-list patterns before submission
- * - Password strength enforced (min 8 chars) — Supabase also enforces server-side
- * - Password match validated before API call
- * - Terms agreement required (checkbox guard)
- * - Email stored lowercase to prevent duplicate account variants
- * - OTP email triggered by Supabase on successful signup
- * - No sensitive data logged
- * - TODO(security): Add leaked-password check (HaveIBeenPwned API) before creating account
- */
-
 import { useMemo, useRef, useState } from "react";
 import { Activity, ArrowRight, Check, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import BrandLogo from "../components/BrandLogo";
@@ -24,9 +10,6 @@ import {
 } from "../lib/validation";
 import type { View } from "../App";
 
-// Shared between Register and OTP pages via sessionStorage
-// (not localStorage — cleared when tab closes, safer for transient state)
-// Only the email (non-secret) is stored here — never the password.
 export const OTP_EMAIL_KEY = "limina_pending_otp_email";
 
 type RegisterPageProps = {
@@ -146,8 +129,6 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
       return;
     }
 
-    // Store only the email (non-secret) in sessionStorage for the OTP page
-    // This is cleared automatically when the tab closes
     sessionStorage.setItem(OTP_EMAIL_KEY, email.trim().toLowerCase());
     onNavigate("otp");
   };
@@ -158,7 +139,6 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
   return (
     <div className="min-h-screen w-full bg-[#f5f3ee] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="grid min-h-screen lg:grid-cols-2">
-        {/* ── Left panel: Registration form ── */}
         <div className="bg-[#f5f3ee] dark:bg-[#13141a] px-5 sm:px-8 md:px-10 lg:px-12 xl:px-16 py-8 sm:py-10 lg:py-8 flex flex-col">
           <div className="flex items-center justify-between mb-10">
             <BrandLogo className="h-10 w-auto" alt="Limina logo" />
@@ -356,7 +336,6 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
           </div>
         </div>
 
-        {/* ── Right panel: decorative ── */}
         <div className="relative hidden lg:flex overflow-hidden bg-[#070d17] text-white">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,140,80,0.18),transparent_28%),radial-gradient(circle_at_70%_20%,rgba(255,118,0,0.15),transparent_30%),linear-gradient(180deg,#070d17_0%,#0d1525_100%)]" />
           <div

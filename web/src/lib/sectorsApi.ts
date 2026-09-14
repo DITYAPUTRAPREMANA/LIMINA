@@ -65,7 +65,6 @@ export interface DashboardStockItem {
   historicalPrices: number[];
 }
 
-// ── Baseline Accurate Fallback Dataset for the 12 Requested Stocks ────────────
 export const BASELINE_STOCKS: DashboardStockItem[] = [
   {
     ticker: "BELI",

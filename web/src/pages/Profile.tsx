@@ -1,15 +1,3 @@
-/**
- * Profile.tsx — LIMINA
- *
- * Security:
- * - User data loaded from Supabase session (server-authoritative)
- * - Profile updates sent to Supabase auth.updateUser (not directly editable client-side)
- * - Logout triggers full page reload (clears all in-memory state)
- * - Email field read-only (changing email requires Supabase re-verification flow)
- * - Name/alias inputs validated before saving
- * - No sensitive data logged
- */
-
 import { useCallback, useEffect, useState } from "react";
 import {
   BarChart3,
@@ -49,8 +37,6 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Initialize form data from Supabase session user metadata.
-  // Using a lazy initializer avoids the setState-in-effect anti-pattern.
   const [formData, setFormData] = useState(() => ({
     full_name: user?.user_metadata?.full_name ?? "",
     alias: user?.user_metadata?.alias ?? "",
@@ -60,7 +46,6 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
     location: user?.user_metadata?.location ?? "",
   }));
 
-  // Sync profile data from Supabase `profiles` table if available
   useEffect(() => {
     let mounted = true;
     async function loadProfileFromDb() {
@@ -102,7 +87,6 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
     setSaveError(null);
     setSaveSuccess(false);
 
-    // Validate name before saving
     const nameResult = validateName(formData.full_name);
     if (!nameResult.valid) {
       setSaveError(nameResult.error ?? "Nama tidak valid.");
@@ -123,7 +107,6 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
   const handleLogout = useCallback(async () => {
     setLoggingOut(true);
     await signOut();
-    // signOut() triggers window.location.href = '/' so we don't need to navigate
   }, [signOut]);
 
   const navItems = menuItems.map((item) => ({
@@ -134,7 +117,6 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
   const inputClass =
     "w-full rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-3 text-[15px] text-slate-700 dark:text-slate-200 outline-none focus:border-[#b5c6d9] transition";
 
-  // Initials for avatar (from full name)
   const initials = formData.full_name
     ? formData.full_name.split(" ").slice(0, 2).map((w: string) => w[0] ?? "").join("").toUpperCase()
     : user?.email?.[0]?.toUpperCase() ?? "?";

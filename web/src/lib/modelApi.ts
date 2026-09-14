@@ -1,10 +1,3 @@
-/**
- * modelApi.ts — LIMINA AI Model Client
- *
- * Dedicated client untuk memanggil server FastAPI model AI yang dijalankan secara terpisah.
- * Endpoint default: /api/model -> http://127.0.0.1:8000 (dikonfigurasi via Vite proxy & VITE_MODEL_API_URL)
- */
-
 import { BASELINE_STOCKS, type DashboardStockItem } from "./sectorsApi";
 
 export interface ModelPrediction {
@@ -51,9 +44,6 @@ export interface ModelHealth {
 
 const MODEL_API_BASE = "/api/model/api/v1";
 
-/**
- * Cek status kesehatan server FastAPI model yang berjalan terpisah
- */
 export async function checkModelServerHealth(): Promise<{
   online: boolean;
   data?: ModelHealth;
@@ -62,23 +52,18 @@ export async function checkModelServerHealth(): Promise<{
     const res = await fetch(`${MODEL_API_BASE}/health`, {
       method: "GET",
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(2500),
+      signal: AbortSignal.timeout(2000),
     });
     if (res.ok) {
       const data: ModelHealth = await res.json();
       return { online: true, data };
     }
   } catch {
-    // Server model terpisah belum aktif
+    // Model server offline
   }
   return { online: false };
 }
 
-/**
- * Memanggil endpoint GET /rankings dari server FastAPI model terpisah.
- * Jika server terpisah aktif, data ranking hasil model AI akan digunakan.
- * Jika server terpisah offline, fallback ke baseline dataset 12 saham.
- */
 export async function fetchLiveModelRankings(): Promise<{
   stocks: DashboardStockItem[];
   isFromRemoteModel: boolean;
@@ -88,13 +73,12 @@ export async function fetchLiveModelRankings(): Promise<{
     const res = await fetch(`${MODEL_API_BASE}/rankings`, {
       method: "GET",
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(3000),
     });
 
     if (res.ok) {
       const json: ModelUniverseRankings = await res.json();
       if (Array.isArray(json.rankings) && json.rankings.length > 0) {
-        // Map hasil server FastAPI model ke format Dashboard UI
         const mappedStocks: DashboardStockItem[] = json.rankings.map(
           (pred, idx) => {
             const base =
@@ -136,24 +120,16 @@ export async function fetchLiveModelRankings(): Promise<{
         };
       }
     }
-  } catch (err) {
-    console.info(
-      "[LIMINA] Model server terpisah offline / standby. Menggunakan baseline universe data:",
-      err
-    );
+  } catch {
+    // Standby fallback
   }
 
-  // Fallback ke dataset presisi tinggi 12 emiten
   return {
     stocks: BASELINE_STOCKS,
     isFromRemoteModel: false,
   };
 }
 
-/**
- * Memanggil endpoint POST /predict dari server FastAPI model terpisah
- * untuk evaluasi emiten on-demand.
- */
 export async function predictStockRisk(
   ticker: string,
   customIndicators?: Record<string, unknown>
@@ -169,14 +145,14 @@ export async function predictStockRisk(
         ticker,
         custom_indicators: customIndicators,
       }),
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(4000),
     });
 
     if (res.ok) {
       return (await res.json()) as ModelPrediction;
     }
-  } catch (err) {
-    console.warn(`[LIMINA] Predict API error for ${ticker}:`, err);
+  } catch {
+    // Prediction request failed
   }
   return null;
 }

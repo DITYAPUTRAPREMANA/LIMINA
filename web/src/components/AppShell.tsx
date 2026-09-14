@@ -23,7 +23,6 @@ type AppShellProps = {
   currentView?: View;
 };
 
-/** Shared sidebar + layout shell for all authenticated app pages. */
 const AppShell = ({
   children,
   sidebarOpen,
@@ -36,7 +35,6 @@ const AppShell = ({
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
 
-  // Compute initials & display identity
   const initials = user?.user_metadata?.full_name
     ? user.user_metadata.full_name
       .split(" ")
@@ -53,7 +51,6 @@ const AppShell = ({
   return (
     <div className="min-h-screen bg-[#f3f2ef] dark:bg-[#13141a] text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="flex min-h-screen">
-        {/* Mobile hamburger */}
         <button
           type="button"
           aria-label="Open menu"
@@ -65,7 +62,6 @@ const AppShell = ({
           </svg>
         </button>
 
-        {/* Overlay */}
         <div
           className={[
             "fixed inset-0 z-30 bg-slate-950/25 dark:bg-slate-950/60 transition-opacity lg:hidden",
@@ -74,7 +70,6 @@ const AppShell = ({
           onClick={onSidebarClose}
         />
 
-        {/* Sidebar */}
         <aside
           className={[
             "fixed inset-y-0 left-0 z-40 w-[260px] border-r border-[#d8d3cd] dark:border-slate-700 bg-[#f3f2ef] dark:bg-[#13141a] px-5 py-6 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:shrink-0 flex flex-col justify-between",
@@ -91,7 +86,6 @@ const AppShell = ({
               </div>
 
               <div className="flex items-center gap-1 lg:hidden">
-                {/* Theme toggle inside mobile sidebar */}
                 <button
                   type="button"
                   aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
@@ -133,7 +127,6 @@ const AppShell = ({
             </nav>
           </div>
 
-          {/* Sidebar bottom: User profile button + Theme toggle */}
           <div className="mt-6 pt-4 border-t border-[#d8d3cd]/70 dark:border-slate-800 space-y-2.5">
             {onNavigate && (
               <button
@@ -164,7 +157,6 @@ const AppShell = ({
               </button>
             )}
 
-            {/* Theme toggle — desktop sidebar bottom */}
             <button
               type="button"
               id="theme-toggle-sidebar"
@@ -178,7 +170,6 @@ const AppShell = ({
           </div>
         </aside>
 
-        {/* Main content */}
         <main className="flex-1 min-w-0 px-4 py-5 sm:px-8 lg:px-10">
           {children}
         </main>

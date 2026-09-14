@@ -97,7 +97,6 @@ const IDX_NOTATIONS: NotationItem[] = [
 const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Interactive Simulator State
   const [simDer, setSimDer] = useState<number>(2.2);
   const [simCr, setSimCr] = useState<number>(1.2);
   const [simNegativeEquity, setSimNegativeEquity] = useState<boolean>(false);
@@ -105,10 +104,8 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
   const [simPriceFloor, setSimPriceFloor] = useState<boolean>(false);
   const [simVolatility, setSimVolatility] = useState<number>(28);
 
-  // Selected Notation Category Filter
   const [selectedNotationCat, setSelectedNotationCat] = useState<string>("All");
 
-  // Calculate live simulated risk score
   const calculateSimulatedScore = (): {
     score: number;
     level: "Critical" | "High Watch" | "Low Risk";

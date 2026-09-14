@@ -1,16 +1,3 @@
-/**
- * Login.tsx — LIMINA
- *
- * Security:
- * - All inputs validated before submission
- * - Error messages are generic (mapped in AuthContext — no internal info leakage)
- * - Password field never logged or stored outside controlled React state
- * - Form state cleared on unmount is handled by React's controlled component lifecycle
- * - Loading state prevents double-submission
- * - TODO(security): Add rate-limiting feedback UI (Supabase enforces server-side)
- * - TODO(security): Add OAuth (Google/GitHub) sign-in option
- */
-
 import { useState } from "react";
 import { ArrowRight, Check, Circle, Eye, EyeOff, Loader2, Mail, ShieldCheck } from "lucide-react";
 import BrandLogo from "../components/BrandLogo";
@@ -277,7 +264,6 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
               </button>
             </form>
 
-            {/* Security note */}
             <div className="mt-5 w-full max-w-140 rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white/40 dark:bg-slate-800/60 px-4 py-3 text-sm text-[#4c5d72] dark:text-slate-400 shadow-sm">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-[#7db7b8] bg-[#ecfafa] text-[#1e7a73]">

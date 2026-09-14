@@ -43,18 +43,15 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
   const [stocks, setStocks] = useState<DashboardStockItem[]>(BASELINE_STOCKS);
   const [loading, setLoading] = useState(false);
 
-  // Search & Filter state
   const [query, setQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskFilter>("all");
   const [sectorFilter, setSectorFilter] = useState<string>("All Sectors");
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Modal inspection
   const [selectedStock, setSelectedStock] = useState<DashboardStockItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load stocks on mount
   useEffect(() => {
     let mounted = true;
     async function loadData() {
@@ -76,13 +73,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
     };
   }, []);
 
-  // Available unique sectors
   const sectors = useMemo(() => {
     const list = Array.from(new Set(stocks.map((s) => s.sector)));
     return ["All Sectors", ...list.sort()];
   }, [stocks]);
 
-  // Counts for risk badges
   const counts = useMemo(() => {
     return {
       all: stocks.length,
@@ -92,13 +87,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
     };
   }, [stocks]);
 
-  // Filtered & Sorted stocks
   const filteredStocks = useMemo(() => {
     const q = query.trim().toLowerCase();
 
     return stocks
       .filter((s) => {
-        // Text query
         if (q) {
           const matchTicker = s.ticker.toLowerCase().includes(q);
           const matchCompany = s.company.toLowerCase().includes(q);
@@ -110,12 +103,10 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
           }
         }
 
-        // Risk filter tab
         if (riskFilter === "critical" && s.score < 75) return false;
         if (riskFilter === "high" && (s.score < 40 || s.score >= 75)) return false;
         if (riskFilter === "normal" && s.score >= 40) return false;
 
-        // Sector filter
         if (sectorFilter !== "All Sectors" && s.sector !== sectorFilter) return false;
 
         return true;
@@ -129,7 +120,6 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
       });
   }, [stocks, query, riskFilter, sectorFilter, sortBy]);
 
-  // Reset all filters
   const handleResetFilters = () => {
     setQuery("");
     setRiskFilter("all");
@@ -137,7 +127,6 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
     setSortBy("score-desc");
   };
 
-  // CSV Export
   const handleExportCSV = () => {
     const headers = [
       "Ticker",

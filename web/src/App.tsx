@@ -1,14 +1,3 @@
-/**
- * App.tsx — LIMINA Root
- *
- * Security: All authenticated routes check session before rendering.
- * If session is missing, user is redirected to login (fail-close principle).
- *
- * TODO(security): When app grows, replace the view-state router with
- * React Router v7 (already installed) with proper route guards and
- * history-based navigation to prevent back-button access to protected views.
- */
-
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { isSupabaseConfigured } from "./lib/supabase";
@@ -45,7 +34,6 @@ export type View =
   | "profile"
   | "forgot-password";
 
-// ── Protected routes: require auth session ────────────────────────────────────
 const PROTECTED_VIEWS: View[] = [
   "dashboard",
   "search",
@@ -54,7 +42,6 @@ const PROTECTED_VIEWS: View[] = [
   "profile",
 ];
 
-// ── Inner App (has access to AuthContext) ─────────────────────────────────────
 function AppInner() {
   const { session, loading } = useAuth();
 
@@ -101,18 +88,14 @@ function AppInner() {
     }
   }, [session, view]);
 
-  // Navigate handler with access control (fail-close for protected views)
   const navigate = (nextView: View) => {
     if (PROTECTED_VIEWS.includes(nextView) && !session) {
-      // Deny access to protected pages when not authenticated
       setView("login");
       return;
     }
     setView(nextView);
   };
 
-  // Show minimal loading while auth session is initializing
-  // to avoid flash of unauthenticated content
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f5f3ee] dark:bg-[#13141a]">
@@ -121,7 +104,6 @@ function AppInner() {
     );
   }
 
-  // Setup banner — shown when Supabase env vars are not yet configured
   const setupBanner = !isSupabaseConfigured && (
     <div
       role="alert"
@@ -179,7 +161,6 @@ function AppInner() {
     }
     if (view === "forgot-password") return <ForgotPasswordPage onNavigate={navigate} />;
 
-    // Default: home page
     return (
       <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-100 selection:text-red-900 transition-colors duration-300">
         <Navbar onNavigate={setView} />
@@ -202,8 +183,6 @@ function AppInner() {
   );
 }
 
-
-// ── Root App: wraps everything with AuthProvider ───────────────────────────────
 function App() {
   return (
     <AuthProvider>

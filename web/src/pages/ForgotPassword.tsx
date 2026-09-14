@@ -1,17 +1,3 @@
-/**
- * ForgotPassword.tsx — LIMINA
- *
- * Security:
- * - Anti-enumeration: Always shows success message regardless of whether
- *   email exists (prevents attackers from discovering registered emails)
- * - Password reset link detected via URL hash (Supabase PKCE redirect)
- * - Password strength enforced before update
- * - Password match validated client-side
- * - No email or token logged
- * - Step 2 only shown when user arrives via reset link (detectSessionInUrl)
- * - TODO(security): Add re-authentication before password change (OWASP recommendation)
- */
-
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Eye, EyeOff, Loader2, Mail, RotateCcw, ShieldCheck } from "lucide-react";
 import BrandLogo from "../components/BrandLogo";
@@ -30,22 +16,18 @@ type ForgotPasswordPageProps = {
 const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
   const { resetPassword, updatePassword, session } = useAuth();
 
-  // Detect if user arrived via password reset link
   const isResetMode =
     window.location.search.includes("reset=true") ||
     window.location.hash.includes("type=recovery") ||
-    // Also allow if they have a recovery session active
     (session?.user?.aud === "authenticated" &&
       window.location.hash.includes("access_token"));
 
-  // Step 1: request reset email
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [sendLoading, setSendLoading] = useState(false);
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  // Step 2: set new password
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNew, setShowNew] = useState(false);
@@ -55,7 +37,6 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
-  // Password strength
   const strength = (() => {
     if (!newPassword) return 0;
     let score = 0;
@@ -75,7 +56,6 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
       ? "bg-amber-500"
       : "bg-emerald-500";
 
-  // Step 1: Send reset email
   const handleSendReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError(null);
@@ -88,14 +68,11 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
     }
 
     setSendLoading(true);
-    // Anti-enumeration: resetPassword in AuthContext always returns success message
     await resetPassword(email);
     setSendLoading(false);
-    // Always show success (prevent email enumeration attack)
     setSendSuccess(true);
   };
 
-  // Step 2: Update password
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setUpdateError(null);
@@ -123,11 +100,9 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
     }
 
     setUpdateSuccess(true);
-    // Redirect to login after 2 seconds
     setTimeout(() => onNavigate("login"), 2000);
   };
 
-  // Clean up URL hash after processing (security: don't leave tokens in URL)
   useEffect(() => {
     if (isResetMode && window.location.hash.includes("access_token")) {
       window.history.replaceState({}, document.title, window.location.pathname + "?reset=true");

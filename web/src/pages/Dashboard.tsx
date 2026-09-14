@@ -53,34 +53,24 @@ type SortOption =
 
 const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Master stocks data state (from Sectors API)
   const [stocks, setStocks] = useState<DashboardStockItem[]>(BASELINE_STOCKS);
   const [loadingApi, setLoadingApi] = useState(false);
   const [isRemoteModelOnline, setIsRemoteModelOnline] = useState(false);
 
-  // Filter & Search states
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
   const [selectedSector, setSelectedSector] = useState("All Sectors");
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
 
-  // Selected ticker for chart & modal
   const [selectedTicker, setSelectedTicker] = useState<string>("BELI");
-  const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(
-    null
-  );
-
-  // Toast indicator
+  const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Fetch from separate FastAPI Model server or Sectors API on mount
   useEffect(() => {
     let mounted = true;
     const loadApiData = async () => {
       setLoadingApi(true);
-      // 1. Cek apakah server FastAPI model yang terpisah sedang aktif
       const modelResult = await fetchLiveModelRankings();
       if (!mounted) return;
 
@@ -89,7 +79,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         setIsRemoteModelOnline(true);
         setLoadingApi(false);
       } else {
-        // 2. Jika model server terpisah offline, gunakan data Sectors API / baseline universe
         const sectorsData = await fetchSectorsUniverseData();
         if (mounted) {
           setStocks(sectorsData);
@@ -112,13 +101,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     },
   }));
 
-  // Available unique sectors
   const availableSectors = useMemo(() => {
     const list = Array.from(new Set(stocks.map((s) => s.sector)));
     return ["All Sectors", ...list];
   }, [stocks]);
 
-  // Counts for chips
   const criticalCount = useMemo(
     () => stocks.filter((t) => t.score >= 85).length,
     [stocks]
@@ -132,11 +119,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     [stocks]
   );
 
-  // Filter & Sort Logic
   const filteredTickers = useMemo(() => {
     let list = [...stocks];
 
-    // 1. Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
@@ -149,7 +134,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
       );
     }
 
-    // 2. Risk Level Chip
     if (riskFilter === "critical") {
       list = list.filter((t) => t.score >= 85);
     } else if (riskFilter === "high") {
@@ -158,12 +142,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
       list = list.filter((t) => t.score < 70);
     }
 
-    // 3. Sector dropdown
     if (selectedSector !== "All Sectors") {
       list = list.filter((t) => t.sector === selectedSector);
     }
 
-    // 4. Sorting
     list.sort((a, b) => {
       if (sortBy === "score-desc") return b.score - a.score;
       if (sortBy === "score-asc") return a.score - b.score;
@@ -177,7 +159,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     return list;
   }, [stocks, searchQuery, riskFilter, selectedSector, sortBy]);
 
-  // Reset all filters
   const handleResetFilters = () => {
     setSearchQuery("");
     setRiskFilter("all");
@@ -191,7 +172,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     selectedSector !== "All Sectors" ||
     sortBy !== "score-desc";
 
-  // CSV Export Handler
   const handleExportCSV = () => {
     if (filteredTickers.length === 0) return;
 

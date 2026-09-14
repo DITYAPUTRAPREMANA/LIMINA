@@ -1,16 +1,3 @@
-/**
- * EmailOtp.tsx — LIMINA
- *
- * Magic Link & Passwordless Authentication Verification Page
- *
- * Features:
- * - Clear instructions to check email inbox for the magic verification link
- * - Direct shortcut button to open webmail provider
- * - Resend Magic Link button with 60s cooldown
- * - Fallback: expandable 6-digit passcode input in case user receives a numerical token
- * - Masked email display to protect PII
- */
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -37,7 +24,6 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
   const { verifyEmailOtp, sendMagicLink, resendOtp } = useAuth();
 
-  // Retrieve email from sessionStorage
   const [pendingEmail] = useState<string>(() => {
     return sessionStorage.getItem(OTP_EMAIL_KEY) ?? "";
   });
