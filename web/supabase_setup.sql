@@ -72,3 +72,32 @@ create trigger set_profiles_updated_at
 revoke all on public.profiles from anon;
 revoke all on public.profiles from authenticated;
 grant select, insert, update on public.profiles to authenticated;
+
+
+create table if not exists public.sectors_cache (
+  id          text        primary key,              
+  data        jsonb       not null,                 
+  fetched_at  timestamptz not null default now(),   
+  ttl_hours   int         not null default 6        
+);
+
+
+create policy "sectors_cache: select all"
+  on public.sectors_cache
+  for select
+  using (true);
+
+create policy "sectors_cache: insert all"
+  on public.sectors_cache
+  for insert
+  with check (true);
+
+create policy "sectors_cache: update all"
+  on public.sectors_cache
+  for update
+  using (true)
+  with check (true);
+
+-- Data market publik — anon & authenticated boleh baca/tulis cache
+grant select, insert, update on public.sectors_cache to anon;
+grant select, insert, update on public.sectors_cache to authenticated;

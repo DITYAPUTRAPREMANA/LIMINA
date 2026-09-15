@@ -25,22 +25,28 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
     return stocks.find((s) => s.ticker === selectedTicker) || stocks[0];
   }, [stocks, selectedTicker]);
 
-  // Generate SVG curve points for currentStock.historicalPrices
+  // Generate SVG curve points — menggunakan harga saham saat ini sebagai anchor
   const priceCurveData = useMemo(() => {
-    const prices = currentStock?.historicalPrices || [100, 105, 102, 108, 110];
+    const basePrice = currentStock?.price || 1000;
+    // Buat kurva sederhana dari harga baseline (historicalPrices sudah dihapus,
+    // gunakan fetchStockDailyHistory() untuk data historis yang lebih akurat)
+    const prices: number[] = Array.from({ length: 7 }, (_, i) => {
+      const factor = 1 + (Math.sin(i * 0.9) * 0.03 - 0.015);
+      return Math.round(basePrice * factor);
+    });
     const min = Math.min(...prices) * 0.98;
     const max = Math.max(...prices) * 1.02;
     const range = max - min || 1;
     const width = 600;
     const height = 180;
 
-    const points = prices.map((val, idx) => {
+    const points = prices.map((val: number, idx: number) => {
       const x = (idx / (prices.length - 1)) * width;
       const y = height - ((val - min) / range) * (height - 30) - 15;
       return { x, y, val };
     });
 
-    const d = points.reduce((acc, pt, i) => {
+    const d = points.reduce((acc: string, pt: { x: number; y: number; val: number }, i: number) => {
       if (i === 0) return `M ${pt.x} ${pt.y}`;
       // Smooth cubic curve
       const prev = points[i - 1];
@@ -335,7 +341,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
               />
 
               {/* Points */}
-              {priceCurveData.points.map((pt, i) => (
+              {priceCurveData.points.map((pt: { x: number; y: number; val: number }, i: number) => (
                 <circle
                   key={i}
                   cx={pt.x}

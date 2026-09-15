@@ -1,10 +1,4 @@
-/**
- * sectorsApi.ts — LIMINA
- * Integration with Sectors Financial API (api.sectors.app/v2)
- *
- * Target Universe:
- * ["BBCA", "TLKM", "ASII", "AMMN", "IMPC", "AADI", "MGLV", "SOHO", "BELI", "SRAJ", "BRPT", "TPIA"]
- */
+import { supabase, isSupabaseConfigured } from "./supabase";
 
 export const TARGET_TICKERS = [
   "BBCA",
@@ -62,7 +56,6 @@ export interface DashboardStockItem {
   leadTimeDays: number;
   lastAuditOpinion: string;
   der: string;
-  historicalPrices: number[];
 }
 
 export const BASELINE_STOCKS: DashboardStockItem[] = [
@@ -87,7 +80,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 24,
     lastAuditOpinion: "Unqualified with Explanatory Paragraph",
     der: "1.42x",
-    historicalPrices: [480, 474, 465, 460, 452, 448, 440, 436, 432],
   },
   {
     ticker: "SRAJ",
@@ -110,7 +102,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 21,
     lastAuditOpinion: "Qualified on Long-Term Debt Structure",
     der: "3.15x",
-    historicalPrices: [2250, 2280, 2310, 2340, 2380, 2390, 2410, 2420],
   },
   {
     ticker: "MGLV",
@@ -133,7 +124,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 18,
     lastAuditOpinion: "Unqualified (Going Concern Note)",
     der: "0.85x",
-    historicalPrices: [102, 98, 95, 92, 90, 89, 87, 88],
   },
   {
     ticker: "TPIA",
@@ -156,7 +146,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 15,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "1.78x",
-    historicalPrices: [7200, 7150, 7050, 6950, 6900, 6800, 6850],
   },
   {
     ticker: "BRPT",
@@ -179,7 +168,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 14,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "2.05x",
-    historicalPrices: [910, 915, 925, 930, 940, 935, 945],
   },
   {
     ticker: "AADI",
@@ -202,7 +190,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.48x",
-    historicalPrices: [6100, 6050, 5950, 5900, 5850, 5800, 5825],
   },
   {
     ticker: "IMPC",
@@ -225,7 +212,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.62x",
-    historicalPrices: [345, 348, 352, 355, 358, 360],
   },
   {
     ticker: "SOHO",
@@ -248,7 +234,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.38x",
-    historicalPrices: [630, 625, 620, 615, 612, 610],
   },
   {
     ticker: "AMMN",
@@ -271,7 +256,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.88x",
-    historicalPrices: [8200, 8350, 8500, 8600, 8720, 8850],
   },
   {
     ticker: "TLKM",
@@ -294,7 +278,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.55x",
-    historicalPrices: [2650, 2680, 2710, 2740, 2760, 2780],
   },
   {
     ticker: "ASII",
@@ -317,7 +300,6 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.41x",
-    historicalPrices: [4780, 4820, 4860, 4890, 4920, 4940],
   },
   {
     ticker: "BBCA",
@@ -340,23 +322,120 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
     leadTimeDays: 0,
     lastAuditOpinion: "Unqualified (Clean)",
     der: "0.18x",
-    historicalPrices: [9600, 9675, 9750, 9825, 9900, 9950],
   },
 ];
 
+// ─────────────────────────────────────────────────────────────
+// Cache helpers
+// ─────────────────────────────────────────────────────────────
+
+const CACHE_TTL_HOURS = 6;
+const LS_PREFIX = "limina_cache_";
+
+/** Baca cache dari Supabase. Return null jika tidak ada atau sudah kadaluarsa. */
+async function getSupabaseCache<T>(cacheKey: string): Promise<T | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const { data, error } = await supabase
+      .from("sectors_cache")
+      .select("data, fetched_at, ttl_hours")
+      .eq("id", cacheKey)
+      .maybeSingle();
+
+    if (error || !data) return null;
+
+    const ageMs =
+      Date.now() - new Date(data.fetched_at as string).getTime();
+    const ttlMs = (data.ttl_hours as number) * 60 * 60 * 1000;
+    if (ageMs > ttlMs) {
+      console.info(`[Cache] Supabase cache '${cacheKey}' kadaluarsa, refresh dari API.`);
+      return null;
+    }
+
+    console.info(`[Cache] Hit Supabase '${cacheKey}' (usia ${Math.round(ageMs / 60000)} menit).`);
+    return data.data as T;
+  } catch (e) {
+    console.warn("[Cache] Supabase read error:", e);
+    return null;
+  }
+}
+
+/** Simpan data ke Supabase cache (upsert). */
+async function setSupabaseCache<T>(cacheKey: string, payload: T): Promise<void> {
+  if (!isSupabaseConfigured) return;
+  try {
+    const { error } = await supabase.from("sectors_cache").upsert(
+      {
+        id: cacheKey,
+        data: payload,
+        fetched_at: new Date().toISOString(),
+        ttl_hours: CACHE_TTL_HOURS,
+      },
+      { onConflict: "id" }
+    );
+    if (error) console.warn("[Cache] Supabase write error:", error.message);
+    else console.info(`[Cache] Disimpan ke Supabase '${cacheKey}'.`);
+  } catch (e) {
+    console.warn("[Cache] Supabase write exception:", e);
+  }
+}
+
+/** Baca cache dari localStorage. Return null jika tidak ada atau sudah kadaluarsa. */
+function getLocalCache<T>(cacheKey: string): T | null {
+  try {
+    const raw = localStorage.getItem(LS_PREFIX + cacheKey);
+    if (!raw) return null;
+    const { data, fetchedAt } = JSON.parse(raw) as {
+      data: T;
+      fetchedAt: number;
+    };
+    const ageMs = Date.now() - fetchedAt;
+    const ttlMs = CACHE_TTL_HOURS * 60 * 60 * 1000;
+    if (ageMs > ttlMs) {
+      localStorage.removeItem(LS_PREFIX + cacheKey);
+      return null;
+    }
+    console.info(`[Cache] Hit localStorage '${cacheKey}' (usia ${Math.round(ageMs / 60000)} menit).`);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+/** Simpan data ke localStorage cache. */
+function setLocalCache<T>(cacheKey: string, data: T): void {
+  try {
+    localStorage.setItem(
+      LS_PREFIX + cacheKey,
+      JSON.stringify({ data, fetchedAt: Date.now() })
+    );
+  } catch (e) {
+    console.warn("[Cache] localStorage write error:", e);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+
 /**
- * Fetch company data from Sectors API v2 with automatic fallback
+ * Fetch company data dari Sectors API v2 dengan Supabase cache layer.
+ * Cache hierarchy: Supabase → localStorage → API → BASELINE_STOCKS
  */
 export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> {
+  const CACHE_KEY = "universe_v1";
+
+  // 1. Cek Supabase cache
+  const sbCached = await getSupabaseCache<DashboardStockItem[]>(CACHE_KEY);
+  if (sbCached) return sbCached;
+
+  // 2. Cek localStorage cache (fallback jika belum login / Supabase offline)
+  const lsCached = getLocalCache<DashboardStockItem[]>(CACHE_KEY);
+  if (lsCached) return lsCached;
+
+  // 3. Fetch dari Sectors API
   try {
-    // Try Vite dev proxy endpoint
     const res = await fetch(
       `/api/sectors/companies/?where=symbol in ['BBCA','TLKM','ASII','AMMN','IMPC','AADI','MGLV','SOHO','BELI','SRAJ','BRPT','TPIA']`,
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
+      { headers: { Accept: "application/json" } }
     );
 
     if (res.ok) {
@@ -366,8 +445,7 @@ export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> 
         : json.data ?? [];
 
       if (companies.length > 0) {
-        // Merge with our risk metrics
-        return BASELINE_STOCKS.map((base) => {
+        const merged = BASELINE_STOCKS.map((base) => {
           const remote = companies.find(
             (c) => c.symbol.toUpperCase() === base.ticker
           );
@@ -392,25 +470,47 @@ export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> 
             der: remote.der_mrq ? `${remote.der_mrq.toFixed(2)}x` : base.der,
           };
         });
+
+        // Simpan ke Supabase dan localStorage
+        await setSupabaseCache(CACHE_KEY, merged);
+        setLocalCache(CACHE_KEY, merged);
+
+        return merged;
       }
     }
   } catch (err) {
     console.warn(
-      "[Sectors API] Live fetch error, using robust baseline dataset:",
+      "[Sectors API] Live fetch error, menggunakan baseline dataset:",
       err
     );
   }
 
-  // Return accurate baseline data
+  // 4. Fallback ke BASELINE_STOCKS
   return BASELINE_STOCKS;
 }
 
 /**
- * Fetch 30-day daily price history for a given ticker
+ * Fetch 30-day daily price history untuk ticker tertentu.
+ * Cache hierarchy: Supabase → localStorage → API → generated baseline
  */
 export async function fetchStockDailyHistory(
   symbol: string
 ): Promise<{ date: string; close: number; volume: number }[]> {
+  const CACHE_KEY = `daily_${symbol}_v1`;
+
+  // 1. Cek Supabase cache
+  const sbCached = await getSupabaseCache<
+    { date: string; close: number; volume: number }[]
+  >(CACHE_KEY);
+  if (sbCached) return sbCached;
+
+  // 2. Cek localStorage cache
+  const lsCached = getLocalCache<
+    { date: string; close: number; volume: number }[]
+  >(CACHE_KEY);
+  if (lsCached) return lsCached;
+
+  // 3. Fetch dari Sectors API
   try {
     const res = await fetch(`/api/sectors/daily/${symbol}/`, {
       headers: { Accept: "application/json" },
@@ -418,18 +518,24 @@ export async function fetchStockDailyHistory(
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        return data.slice(-30).map((d: any) => ({
+        const history = data.slice(-30).map((d: any) => ({
           date: d.date || "",
           close: Number(d.close || d.price || 0),
           volume: Number(d.volume || 0),
         }));
+
+        // Simpan ke Supabase dan localStorage
+        await setSupabaseCache(CACHE_KEY, history);
+        setLocalCache(CACHE_KEY, history);
+
+        return history;
       }
     }
   } catch (e) {
     console.warn(`[Sectors API] Daily history error for ${symbol}:`, e);
   }
 
-  // Generate smooth historical curve based on ticker's current price
+  // 4. Generate smooth historical curve dari data baseline
   const base =
     BASELINE_STOCKS.find((s) => s.ticker === symbol) || BASELINE_STOCKS[0];
   const now = new Date();
