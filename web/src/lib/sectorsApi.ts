@@ -325,113 +325,75 @@ export const BASELINE_STOCKS: DashboardStockItem[] = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// Cache helpers
-// ─────────────────────────────────────────────────────────────
 
 const CACHE_TTL_HOURS = 6;
 const LS_PREFIX = "limina_cache_";
 
-/** Baca cache dari Supabase. Return null jika tidak ada atau sudah kadaluarsa. */
-async function getSupabaseCache<T>(cacheKey: string): Promise<T | null> {
+async function getSupabaseCache<T>(key: string): Promise<T | null> {
   if (!isSupabaseConfigured) return null;
   try {
     const { data, error } = await supabase
       .from("sectors_cache")
       .select("data, fetched_at, ttl_hours")
-      .eq("id", cacheKey)
+      .eq("id", key)
       .maybeSingle();
 
     if (error || !data) return null;
 
-    const ageMs =
-      Date.now() - new Date(data.fetched_at as string).getTime();
-    const ttlMs = (data.ttl_hours as number) * 60 * 60 * 1000;
-    if (ageMs > ttlMs) {
-      console.info(`[Cache] Supabase cache '${cacheKey}' kadaluarsa, refresh dari API.`);
-      return null;
-    }
+    const age = Date.now() - new Date(data.fetched_at as string).getTime();
+    const ttl = (data.ttl_hours as number) * 3600_000;
+    if (age > ttl) return null;
 
-    console.info(`[Cache] Hit Supabase '${cacheKey}' (usia ${Math.round(ageMs / 60000)} menit).`);
     return data.data as T;
-  } catch (e) {
-    console.warn("[Cache] Supabase read error:", e);
+  } catch {
     return null;
   }
 }
 
-/** Simpan data ke Supabase cache (upsert). */
-async function setSupabaseCache<T>(cacheKey: string, payload: T): Promise<void> {
+async function setSupabaseCache<T>(key: string, payload: T): Promise<void> {
   if (!isSupabaseConfigured) return;
   try {
     const { error } = await supabase.from("sectors_cache").upsert(
-      {
-        id: cacheKey,
-        data: payload,
-        fetched_at: new Date().toISOString(),
-        ttl_hours: CACHE_TTL_HOURS,
-      },
+      { id: key, data: payload, fetched_at: new Date().toISOString(), ttl_hours: CACHE_TTL_HOURS },
       { onConflict: "id" }
     );
-    if (error) console.warn("[Cache] Supabase write error:", error.message);
-    else console.info(`[Cache] Disimpan ke Supabase '${cacheKey}'.`);
+    if (error) console.warn("[sectorsApi] cache write failed:", error.message);
   } catch (e) {
-    console.warn("[Cache] Supabase write exception:", e);
+    console.warn("[sectorsApi] cache write exception:", e);
   }
 }
 
-/** Baca cache dari localStorage. Return null jika tidak ada atau sudah kadaluarsa. */
-function getLocalCache<T>(cacheKey: string): T | null {
+function getLocalCache<T>(key: string): T | null {
   try {
-    const raw = localStorage.getItem(LS_PREFIX + cacheKey);
+    const raw = localStorage.getItem(LS_PREFIX + key);
     if (!raw) return null;
-    const { data, fetchedAt } = JSON.parse(raw) as {
-      data: T;
-      fetchedAt: number;
-    };
-    const ageMs = Date.now() - fetchedAt;
-    const ttlMs = CACHE_TTL_HOURS * 60 * 60 * 1000;
-    if (ageMs > ttlMs) {
-      localStorage.removeItem(LS_PREFIX + cacheKey);
+    const { data, fetchedAt } = JSON.parse(raw) as { data: T; fetchedAt: number };
+    if (Date.now() - fetchedAt > CACHE_TTL_HOURS * 3600_000) {
+      localStorage.removeItem(LS_PREFIX + key);
       return null;
     }
-    console.info(`[Cache] Hit localStorage '${cacheKey}' (usia ${Math.round(ageMs / 60000)} menit).`);
     return data;
   } catch {
     return null;
   }
 }
 
-/** Simpan data ke localStorage cache. */
-function setLocalCache<T>(cacheKey: string, data: T): void {
+function setLocalCache<T>(key: string, data: T): void {
   try {
-    localStorage.setItem(
-      LS_PREFIX + cacheKey,
-      JSON.stringify({ data, fetchedAt: Date.now() })
-    );
-  } catch (e) {
-    console.warn("[Cache] localStorage write error:", e);
+    localStorage.setItem(LS_PREFIX + key, JSON.stringify({ data, fetchedAt: Date.now() }));
+  } catch {
+    // quota exceeded or private mode — skip silently
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Fetch company data dari Sectors API v2 dengan Supabase cache layer.
- * Cache hierarchy: Supabase → localStorage → API → BASELINE_STOCKS
- */
 export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> {
-  const CACHE_KEY = "universe_v1";
+  const KEY = "universe_v1";
 
-  // 1. Cek Supabase cache
-  const sbCached = await getSupabaseCache<DashboardStockItem[]>(CACHE_KEY);
-  if (sbCached) return sbCached;
+  const cached =
+    (await getSupabaseCache<DashboardStockItem[]>(KEY)) ??
+    getLocalCache<DashboardStockItem[]>(KEY);
+  if (cached) return cached;
 
-  // 2. Cek localStorage cache (fallback jika belum login / Supabase offline)
-  const lsCached = getLocalCache<DashboardStockItem[]>(CACHE_KEY);
-  if (lsCached) return lsCached;
-
-  // 3. Fetch dari Sectors API
   try {
     const res = await fetch(
       `/api/sectors/companies/?where=symbol in ['BBCA','TLKM','ASII','AMMN','IMPC','AADI','MGLV','SOHO','BELI','SRAJ','BRPT','TPIA']`,
@@ -440,15 +402,11 @@ export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> 
 
     if (res.ok) {
       const json = await res.json();
-      const companies: SectorsCompanyData[] = Array.isArray(json)
-        ? json
-        : json.data ?? [];
+      const companies: SectorsCompanyData[] = Array.isArray(json) ? json : json.data ?? [];
 
       if (companies.length > 0) {
         const merged = BASELINE_STOCKS.map((base) => {
-          const remote = companies.find(
-            (c) => c.symbol.toUpperCase() === base.ticker
-          );
+          const remote = companies.find((c) => c.symbol.toUpperCase() === base.ticker);
           if (!remote) return base;
 
           const updatedPrice = remote.last_close_price ?? base.price;
@@ -463,90 +421,65 @@ export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> 
             price: updatedPrice,
             priceFormatted: `Rp ${updatedPrice.toLocaleString("id-ID")}`,
             changePercent: updatedChange,
-            marketCap: remote.market_cap
-              ? formatIDR(remote.market_cap)
-              : base.marketCap,
+            marketCap: remote.market_cap ? formatIDR(remote.market_cap) : base.marketCap,
             marketCapRaw: remote.market_cap ?? base.marketCapRaw,
             der: remote.der_mrq ? `${remote.der_mrq.toFixed(2)}x` : base.der,
           };
         });
 
-        // Simpan ke Supabase dan localStorage
-        await setSupabaseCache(CACHE_KEY, merged);
-        setLocalCache(CACHE_KEY, merged);
-
+        await setSupabaseCache(KEY, merged);
+        setLocalCache(KEY, merged);
         return merged;
       }
     }
   } catch (err) {
-    console.warn(
-      "[Sectors API] Live fetch error, menggunakan baseline dataset:",
-      err
-    );
+    console.warn("[sectorsApi] fetch failed:", err);
   }
 
-  // 4. Fallback ke BASELINE_STOCKS
   return BASELINE_STOCKS;
 }
 
-/**
- * Fetch 30-day daily price history untuk ticker tertentu.
- * Cache hierarchy: Supabase → localStorage → API → generated baseline
- */
 export async function fetchStockDailyHistory(
   symbol: string
 ): Promise<{ date: string; close: number; volume: number }[]> {
-  const CACHE_KEY = `daily_${symbol}_v1`;
+  const KEY = `daily_${symbol}_v1`;
 
-  // 1. Cek Supabase cache
-  const sbCached = await getSupabaseCache<
-    { date: string; close: number; volume: number }[]
-  >(CACHE_KEY);
-  if (sbCached) return sbCached;
+  const cached =
+    (await getSupabaseCache<{ date: string; close: number; volume: number }[]>(KEY)) ??
+    getLocalCache<{ date: string; close: number; volume: number }[]>(KEY);
+  if (cached) return cached;
 
-  // 2. Cek localStorage cache
-  const lsCached = getLocalCache<
-    { date: string; close: number; volume: number }[]
-  >(CACHE_KEY);
-  if (lsCached) return lsCached;
-
-  // 3. Fetch dari Sectors API
   try {
     const res = await fetch(`/api/sectors/daily/${symbol}/`, {
       headers: { Accept: "application/json" },
     });
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const history = data.slice(-30).map((d: any) => ({
+      const json = await res.json();
+      if (Array.isArray(json) && json.length > 0) {
+        const history = json.slice(-30).map((d: any) => ({
           date: d.date || "",
           close: Number(d.close || d.price || 0),
           volume: Number(d.volume || 0),
         }));
-
-        // Simpan ke Supabase dan localStorage
-        await setSupabaseCache(CACHE_KEY, history);
-        setLocalCache(CACHE_KEY, history);
-
+        await setSupabaseCache(KEY, history);
+        setLocalCache(KEY, history);
         return history;
       }
     }
   } catch (e) {
-    console.warn(`[Sectors API] Daily history error for ${symbol}:`, e);
+    console.warn(`[sectorsApi] daily history fetch failed (${symbol}):`, e);
   }
 
-  // 4. Generate smooth historical curve dari data baseline
-  const base =
-    BASELINE_STOCKS.find((s) => s.ticker === symbol) || BASELINE_STOCKS[0];
+  // fallback: generate synthetic curve from baseline price
+  const base = BASELINE_STOCKS.find((s) => s.ticker === symbol) ?? BASELINE_STOCKS[0];
   const now = new Date();
-  return Array.from({ length: 14 }).map((_, i) => {
+  return Array.from({ length: 14 }, (_, i) => {
     const d = new Date(now);
     d.setDate(d.getDate() - (13 - i));
-    const factor = 1 + (Math.sin(i * 0.8) * 0.04 - 0.02);
     return {
       date: d.toLocaleDateString("id-ID", { month: "short", day: "numeric" }),
-      close: Math.round(base.price * factor),
-      volume: Math.round(5000000 + Math.random() * 8000000),
+      close: Math.round(base.price * (1 + Math.sin(i * 0.8) * 0.04 - 0.02)),
+      volume: Math.round(5_000_000 + Math.random() * 8_000_000),
     };
   });
 }

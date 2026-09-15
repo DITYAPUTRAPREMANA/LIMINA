@@ -276,9 +276,8 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             </button>
             <div className="inline-flex items-center justify-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-[#f3f1ee] dark:bg-slate-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#465267] dark:text-slate-400 sm:text-[11px]">
               <span
-                className={`inline-flex h-2.5 w-2.5 rounded-full ${
-                  isRemoteModelOnline ? "bg-emerald-500 animate-pulse" : "bg-[#2ec784]"
-                }`}
+                className={`inline-flex h-2.5 w-2.5 rounded-full ${isRemoteModelOnline ? "bg-emerald-500 animate-pulse" : "bg-[#2ec784]"
+                  }`}
               />
               {isRemoteModelOnline
                 ? "AI Model Server: Connected"
