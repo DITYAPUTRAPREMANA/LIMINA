@@ -35,7 +35,7 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
     setError(null);
     const emailResult = validateEmail(email);
     if (!emailResult.valid) {
-      setFieldErrors({ email: emailResult.error ?? "Format email tidak valid." });
+      setFieldErrors({ email: emailResult.error ?? "Invalid email format." });
       return;
     }
     setFieldErrors({});
@@ -241,7 +241,7 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
               <div className="relative flex items-center justify-center py-2">
                 <div className="w-full border-t border-slate-300 dark:border-slate-700" />
                 <span className="absolute bg-[#f3f2ee] dark:bg-[#13141a] px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  atau
+                  or
                 </span>
               </div>
 
@@ -254,11 +254,11 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
               >
                 {magicLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Mengirim Magic Link...
+                    <Loader2 className="h-4 w-4 animate-spin" /> Sending Magic Link...
                   </>
                 ) : (
                   <>
-                    <Mail className="h-4 w-4" /> Masuk Tanpa Password (Magic Link)
+                    <Mail className="h-4 w-4" /> Sign In Without Password (Magic Link)
                   </>
                 )}
               </button>
@@ -270,8 +270,8 @@ const LoginPage = ({ onNavigate }: LoginPageProps) => {
                   <Check className="h-3 w-3" />
                 </span>
                 <span>
-                  Session diproteksi dengan enkripsi end-to-end. Credentials
-                  tidak pernah disimpan di browser storage.
+                  Sessions are protected with end-to-end encryption. Credentials
+                  are never stored in browser local storage.
                 </span>
               </div>
             </div>

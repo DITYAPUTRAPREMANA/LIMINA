@@ -11,38 +11,38 @@ export interface ValidationResult {
 
 export function validateEmail(email: string): ValidationResult {
   const trimmed = email.trim();
-  if (!trimmed) return { valid: false, error: "Email tidak boleh kosong." };
-  if (trimmed.length > 254) return { valid: false, error: "Email terlalu panjang." };
-  if (!EMAIL_REGEX.test(trimmed)) return { valid: false, error: "Format email tidak valid." };
+  if (!trimmed) return { valid: false, error: "Email cannot be empty." };
+  if (trimmed.length > 254) return { valid: false, error: "Email is too long." };
+  if (!EMAIL_REGEX.test(trimmed)) return { valid: false, error: "Invalid email format." };
   return { valid: true, error: null };
 }
 
 export function validatePassword(password: string): ValidationResult {
-  if (!password) return { valid: false, error: "Password tidak boleh kosong." };
+  if (!password) return { valid: false, error: "Password cannot be empty." };
   if (password.length < MIN_PASSWORD_LENGTH)
-    return { valid: false, error: `Password minimal ${MIN_PASSWORD_LENGTH} karakter.` };
+    return { valid: false, error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.` };
   if (password.length > MAX_PASSWORD_LENGTH)
-    return { valid: false, error: `Password maksimal ${MAX_PASSWORD_LENGTH} karakter.` };
+    return { valid: false, error: `Password must not exceed ${MAX_PASSWORD_LENGTH} characters.` };
   return { valid: true, error: null };
 }
 
 export function validatePasswordMatch(password: string, confirm: string): ValidationResult {
-  if (password !== confirm) return { valid: false, error: "Password tidak cocok." };
+  if (password !== confirm) return { valid: false, error: "Passwords do not match." };
   return { valid: true, error: null };
 }
 
 export function validateName(name: string): ValidationResult {
   const trimmed = name.trim();
-  if (!trimmed) return { valid: false, error: "Nama tidak boleh kosong." };
+  if (!trimmed) return { valid: false, error: "Name cannot be empty." };
   if (!SAFE_NAME_REGEX.test(trimmed))
-    return { valid: false, error: "Nama mengandung karakter tidak valid." };
+    return { valid: false, error: "Name contains invalid characters." };
   return { valid: true, error: null };
 }
 
 export function validateOtp(otp: string): ValidationResult {
   const trimmed = otp.trim();
-  if (!trimmed) return { valid: false, error: "Kode OTP tidak boleh kosong." };
-  if (!OTP_REGEX.test(trimmed)) return { valid: false, error: "Kode OTP harus 6 digit angka." };
+  if (!trimmed) return { valid: false, error: "Verification code cannot be empty." };
+  if (!OTP_REGEX.test(trimmed)) return { valid: false, error: "Verification code must be 6 digits." };
   return { valid: true, error: null };
 }
 

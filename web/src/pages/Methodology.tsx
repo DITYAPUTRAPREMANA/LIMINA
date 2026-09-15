@@ -32,65 +32,65 @@ interface NotationItem {
   name: string;
   criteria: string;
   penaltyPoints: number;
-  category: "Solvabilitas" | "Kepatuhan" | "Audit" | "Likuiditas";
+  category: "Solvency" | "Compliance" | "Audit" | "Liquidity";
 }
 
 const IDX_NOTATIONS: NotationItem[] = [
   {
     code: "E",
-    name: "Ekuitas Negatif (Negative Equity)",
-    criteria: "Laporan keuangan terakhir menunjukkan ekuitas bernilai negatif (Ketentuan III.1).",
+    name: "Negative Equity (Rule III.1)",
+    criteria: "Latest financial report shows negative equity value (Rule III.1 compliance breach).",
     penaltyPoints: 38,
-    category: "Solvabilitas",
+    category: "Solvency",
   },
   {
     code: "M",
-    name: "Permohonan PKPU / Restrukturisasi",
-    criteria: "Terdapat permohonan Penundaan Kewajiban Pembayaran Utang (PKPU) atau restrukturisasi utang.",
+    name: "PKPU Application / Debt Restructuring",
+    criteria: "Suspension of Debt Payment Obligations (PKPU) application or debt restructuring is underway.",
     penaltyPoints: 35,
-    category: "Solvabilitas",
+    category: "Solvency",
   },
   {
     code: "B",
-    name: "Permohonan Pailit",
-    criteria: "Terdapat permohonan kepailitan yang diajukan oleh kreditor atau pihak berwenang.",
+    name: "Bankruptcy Petition Filed",
+    criteria: "A bankruptcy petition has been filed by creditors or authorized parties.",
     penaltyPoints: 40,
-    category: "Solvabilitas",
+    category: "Solvency",
   },
   {
     code: "L",
-    name: "Terlambat Menyampaikan Lapkeu",
-    criteria: "Belum menyampaikan laporan keuangan auditan melewati batas tenggat 30-90 hari kalender.",
+    name: "Late Financial Report Submission",
+    criteria: "Audited financial report not submitted within the mandatory 30–90 calendar day deadline.",
     penaltyPoints: 25,
-    category: "Kepatuhan",
+    category: "Compliance",
   },
   {
     code: "D",
-    name: "Opini Audit Disclaimer / Adverse",
-    criteria: "Akuntan publik memberikan opini Tidak Memberikan Pendapat (Disclaimer) atau Tidak Wajar (Adverse).",
+    name: "Disclaimer / Adverse Audit Opinion",
+    criteria: "Public accountant issued a Disclaimer or Adverse opinion on the financial statements.",
     penaltyPoints: 32,
     category: "Audit",
   },
   {
     code: "X",
-    name: "Papan Pemantauan Khusus (FCA)",
-    criteria: "Efek memenuhi satu atau lebih kriteria Papan Pemantauan Khusus (likuiditas rendah / harga floor).",
+    name: "Special Monitoring Board (FCA)",
+    criteria: "Securities meet one or more Special Monitoring Board criteria (low liquidity / price floor).",
     penaltyPoints: 20,
-    category: "Likuiditas",
+    category: "Liquidity",
   },
   {
     code: "S",
-    name: "Tidak Memiliki Pendapatan Usaha",
-    criteria: "Laporan keuangan terakhir tidak membukukan pendapatan operasional dari kegiatan bisnis utama.",
+    name: "No Operating Revenue",
+    criteria: "Latest financial report records no operational revenue from core business activities.",
     penaltyPoints: 22,
-    category: "Solvabilitas",
+    category: "Solvency",
   },
   {
     code: "Y",
-    name: "Belum Menyelenggarakan RUPST",
-    criteria: "Belum menyelenggarakan Rapat Umum Pemegang Saham Tahunan sampai batas waktu yang ditentukan.",
+    name: "Annual General Meeting Not Held",
+    criteria: "Annual General Meeting of Shareholders (AGMS) not conducted within the prescribed deadline.",
     penaltyPoints: 15,
-    category: "Kepatuhan",
+    category: "Compliance",
   },
 ];
 
@@ -214,7 +214,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
               Methodology &amp; Governance
             </h1>
             <p className="mt-1.5 text-sm text-[#5b6675] dark:text-slate-400 sm:text-[1.02rem]">
-              Transparansi perhitungan model early-warning, aturan *Point-in-Time*, dan kamus notasi khusus bursa
+              Transparency of early-warning model calculations, Point-in-Time rules, and IDX special notation dictionary
             </p>
           </div>
 
@@ -243,10 +243,10 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                 Interactive Rubric Simulator
               </div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-1">
-                Kalkulator Probabilitas Risiko Suspensi EWS
+                EWS Suspension Risk Probability Calculator
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Geser nilai rasio keuangan di bawah untuk menguji bagaimana bobot model menghitung skor risiko suspensi secara langsung.
+                Adjust the financial ratio values below to test how the model weights compute the suspension risk score in real time.
               </p>
             </div>
 
@@ -256,7 +256,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 self-start sm:self-auto"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Reset Nilai
+              Reset Values
             </button>
           </div>
 
@@ -279,16 +279,16 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                   className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#f26a4d]"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>Aman (&lt; 1.5x)</span>
-                  <span>Waspada (2.5x)</span>
-                  <span>Kritis (&gt; 4.0x)</span>
+                  <span>Safe (&lt; 1.5x)</span>
+                  <span>Caution (2.5x)</span>
+                  <span>Critical (&gt; 4.0x)</span>
                 </div>
               </div>
 
               {/* Slider Current Ratio */}
               <div>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                  <span>Current Ratio (Likuiditas Lancar)</span>
+                  <span>Current Ratio (Short-Term Liquidity)</span>
                   <span className="font-mono text-[#f26a4d]">{simCr.toFixed(2)}x</span>
                 </div>
                 <input
@@ -301,16 +301,16 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                   className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#f26a4d]"
                 />
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>Ketat (&lt; 0.8x)</span>
-                  <span>Moderat (1.2x)</span>
-                  <span>Sangat Likuid (&gt; 2.0x)</span>
+                  <span>Tight (&lt; 0.8x)</span>
+                  <span>Moderate (1.2x)</span>
+                  <span>High Liquidity (&gt; 2.0x)</span>
                 </div>
               </div>
 
               {/* Slider Volatilitas */}
               <div>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5">
-                  <span>Volatilitas Harga 30 Hari</span>
+                  <span>30-Day Price Volatility</span>
                   <span className="font-mono text-[#f26a4d]">{simVolatility}%</span>
                 </div>
                 <input
@@ -334,7 +334,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                     className="h-4 w-4 rounded accent-red-600 cursor-pointer"
                   />
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
-                    Ekuitas Negatif (Rule III.1)
+                    Negative Equity (Rule III.1)
                   </span>
                 </label>
 
@@ -346,7 +346,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                     className="h-4 w-4 rounded accent-amber-600 cursor-pointer"
                   />
                   <span className="font-semibold text-slate-800 dark:text-slate-200">
-                    Rugi Operasional Berlanjut
+                    Persistent Operating Loss
                   </span>
                 </label>
 
@@ -368,7 +368,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
             <div className="lg:col-span-5 flex flex-col justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 shadow-2xs">
               <div>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  <span>Hasil Skor Simulasi</span>
+                  <span>Simulation Score Result</span>
                   <span
                     className={`rounded-full px-2.5 py-0.5 font-black text-xs ${simResult.levelColor === "red"
                       ? "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400"
@@ -412,7 +412,7 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
               </div>
 
               <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400">
-                Formula model mengombinasikan bobot solvabilitas, likuiditas jangka pendek, dan ketentuan resmi IDX.
+                The model formula combines solvency weights, short-term liquidity, and official IDX regulatory criteria.
               </div>
             </div>
           </div>
@@ -424,38 +424,38 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
               <ShieldCheck className="h-5 w-5" />
             </span>
-            Prinsip Point-in-Time (Bebas Look-Ahead Bias)
+            Point-in-Time Principle (Free of Look-Ahead Bias)
           </div>
 
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-4xl">
-            Salah satu kelemahan fatal sistem prediksi finansial adalah <em>look-ahead bias</em>, yaitu ketika model secara keliru menggunakan informasi yang di masa lampau belum dipublikasikan. LIMINA secara tegas menerapkan protokol isolasi Point-in-Time (PIT):
+            One of the most critical flaws in financial prediction systems is <em>look-ahead bias</em> — when a model incorrectly uses information that was not yet publicly available at the time. LIMINA strictly enforces Point-in-Time (PIT) isolation protocols:
           </p>
 
           <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[#f26a4d]">
-                Snapshot Jam 16:00 WIB
+                4:00 PM WIB Snapshot
               </div>
               <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Data harga, volume, dan kapitalisasi pasar hanya dicatat setelah penutupan bursa resmi setiap hari kerja.
+                Price, volume, and market capitalisation data are recorded only after the official exchange close each business day.
               </p>
             </div>
 
             <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[#f26a4d]">
-                Tanggal Publikasi Resmi
+                Official Publication Date
               </div>
               <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Laporan keuangan tidak dihitung berdasarkan tanggal tutup buku (31 Des), melainkan tanggal laporan tersebut benar-benar diunggah ke keterbukaan IDXnet.
+                Financial reports are not timestamped by the book-close date (31 Dec), but by the actual date they were uploaded to the IDXnet disclosure portal.
               </p>
             </div>
 
             <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
               <div className="text-xs font-bold uppercase tracking-wider text-[#f26a4d]">
-                Pemisahan Temporal Training
+                Temporal Training Split
               </div>
               <p className="mt-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Data pelatihan model dibagi berdasarkan rentang waktu historis (pre-2025 untuk train, 2025-2026 untuk forward test), bukan random sampling acak.
+                Training data is split by historical time range (pre-2025 for training, 2025–2026 for forward test), not by random sampling.
               </p>
             </div>
           </div>
@@ -470,16 +470,16 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                 Regulatory Decoder
               </div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-1">
-                Kamus Notasi Khusus &amp; Pembobotan Risiko IDX
+                IDX Special Notation Dictionary &amp; Risk Weighting
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Daftar kriteria resmi tato bursa dan bobot penalti yang ditambahkan ke dalam model EWS LIMINA.
+                Official exchange notation criteria and penalty weights incorporated into the LIMINA EWS model.
               </p>
             </div>
 
             {/* Category Filter Pills */}
             <div className="flex flex-wrap items-center gap-2">
-              {["All", "Solvabilitas", "Kepatuhan", "Audit", "Likuiditas"].map((cat) => (
+              {["All", "Solvency", "Compliance", "Audit", "Liquidity"].map((cat) => (
                 <button
                   key={cat}
                   type="button"
@@ -510,14 +510,14 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
                       {item.name}
                     </div>
                     <span className="text-[11px] font-bold text-[#f26a4d]">
-                      +{item.penaltyPoints} Poin
+                      +{item.penaltyPoints} pts
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                     {item.criteria}
                   </p>
                   <div className="mt-2 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
-                    Kategori: {item.category}
+                    Category: {item.category}
                   </div>
                 </div>
               </div>
@@ -529,18 +529,18 @@ const MethodologyPage = ({ onNavigate }: MethodologyPageProps) => {
         <section className="mt-8 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50/70 dark:bg-red-950/30 p-6 shadow-sm">
           <div className="flex items-center gap-2.5 text-lg font-bold text-red-700 dark:text-red-400">
             <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-            Pernyataan Kepatuhan Hukum &amp; Batasan Produk (Legal Disclaimer)
+            Legal Compliance Statement &amp; Product Limitations
           </div>
 
           <div className="mt-3 space-y-2.5 text-xs text-slate-700 dark:text-slate-300 leading-relaxed max-w-5xl">
             <p>
-              1. <strong>Bukan Rekomendasi Investasi:</strong> Seluruh skor probabilitas suspensi, indikator risiko, dan pemeringkatan pada sistem LIMINA disajikan murni untuk tujuan informasi dan riset akademis, bukan merupakan rekomendasi jual, beli, atau hold atas instrumen efek apa pun.
+              1. <strong>Not Investment Advice:</strong> All suspension probability scores, risk indicators, and rankings in the LIMINA system are presented purely for informational and academic research purposes. They do not constitute a recommendation to buy, sell, or hold any securities.
             </p>
             <p>
-              2. <strong>Bukan Pengganti Pengumuman Resmi Bursa:</strong> Penetapan suspensi, pencabutan hak perdagangan, atau notasi khusus merupakan kewenangan mutlak PT Bursa Efek Indonesia (IDX) dan Otoritas Jasa Keuangan (OJK). Data LIMINA bersumber dari data publik dan tidak mewakili keterbukaan resmi bursa.
+              2. <strong>Not a Substitute for Official Exchange Announcements:</strong> Suspension decisions, trading right revocations, or special notations are the sole authority of PT Bursa Efek Indonesia (IDX) and the Financial Services Authority (OJK). LIMINA data is sourced from public data and does not represent official exchange disclosures.
             </p>
             <p>
-              3. <strong>Tanggung Jawab Pengguna:</strong> Keputusan transaksi investasi sepenuhnya berada di bawah pertimbangan dan risiko masing-masing investor secara mandiri (*do your own research*).
+              3. <strong>User Responsibility:</strong> All investment transaction decisions rest entirely under each investor's own independent judgment and risk (<em>do your own research</em>).
             </p>
           </div>
         </section>

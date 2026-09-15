@@ -137,10 +137,10 @@ const AppShell = ({
                   onNavigate("profile");
                 }}
                 className={`flex w-full items-center gap-3 rounded-xl border p-2 text-left transition shadow-2xs group ${currentView === "profile"
-                    ? "border-[#f26a4d] bg-[#fdf5f2] dark:bg-slate-700/80 ring-1 ring-[#f26a4d]/30"
-                    : "border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-[#f26a4d]/60 hover:bg-[#ece8e3] dark:hover:bg-slate-700"
+                  ? "border-[#f26a4d] bg-[#fdf5f2] dark:bg-slate-700/80 ring-1 ring-[#f26a4d]/30"
+                  : "border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-800/80 hover:border-[#f26a4d]/60 hover:bg-[#ece8e3] dark:hover:bg-slate-700"
                   }`}
-                title="Buka Halaman Profile"
+                title="View Profile"
               >
                 <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#f26a4d]/15 text-[#f26a4d] font-bold text-xs">
                   {initials}

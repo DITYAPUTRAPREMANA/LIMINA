@@ -144,7 +144,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
     }
 
     setResendLoading(false);
-    setSuccessMsg("Link login baru telah dikirimkan ke email Anda!");
+    setSuccessMsg("A new sign-in link has been sent to your email!");
     setResendCooldown(RESEND_COOLDOWN_SECONDS);
   };
 
@@ -173,12 +173,12 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
             </div>
 
             <h1 className="text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[#111827] dark:text-slate-50 sm:text-5xl">
-              Periksa Email Anda
+              Check Your Email
             </h1>
 
             <p className="mt-4 text-[16px] leading-relaxed text-[#536174] dark:text-slate-400">
-              Kami telah mengirimkan <strong>Magic Link</strong> ke email Anda.
-              Cukup buka email dan klik link tersebut untuk langsung masuk ke LIMINA tanpa perlu password.
+              We have sent a <strong>Magic Link</strong> to your email.
+              Simply open the email and click the link to immediately sign in to LIMINA without needing a password.
             </p>
 
             {/* Email destination pill */}
@@ -189,14 +189,14 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
                     <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#dff8ee] text-[#1d9d75]">
                       <Check className="h-3 w-3" />
                     </span>
-                    Tujuan Pengiriman
+                    Delivery Target
                   </span>
                   <button
                     type="button"
                     onClick={() => onNavigate("login")}
                     className="text-[#f26a4d] hover:underline"
                   >
-                    Ganti Email
+                    Change Email
                   </button>
                 </div>
                 <div className="mt-2 text-[15px] font-semibold text-slate-800 dark:text-slate-100">
@@ -235,7 +235,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
                 className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#f26a4d] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#f26a4d]/25 transition hover:bg-[#d95e39] active:scale-[0.99]"
               >
                 <Mail className="h-4 w-4" />
-                Buka Email Sekarang
+                Open Email Client
                 <ExternalLink className="h-3.5 w-3.5 opacity-80" />
               </a>
 
@@ -249,14 +249,14 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
                 {resendLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Mengirim Link Baru...
+                    Sending New Link...
                   </>
                 ) : (
                   <>
                     <RefreshCw className="h-4 w-4" />
                     {resendCooldown > 0
-                      ? `Kirim Ulang Link (${resendCooldown}s)`
-                      : "Kirim Ulang Magic Link"}
+                      ? `Resend Link (${resendCooldown}s)`
+                      : "Resend Magic Link"}
                   </>
                 )}
               </button>
@@ -271,18 +271,18 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
                   className="flex items-center gap-2 text-xs font-semibold text-[#6d788a] dark:text-slate-400 hover:text-[#f26a4d] transition"
                 >
                   <KeyRound className="h-3.5 w-3.5" />
-                  Menerima kode 6 digit di email? Masukkan kode secara manual
+                  Received a 6-digit code in your email? Enter code manually
                 </button>
               ) : (
                 <form onSubmit={handleVerifyManual} className="space-y-4">
                   <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#6d788a]">
-                    <span>Masukkan Kode 6 Digit</span>
+                    <span>Enter 6-Digit Code</span>
                     <button
                       type="button"
                       onClick={() => setShowManualCode(false)}
                       className="text-xs text-[#f26a4d] hover:underline normal-case"
                     >
-                      Tutup
+                      Close
                     </button>
                   </div>
 
@@ -314,7 +314,7 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <>
-                        Verifikasi Kode
+                        Verify Code
                         <ArrowRight className="h-4 w-4" />
                       </>
                     )}
@@ -325,13 +325,13 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
 
             {/* Back to Login */}
             <div className="mt-8 text-center text-xs text-slate-500 w-full max-w-130">
-              Sudah verifikasi atau ingin mencoba cara lain?{" "}
+              Already verified or want to try another method?{" "}
               <button
                 type="button"
                 onClick={() => onNavigate("login")}
                 className="font-bold text-[#f26a4d] hover:underline"
               >
-                Kembali ke Login
+                Back to Sign In
               </button>
             </div>
           </main>
@@ -359,18 +359,18 @@ const EmailOtpPage = ({ onNavigate }: EmailOtpPageProps) => {
             </div>
 
             <h2 className="text-3xl font-bold tracking-tight text-white xl:text-4xl">
-              Autentikasi Aman, Cepat, Tanpa Password.
+              Secure, Instant, Passwordless Authentication.
             </h2>
 
             <p className="text-base text-slate-400 leading-relaxed">
-              Magic Link menggunakan token kriptografis sekali pakai yang menjamin hanya pemilik email sah yang dapat mengakses akun analisis pasar LIMINA.
+              Magic Link uses single-use cryptographic tokens ensuring only the verified email owner can access their LIMINA market intelligence workspace.
             </p>
 
             <div className="space-y-3 pt-2">
               {[
-                "Tidak ada password yang rentan dicuri atau bocor",
-                "Verifikasi otomatis sekali klik langsung dari browser Anda",
-                "Sesi terenkripsi dengan standar perlindungan enterprise",
+                "No vulnerable passwords susceptible to credential theft or leaks",
+                "One-click automated verification directly from your browser",
+                "Encrypted session compliant with enterprise protection standards",
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3 text-sm text-slate-300">
                   <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">

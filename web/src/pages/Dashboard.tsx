@@ -222,7 +222,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    setToastMessage(`Berhasil mengekspor ${filteredTickers.length} emiten ke file CSV.`);
+    setToastMessage(`Successfully exported ${filteredTickers.length} issuers to CSV file.`);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -261,7 +261,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               IDX Risk Ranking
             </h1>
             <p className="mt-1.5 text-sm text-[#5b6675] dark:text-slate-400 sm:text-[1.02rem]">
-              Analisis probabilitas suspensi pasar modal Indonesia untuk emiten pilihan
+              Suspension probability analysis for selected IDX-listed issuers
             </p>
           </div>
 
@@ -305,7 +305,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   {criticalCount}
                 </span>
                 <span className="pb-1 text-sm font-bold text-[#3b4555] dark:text-slate-200 sm:text-base">
-                  Emiten Terindikasi Risiko Kritis / Pemantauan Khusus
+                  Issuers Flagged as Critical Risk / Special Monitoring
                 </span>
               </div>
             </div>
@@ -319,11 +319,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               }}
               className="inline-flex items-center justify-center rounded-xl bg-[#d93e3e] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-sm transition hover:bg-[#c83535] active:scale-[0.98]"
             >
-              Fokus Emiten Kritis ({criticalCount})
+              Focus Critical Issuers ({criticalCount})
             </button>
           </div>
           <p className="mt-2 text-sm text-[#4f5969] dark:text-slate-400 sm:pl-[3.8rem]">
-            Peringatan risiko dini dihitung berdasarkan defisit arus kas operasi, rasio utang (DER), dan kepatuhan aturan IDX.
+            Early risk warnings are computed from operating cash deficit, debt-to-equity ratio (DER), and IDX regulatory compliance.
           </p>
         </div>
 
@@ -335,7 +335,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari dari 12 emiten: BBCA, TLKM, ASII, AMMN, IMPC, AADI, MGLV, SOHO, BELI, SRAJ, BRPT, TPIA..."
+              placeholder="Search across 12 issuers: BBCA, TLKM, ASII, AMMN, IMPC, AADI, MGLV, SOHO, BELI, SRAJ, BRPT, TPIA..."
               className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 py-3 pl-11 pr-10 text-sm text-slate-700 dark:text-slate-200 outline-none placeholder:text-[#778194] dark:placeholder:text-slate-500 focus:border-[#f26a4d] focus:ring-2 focus:ring-[#f26a4d]/20 transition sm:py-3.5 sm:pl-12 sm:text-[1.02rem]"
             />
             {searchQuery && (
@@ -389,14 +389,14 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
               <span className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 <Filter className="h-3.5 w-3.5 text-[#f26a4d]" />
-                Kustomisasi Filter &amp; Pengurutan
+                Customize Filters & Sorting
               </span>
               <button
                 type="button"
                 onClick={() => setShowFiltersPanel(false)}
                 className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
               >
-                Tutup
+                Close
               </button>
             </div>
 
@@ -404,7 +404,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Sector Select */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Sektor Industri
+                  Industry Sector
                 </label>
                 <select
                   value={selectedSector}
@@ -422,14 +422,14 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Risk Level Category */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Kategori Tingkat Risiko
+                  Risk Level Category
                 </label>
                 <select
                   value={riskFilter}
                   onChange={(e) => setRiskFilter(e.target.value as RiskCategory)}
                   className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
-                  <option value="all">Semua Tingkat Risiko</option>
+                  <option value="all">All Risk Levels</option>
                   <option value="critical">Critical Risk (Indeks &ge; 85)</option>
                   <option value="high">High Watch (70 - 84)</option>
                   <option value="normal">Normal / Low Risk (&lt; 70)</option>
@@ -439,18 +439,18 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Sort By */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Urutkan Kolom
+                  Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
-                  <option value="score-desc">Indeks Risiko: Tertinggi &rarr; Terendah</option>
-                  <option value="score-asc">Indeks Risiko: Terendah &rarr; Tertinggi</option>
-                  <option value="price-desc">Harga Saham Tertinggi</option>
-                  <option value="ticker-asc">Nama Ticker (A ke Z)</option>
-                  <option value="delta-desc">Perubahan Delta Terbesar</option>
+                  <option value="score-desc">Risk Index: Highest &rarr; Lowest</option>
+                  <option value="score-asc">Risk Index: Lowest &rarr; Highest</option>
+                  <option value="price-desc">Stock Price: Highest</option>
+                  <option value="ticker-asc">Ticker Name (A to Z)</option>
+                  <option value="delta-desc">Largest Delta Change</option>
                 </select>
               </div>
             </div>
@@ -463,7 +463,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-[#f26a4d] hover:underline cursor-pointer"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  Reset Semua Filter ke Default
+                  Reset All Filters to Default
                 </button>
               </div>
             )}
@@ -473,7 +473,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         {/* ── Risk Filter Chips ── */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {[
-            { id: "all" as RiskCategory, label: `Semua Emiten (${stocks.length})` },
+            { id: "all" as RiskCategory, label: `All Issuers (${stocks.length})` },
             { id: "critical" as RiskCategory, label: `Critical Risk (${criticalCount})`, tone: "red" },
             { id: "high" as RiskCategory, label: `High Watch (${highWatchCount})`, tone: "amber" },
             { id: "normal" as RiskCategory, label: `Normal / Low Risk (${normalCount})`, tone: "green" },
@@ -517,7 +517,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           })}
 
           <div className="ml-auto text-xs font-bold text-[#667285] dark:text-slate-400">
-            Menampilkan <span className="text-slate-900 dark:text-slate-100 font-black">{filteredTickers.length}</span> dari {stocks.length} emiten
+            Showing <span className="text-slate-900 dark:text-slate-100 font-black">{filteredTickers.length}</span> of {stocks.length} issuers
           </div>
         </div>
 
@@ -531,7 +531,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 onClick={() => setSortBy(sortBy === "ticker-asc" ? "score-desc" : "ticker-asc")}
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
-                <span>Ticker &amp; Nama Emiten</span>
+                <span>Ticker &amp; Issuer Name</span>
                 {sortBy === "ticker-asc" ? (
                   <ArrowUp className="h-3 w-3 text-[#f26a4d]" />
                 ) : (
@@ -544,7 +544,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 onClick={() => setSortBy(sortBy === "price-desc" ? "score-desc" : "price-desc")}
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
-                <span>Harga Pasar &amp; 24h</span>
+                <span>Market Price &amp; 24h</span>
                 {sortBy === "price-desc" ? (
                   <ArrowDown className="h-3 w-3 text-[#f26a4d]" />
                 ) : (
@@ -552,9 +552,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 )}
               </button>
 
-              <span>Sektor</span>
+              <span>Sector</span>
 
-              <span>Pemicu Risiko Utama</span>
+              <span>Primary Risk Driver</span>
 
               <button
                 type="button"
@@ -571,7 +571,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 )}
               </button>
 
-              <span className="text-right">Aksi</span>
+              <span className="text-right">Actions</span>
             </div>
 
             {/* Table Body */}
@@ -691,10 +691,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               <div className="py-14 text-center">
                 <ShieldCheck className="mx-auto h-10 w-10 text-slate-400 opacity-60 mb-3" />
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-                  Tidak ada emiten yang sesuai
+                  No matching issuers
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-                  Coba sesuaikan kata kunci pencarian atau reset filter untuk menampilkan kembali semua 12 emiten.
+                  Try adjusting your search term or reset filters to show all 12 issuers.
                 </p>
                 <button
                   type="button"
@@ -770,7 +770,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 p-4">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    Suspension Risk Index &amp; Harga Saham
+                    Suspension Risk Index &amp; Market Price
                   </span>
                   <div className="flex items-baseline gap-3 mt-1">
                     <span
@@ -827,7 +827,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Detailed Metrics Grid */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 text-xs">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Kapitalisasi Pasar</span>
+                  <span className="text-slate-400 font-medium">Market Capitalization</span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
                     {inspectTicker.marketCap}
                   </p>
@@ -841,21 +841,21 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Kondisi Ekuitas</span>
+                  <span className="text-slate-400 font-medium">Equity Condition</span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
                     {inspectTicker.equityStatus}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Estimasi Hari Suspensi</span>
+                  <span className="text-slate-400 font-medium">Est. Days to Suspension</span>
                   <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">
                     {inspectTicker.daysToSuspension}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3 sm:col-span-2">
-                  <span className="text-slate-400 font-medium">Opini Auditor Terakhir</span>
+                  <span className="text-slate-400 font-medium">Latest Audit Opinion</span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1 truncate">
                     {inspectTicker.lastAuditOpinion}
                   </p>
@@ -865,13 +865,13 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Regulatory Trigger Description */}
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/60 p-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Pemicu Utama Risiko &amp; Aturan Terkait
+                  Primary Risk Driver &amp; Regulation
                 </span>
                 <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">
                   {inspectTicker.driver}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Regulasi Terkait: <strong className="text-[#f26a4d]">{inspectTicker.ruleViolation}</strong>
+                  Regulatory Trigger: <strong className="text-[#f26a4d]">{inspectTicker.ruleViolation}</strong>
                 </p>
               </div>
             </div>
@@ -883,7 +883,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 onClick={() => setInspectTicker(null)}
                 className="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 cursor-pointer"
               >
-                Tutup
+                Close
               </button>
 
               <button
@@ -894,7 +894,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0f172a] dark:bg-slate-700 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 cursor-pointer"
               >
-                Buka Bukti Forensik <ExternalLink className="h-3.5 w-3.5" />
+                View Forensic Evidence <ExternalLink className="h-3.5 w-3.5" />
               </button>
 
               <button
@@ -905,7 +905,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#f26a4d] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#f26a4d]/20 transition hover:bg-[#d95e39] cursor-pointer"
               >
-                Cek Metodologi <ArrowRight className="h-3.5 w-3.5" />
+                View Methodology <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

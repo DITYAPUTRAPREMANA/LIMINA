@@ -49,7 +49,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
     return Math.min(100, score);
   })();
 
-  const strengthLabel = strength < 30 ? "Lemah" : strength < 70 ? "Sedang" : "Kuat";
+  const strengthLabel = strength < 30 ? "Weak" : strength < 70 ? "Medium" : "Strong";
   const strengthColor = strength < 30
     ? "bg-red-500"
     : strength < 70
@@ -123,7 +123,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
           onClick={() => onNavigate("login")}
           className="inline-flex items-center gap-2 text-sm font-medium text-[#1f2d3d] dark:text-slate-300 transition hover:text-[#f26a4d]"
         >
-          <span className="text-base">←</span> Kembali ke Login
+          <span className="text-base">←</span> Back to Sign In
         </button>
       </header>
 
@@ -131,7 +131,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
         {/* ── Step 1: Request Reset ── */}
         <section className="w-full max-w-[520px] rounded-2xl border border-[#dfe4ea] dark:border-slate-700 bg-[#f8f7f5] dark:bg-slate-800 p-5 shadow-sm sm:p-7">
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#f4b28f] bg-[#fff3ea] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#d26c3d]">
-            Langkah 1: Kirim Link Reset
+            Step 1: Request Reset Link
           </div>
 
           <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#fff2eb] text-[#f26a4d] shadow-inner ring-1 ring-[#f8d5c3]">
@@ -139,12 +139,12 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
           </div>
 
           <h1 className="text-4xl font-bold leading-[1.02] tracking-[-0.07em] text-[#101827] dark:text-slate-50">
-            Lupa Password
+            Forgot Password
           </h1>
 
           <p className="mt-4 max-w-[420px] text-[1.05rem] leading-relaxed text-[#546176] dark:text-slate-400">
-            Masukkan alamat email yang terdaftar. Kami akan mengirimkan link
-            reset terenkripsi yang berlaku selama 15 menit.
+            Enter your registered email address. We will send an encrypted reset
+            link valid for 15 minutes.
           </p>
 
           {sendSuccess ? (
@@ -154,8 +154,8 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                   <Check className="h-3 w-3" />
                 </span>
                 <span>
-                  Jika email tersebut terdaftar, kami telah mengirimkan link reset
-                  password. Periksa inbox Anda (termasuk folder spam).
+                  If this email is registered, we have sent a password reset link.
+                  Please check your inbox (including your spam folder).
                 </span>
               </div>
             </div>
@@ -187,22 +187,22 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                 className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl bg-[#0c1526] dark:bg-slate-700 px-5 py-4 text-base font-semibold text-white shadow-[0_10px_24px_rgba(12,21,38,0.18)] transition hover:bg-[#17253d] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {sendLoading ? (
-                  <><Loader2 className="h-4 w-4 animate-spin" /> Mengirim…</>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
                 ) : (
-                  <>Kirim Link Reset <ArrowRight className="h-4 w-4" /></>
+                  <>Send Reset Link <ArrowRight className="h-4 w-4" /></>
                 )}
               </button>
             </form>
           )}
 
           <div className="mt-8 flex items-center justify-between gap-3 text-sm text-[#4f5f75] dark:text-slate-400">
-            <span>Ingat password Anda?</span>
+            <span>Remember your password?</span>
             <button
               type="button"
               onClick={() => onNavigate("login")}
               className="font-semibold text-[#f26a4d] transition hover:text-[#d95e39]"
             >
-              Login sekarang
+              Sign in now
             </button>
           </div>
         </section>
@@ -210,7 +210,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
         {/* ── Step 2: Set new password (only available via reset link) ── */}
         <section className="w-full max-w-[520px] rounded-2xl border border-[#dfe4ea] dark:border-slate-700 bg-[#f8f7f5] dark:bg-slate-800 p-5 shadow-sm sm:p-7">
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#d3e1ee] bg-[#edf4ff] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#4d6f9a]">
-            Langkah 2: Set Password Baru
+            Step 2: Set New Password
           </div>
 
           <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#eef5ff] text-[#4d6f9a] shadow-inner ring-1 ring-[#d7e2f4]">
@@ -226,9 +226,9 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
               <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0" />
                 <span>
-                  Langkah 2 hanya tersedia setelah Anda mengklik link reset
-                  password di email Anda. Setelah mengklik link tersebut, halaman
-                  ini akan otomatis terbuka untuk mengatur password baru.
+                  Step 2 is only accessible after clicking the password reset link
+                  sent to your email. Once clicked, this page will automatically allow
+                  you to set a new password.
                 </span>
               </div>
             </div>
@@ -236,13 +236,13 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
             <div className="mt-6 rounded-xl border border-[#cfe7dd] bg-[#ebfff7] p-4 text-sm text-[#1f7d5d]">
               <div className="flex items-center gap-3">
                 <Check className="h-5 w-5" />
-                <span>Password berhasil diubah! Mengarahkan ke halaman login…</span>
+                <span>Password successfully updated! Redirecting to sign in…</span>
               </div>
             </div>
           ) : (
             <>
               <p className="mt-4 max-w-[420px] text-[1.05rem] leading-relaxed text-[#546176] dark:text-slate-400">
-                Buat password baru yang kuat untuk akun Limina Anda.
+                Create a strong new password for your Limina account.
               </p>
 
               {updateError && (
@@ -254,7 +254,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
               <form onSubmit={handleUpdatePassword} className="mt-8 space-y-5" noValidate>
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
-                    Password Baru
+                    New Password
                   </label>
                   <div className={`flex items-center rounded-xl border bg-white dark:bg-slate-900 px-3 py-3 shadow-sm ${passwordErrors.password ? "border-red-400" : "border-[#dfe2ea] dark:border-slate-600"}`}>
                     <input
@@ -263,7 +263,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                       autoComplete="new-password"
                       value={newPassword}
                       onChange={(e) => { setNewPassword(e.target.value); setPasswordErrors((p) => { const n = { ...p }; delete n.password; return n; }); }}
-                      placeholder="Buat password baru"
+                      placeholder="Enter new password"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
                     <button type="button" onClick={() => setShowNew((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
@@ -276,7 +276,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                   {newPassword && (
                     <div className="mt-2">
                       <div className="flex justify-between text-[10px] text-[#6d788a] mb-1">
-                        <span>Kekuatan</span>
+                        <span>Strength</span>
                         <span>{strengthLabel}</span>
                       </div>
                       <div className="h-1.5 w-full rounded-full bg-[#dfe5e6]">
@@ -288,7 +288,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
-                    Konfirmasi Password Baru
+                    Confirm New Password
                   </label>
                   <div className={`flex items-center rounded-xl border bg-white dark:bg-slate-900 px-3 py-3 shadow-sm ${passwordErrors.confirm ? "border-red-400" : "border-[#dfe2ea] dark:border-slate-600"}`}>
                     <input
@@ -297,7 +297,7 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                       autoComplete="new-password"
                       value={confirmPassword}
                       onChange={(e) => { setConfirmPassword(e.target.value); setPasswordErrors((p) => { const n = { ...p }; delete n.confirm; return n; }); }}
-                      placeholder="Ulangi password baru"
+                      placeholder="Repeat new password"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
                     <button type="button" onClick={() => setShowConfirm((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
@@ -310,9 +310,9 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                 {/* Requirements checklist */}
                 <div className="rounded-xl border border-[#d6e8d9] dark:border-slate-600 bg-[#ebfff7] dark:bg-slate-900 p-3 text-sm text-[#1d7e5d] dark:text-emerald-400">
                   {[
-                    { label: "Minimal 8 karakter", met: newPassword.length >= 8 },
-                    { label: "Mengandung angka atau simbol", met: /[0-9!@#$%^&*]/.test(newPassword) },
-                    { label: "Password cocok", met: newPassword === confirmPassword && confirmPassword.length > 0 },
+                    { label: "At least 8 characters", met: newPassword.length >= 8 },
+                    { label: "Contains numbers or symbols", met: /[0-9!@#$%^&*]/.test(newPassword) },
+                    { label: "Passwords match", met: newPassword === confirmPassword && confirmPassword.length > 0 },
                   ].map((req) => (
                     <div key={req.label} className="flex items-center gap-2 mt-1 first:mt-0">
                       <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full ${req.met ? "bg-[#22a56d] text-white" : "bg-[#d6e8d9] dark:bg-slate-700 text-[#7db594]"}`}>
@@ -329,9 +329,9 @@ const ForgotPasswordPage = ({ onNavigate }: ForgotPasswordPageProps) => {
                   className="flex w-full items-center justify-center gap-3 rounded-xl bg-[linear-gradient(180deg,#f48e62_0%,#f26a4d_100%)] px-5 py-4 text-base font-semibold text-white shadow-[0_10px_24px_rgba(242,106,77,0.25)] transition hover:brightness-105 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {updateLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Menyimpan…</>
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Saving…</>
                   ) : (
-                    <>Simpan Password <Check className="h-4 w-4" /></>
+                    <>Save Password <Check className="h-4 w-4" /></>
                   )}
                 </button>
               </form>

@@ -163,7 +163,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
     link.click();
     document.body.removeChild(link);
 
-    setToastMessage(`Berhasil mengekspor ${filteredStocks.length} emiten ke format CSV.`);
+    setToastMessage(`Successfully exported ${filteredStocks.length} issuers to CSV format.`);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -208,7 +208,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
               Search Securities
             </h1>
             <p className="mt-1.5 text-sm text-[#5b6675] dark:text-slate-400 sm:text-[1.02rem]">
-              Cari emiten, rasio keuangan, dan status risiko suspensi pasar modal Indonesia
+              Search issuers, financial ratios, and IDX suspension risk status
             </p>
           </div>
 
@@ -237,7 +237,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari kode ticker (misal: BBCA, MGLV), nama emiten, sektor, atau pemicu..."
+                placeholder="Search ticker code (e.g. BBCA, MGLV), issuer name, sector, or risk driver..."
                 className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-600 bg-white dark:bg-slate-900 py-3.5 pl-12 pr-10 text-[1rem] text-slate-800 dark:text-slate-100 outline-none placeholder:text-[#778194] focus:border-[#f26a4d] transition shadow-2xs"
               />
               {query && (
@@ -283,7 +283,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
             <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700/80 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Filter Sektor
+                  Sector Filter
                 </label>
                 <select
                   value={sectorFilter}
@@ -300,16 +300,16 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Urutkan Berdasarkan
+                  Sort By
                 </label>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
-                  <option value="score-desc">Skor Risiko: Tertinggi ke Terendah</option>
-                  <option value="score-asc">Skor Risiko: Terendah ke Tertinggi</option>
-                  <option value="price-desc">Harga Saham: Tertinggi</option>
+                  <option value="score-desc">Risk Score: Highest to Lowest</option>
+                  <option value="score-asc">Risk Score: Lowest to Highest</option>
+                  <option value="price-desc">Stock Price: Highest</option>
                   <option value="ticker-asc">Ticker: A - Z</option>
                 </select>
               </div>
@@ -321,7 +321,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 w-full justify-center transition"
                 >
                   <RotateCcw className="h-4 w-4" />
-                  Reset Semua Filter
+                  Reset All Filters
                 </button>
               </div>
             </div>
@@ -337,7 +337,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 : "border-[#ddd5cf] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
                 }`}
             >
-              Semua Ticker ({counts.all})
+              All Tickers ({counts.all})
             </button>
 
             <button
@@ -349,7 +349,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 }`}
             >
               <span className="h-2 w-2 rounded-full bg-red-500" />
-              Risiko Kritis ({counts.critical})
+              Critical Risk ({counts.critical})
             </button>
 
             <button
@@ -361,7 +361,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 }`}
             >
               <span className="h-2 w-2 rounded-full bg-amber-500" />
-              Dalam Pengawasan ({counts.high})
+              Under Watch ({counts.high})
             </button>
 
             <button
@@ -373,7 +373,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 }`}
             >
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              Normal / Rendah ({counts.normal})
+              Normal / Low ({counts.normal})
             </button>
           </div>
         </div>
@@ -383,21 +383,21 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
           <div className="min-w-[860px]">
             <div className="grid grid-cols-[1.2fr_1.8fr_1.2fr_1.1fr_1fr_0.9fr] items-center gap-4 border-b border-[#d8d3cd] dark:border-slate-700 bg-[#eceae7] dark:bg-slate-900/90 px-6 py-4 text-[0.72rem] font-bold uppercase tracking-[0.18em] text-[#58677a] dark:text-slate-400">
               <span>Ticker</span>
-              <span>Emiten &amp; Pemicu Risiko</span>
-              <span>Sektor</span>
-              <span>Harga &amp; 24h</span>
-              <span>Skor Suspensi</span>
-              <span className="text-right">Aksi</span>
+              <span>Issuer &amp; Risk Driver</span>
+              <span>Sector</span>
+              <span>Price &amp; 24h</span>
+              <span>Suspension Score</span>
+              <span className="text-right">Actions</span>
             </div>
 
             {filteredStocks.length === 0 ? (
               <div className="p-12 text-center">
                 <Search className="mx-auto h-8 w-8 text-slate-400 mb-3 opacity-60" />
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-                  Tidak ada emiten yang sesuai
+                  No matching issuers
                 </h3>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Coba gunakan kata kunci pencarian lain atau klik tombol Reset Filter.
+                  Try a different keyword or click Reset Filters.
                 </p>
                 <button
                   type="button"
@@ -405,7 +405,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#f26a4d] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#d95e39]"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  Reset Filter
+                  Reset Filters
                 </button>
               </div>
             ) : (
@@ -551,15 +551,15 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
 
               <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Skor Risiko</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Risk Score</span>
                   <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.score} / 100</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Harga Saham</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">Stock Price</span>
                   <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.priceFormatted}</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Rasio DER</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">DER Ratio</span>
                   <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.der}</p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
@@ -569,11 +569,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
               </div>
 
               <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-4 space-y-2">
-                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Pemicu Utama Anomali Suspensi:</div>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Primary Suspension Anomaly Driver:</div>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{selectedStock.driver}</p>
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500">
-                  <span>Opini Audit Terakhir: {selectedStock.lastAuditOpinion}</span>
-                  <span>Lead Time Prediksi: {selectedStock.leadTimeDays} Hari</span>
+                  <span>Last Audit Opinion: {selectedStock.lastAuditOpinion}</span>
+                  <span>Prediction Lead Time: {selectedStock.leadTimeDays} Days</span>
                 </div>
               </div>
 
@@ -583,7 +583,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   onClick={() => setSelectedStock(null)}
                   className="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50"
                 >
-                  Tutup
+                  Close
                 </button>
                 <button
                   type="button"
@@ -593,7 +593,7 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   }}
                   className="inline-flex items-center gap-2 rounded-xl bg-[#f26a4d] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#d95e39]"
                 >
-                  Buka di Dashboard <ArrowRight className="h-4 w-4" />
+                  Open in Dashboard <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             </div>

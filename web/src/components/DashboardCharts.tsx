@@ -20,16 +20,12 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
 }) => {
   const [chartMode, setChartMode] = useState<"risk" | "price">("risk");
 
-  // Get current active ticker data for detail chart
   const currentStock = useMemo(() => {
     return stocks.find((s) => s.ticker === selectedTicker) || stocks[0];
   }, [stocks, selectedTicker]);
 
-  // Generate SVG curve points — menggunakan harga saham saat ini sebagai anchor
   const priceCurveData = useMemo(() => {
     const basePrice = currentStock?.price || 1000;
-    // Buat kurva sederhana dari harga baseline (historicalPrices sudah dihapus,
-    // gunakan fetchStockDailyHistory() untuk data historis yang lebih akurat)
     const prices: number[] = Array.from({ length: 7 }, (_, i) => {
       const factor = 1 + (Math.sin(i * 0.9) * 0.03 - 0.015);
       return Math.round(basePrice * factor);
@@ -72,11 +68,11 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-[#f26a4d]" />
                 <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-100">
-                  Perbandingan Indeks Risiko Suspensi (12 Emiten)
+                  Suspension Risk Index Comparison (12 Issuers)
                 </h3>
               </div>
               <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                Data real-time dari Sectors API · Skor 0 (Aman) hingga 100 (Kritis)
+                Live data from Sectors API · Score 0 (Safe) to 100 (Critical)
               </p>
             </div>
 
@@ -99,7 +95,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
                   }`}
               >
-                Harga Pasar
+                Market Price
               </button>
             </div>
           </div>
@@ -276,7 +272,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
             <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 mb-2">
               <span className="flex items-center gap-1">
                 <Activity className="h-3 w-3 text-[#f26a4d]" />
-                Trend Trajectory 30 Hari
+                30-Day Trend Trajectory
               </span>
               <span>High: Rp {Math.round(priceCurveData.max).toLocaleString("id-ID")}</span>
             </div>
@@ -364,7 +360,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
         {/* Quick Ticker Switcher Pills */}
         <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700/70">
           <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-            Pilih Emiten untuk Inspeksi Grafik:
+            Select Issuer to Inspect Chart:
           </span>
           <div className="flex flex-wrap gap-1.5">
             {stocks.map((s) => (

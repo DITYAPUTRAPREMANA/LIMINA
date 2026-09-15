@@ -115,17 +115,17 @@ function AppInner() {
         </div>
         <div className="flex-1">
           <div className="text-[11px] font-bold uppercase tracking-widest text-[#f26a4d]">
-            Supabase Belum Dikonfigurasi
+            Supabase Not Configured
           </div>
           <p className="mt-1 text-sm text-slate-300">
-            Edit file <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">.env</code> di folder{" "}
-            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">web/</code> dan isi{" "}
+            Edit the <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">.env</code> file in the{" "}
+            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">web/</code> directory and configure{" "}
             <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">VITE_SUPABASE_ANON_KEY</code>{" "}
-            dari <strong className="text-white">Supabase Dashboard → Settings → API</strong>.
-            Setelah disimpan, refresh halaman ini.
+            from <strong className="text-white">Supabase Dashboard → Settings → API</strong>.
+            After saving, refresh this page.
           </p>
           <p className="mt-1.5 text-xs text-slate-500">
-            Auth (login/register/OTP) tidak akan berfungsi sampai konfigurasi selesai. Halaman publik tetap bisa dilihat.
+            Authentication (login/register/OTP) will remain disabled until setup is complete. Public pages remain accessible.
           </p>
         </div>
       </div>

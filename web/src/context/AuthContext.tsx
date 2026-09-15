@@ -47,27 +47,27 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 function mapAuthError(code: string | undefined, fallback: string): string {
   const messages: Record<string, string> = {
-    invalid_credentials: "Email atau password salah.",
-    user_already_exists: "Email ini sudah terdaftar. Silakan login.",
+    invalid_credentials: "Invalid email or password.",
+    user_already_exists: "This email is already registered. Please sign in.",
     email_not_confirmed:
-      "Email belum diverifikasi. Periksa inbox Anda untuk kode OTP.",
+      "Email has not been verified. Please check your inbox for verification code or link.",
     over_email_send_rate_limit:
-      "Terlalu banyak permintaan email. Coba lagi dalam beberapa menit.",
-    otp_expired: "Kode OTP sudah kedaluwarsa. Minta kode baru.",
-    token_has_expired: "Kode OTP sudah kedaluwarsa. Minta kode baru.",
-    otp_disabled: "Verifikasi OTP tidak aktif. Hubungi administrator.",
-    same_password: "Password baru tidak boleh sama dengan password lama.",
+      "Too many email requests. Please try again in a few minutes.",
+    otp_expired: "Verification code has expired. Please request a new one.",
+    token_has_expired: "Verification code has expired. Please request a new one.",
+    otp_disabled: "OTP verification is disabled. Please contact the administrator.",
+    same_password: "New password cannot be the same as the old password.",
     weak_password:
-      "Password terlalu lemah. Gunakan kombinasi huruf, angka, dan simbol.",
-    user_not_found: "Akun tidak ditemukan.",
-    session_not_found: "Sesi tidak ditemukan. Silakan login ulang.",
-    signup_disabled: "Pendaftaran akun baru sedang dinonaktifkan.",
-    captcha_failed: "Verifikasi bot (captcha) gagal atau perlu dinonaktifkan di dashboard Supabase.",
-    gateway_timeout: "Server Supabase timeout (504) saat mengirim email. Coba beberapa saat lagi atau cek SMTP Supabase.",
-    timeout: "Koneksi ke server timeout. Coba beberapa saat lagi.",
+      "Password is too weak. Please use a combination of letters, numbers, and symbols.",
+    user_not_found: "Account not found.",
+    session_not_found: "Session expired. Please sign in again.",
+    signup_disabled: "New account registration is currently disabled.",
+    captcha_failed: "Security verification failed. Please try again.",
+    gateway_timeout: "Server timeout while sending email. Please try again in a moment.",
+    timeout: "Connection to server timed out. Please try again shortly.",
   };
   if (code?.includes("504") || code?.includes("timeout")) {
-    return "Server Supabase timeout saat memproses pengiriman email. Silakan coba lagi.";
+    return "Server timeout occurred while sending email. Please try again shortly.";
   }
   return messages[code ?? ""] ?? fallback;
 }
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) {
         // Log safely — no credentials in log output
         console.warn("[LIMINA Auth] Sign-in failed:", error.code);
-        return { error: mapAuthError(error.code, "Login gagal. Coba lagi.") };
+        return { error: mapAuthError(error.code, "Sign-in failed. Please try again.") };
       }
       return { error: null };
     },
@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Pendaftaran gagal. Coba lagi nanti."
+            "Registration failed. Please try again later."
           ),
         };
       }
@@ -161,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Kode OTP salah atau sudah kedaluwarsa."
+            "Invalid or expired verification code."
           ),
         };
       }
@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Gagal mengirim link verifikasi. Coba lagi nanti."
+            "Failed to send verification link. Please try again."
           ),
         };
       }
@@ -204,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Gagal mengirim ulang kode. Coba lagi."
+            "Failed to resend code. Please try again."
           ),
         };
       }
@@ -226,7 +226,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Gagal mengirim link reset. Coba lagi."
+            "Failed to send password reset link. Please try again."
           ),
         };
       }
@@ -245,7 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           error: mapAuthError(
             error.code,
-            "Gagal mengubah password. Coba lagi."
+            "Failed to update password. Please try again."
           ),
         };
       }
@@ -272,7 +272,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (authError) {
         console.warn("[LIMINA Auth] Update user metadata failed:", authError.code);
         return {
-          error: mapAuthError(authError.code, "Gagal menyimpan profil. Coba lagi."),
+          error: mapAuthError(authError.code, "Failed to save profile. Please try again."),
         };
       }
 

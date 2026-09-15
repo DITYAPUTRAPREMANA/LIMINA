@@ -89,7 +89,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
 
     const nameResult = validateName(formData.full_name);
     if (!nameResult.valid) {
-      setSaveError(nameResult.error ?? "Nama tidak valid.");
+      setSaveError(nameResult.error ?? "Invalid name format.");
       return;
     }
 
@@ -137,7 +137,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
               Profile
             </h1>
             <p className="mt-2 text-[1.05rem] text-[#5b6675] dark:text-slate-400">
-              Kelola akun dan informasi pengguna Anda
+              Manage your account and user profile details
             </p>
           </div>
 
@@ -147,7 +147,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
               onClick={() => onNavigate("dashboard")}
               className="inline-flex items-center justify-center rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-[#273244] dark:text-slate-200"
             >
-              Ke Dashboard
+              Go to Dashboard
             </button>
             <button
               type="button"
@@ -160,7 +160,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
               ) : (
                 <LogOut className="h-4 w-4" />
               )}
-              Logout
+              Sign Out
             </button>
           </div>
         </div>
@@ -173,7 +173,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 {initials}
               </div>
               <h2 className="mt-4 text-2xl font-bold tracking-[-0.06em] text-[#111827] dark:text-slate-100">
-                {formData.full_name || "Pengguna"}
+                {formData.full_name || "User"}
               </h2>
               <p className="mt-1 text-[#58677a] dark:text-slate-400">
                 {formData.role || "Retail Analyst"}
@@ -213,14 +213,14 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 ) : (
                   <Save className="h-4 w-4" />
                 )}
-                {saving ? "Menyimpan…" : "Simpan"}
+                {saving ? "Saving…" : "Save Changes"}
               </button>
             </div>
 
             {/* Status messages */}
             {saveSuccess && (
               <div className="mb-4 rounded-xl border border-[#cfe7dd] bg-[#ebfff7] px-4 py-3 text-sm text-[#1f7d5d]">
-                ✓ Profil berhasil disimpan.
+                ✓ Profile updated successfully.
               </div>
             )}
             {saveError && (
@@ -268,10 +268,10 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                   readOnly
                   value={user?.email ?? ""}
                   className={`${inputClass} cursor-not-allowed opacity-60`}
-                  title="Email tidak dapat diubah langsung. Hubungi support jika perlu mengubah email."
+                  title="Email cannot be changed directly. Contact support if you need to update your email."
                 />
                 <p className="mt-1 text-[11px] text-[#7a8697] dark:text-slate-500">
-                  Untuk mengubah email, diperlukan verifikasi ulang via Supabase.
+                  To change your email address, re-verification via Supabase is required.
                 </p>
               </div>
             </div>

@@ -80,7 +80,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
   }, [password]);
 
   const strengthLabel =
-    strength < 30 ? "Lemah" : strength < 70 ? "Sedang" : "Kuat (256-bit)";
+    strength < 30 ? "Weak" : strength < 70 ? "Medium" : "Strong (256-bit)";
   const strengthColor =
     strength < 30
       ? "from-[#ff7d5a] to-[#f26a4d]"
@@ -103,7 +103,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
     const matchResult = validatePasswordMatch(password, confirm);
     if (!matchResult.valid && matchResult.error) errors.confirm = matchResult.error;
 
-    if (!agreed) errors.agreed = "Anda harus menyetujui syarat penggunaan.";
+    if (!agreed) errors.agreed = "You must accept the terms of use.";
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -188,7 +188,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                       autoComplete="name"
                       value={fullName}
                       onChange={(e) => { setFullName(e.target.value); clearFieldError("fullName"); }}
-                      placeholder="Nama lengkap Anda"
+                      placeholder="Your full name"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
                   </div>
@@ -205,7 +205,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                       type="text"
                       value={alias}
                       onChange={(e) => setAlias(e.target.value)}
-                      placeholder="Nama alias (opsional)"
+                      placeholder="Alias (optional)"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
                   </div>
@@ -244,10 +244,10 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); clearFieldError("password"); }}
-                      placeholder="Buat password"
+                      placeholder="Create password"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
-                    <button type="button" aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"} onClick={() => setShowPassword((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
+                    <button type="button" aria-label={showPassword ? "Hide password" : "Show password"} onClick={() => setShowPassword((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
                     </button>
                   </div>
@@ -256,7 +256,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
 
                 <div>
                   <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#6d788a]">
-                    Konfirmasi *
+                    Confirm Password *
                   </label>
                   <div className={`flex items-center rounded-xl border bg-white/70 dark:bg-slate-800 px-3 py-3 shadow-sm ${fieldErrors.confirm ? "border-red-400" : "border-[#dfe2ea] dark:border-slate-600"}`}>
                     <input
@@ -265,10 +265,10 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                       autoComplete="new-password"
                       value={confirm}
                       onChange={(e) => { setConfirm(e.target.value); clearFieldError("confirm"); }}
-                      placeholder="Ulangi password"
+                      placeholder="Repeat password"
                       className="w-full bg-transparent text-[15px] text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400"
                     />
-                    <button type="button" aria-label={showConfirm ? "Sembunyikan" : "Tampilkan"} onClick={() => setShowConfirm((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
+                    <button type="button" aria-label={showConfirm ? "Hide password" : "Show password"} onClick={() => setShowConfirm((v) => !v)} className="ml-2 text-gray-400 hover:text-slate-600">
                       {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
@@ -302,8 +302,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                   className="mt-1 h-4 w-4 rounded border-slate-300 text-[#f26a4d] accent-[#f26a4d]"
                 />
                 <span>
-                  Saya memahami bahwa Limina adalah alat peringatan dini matematika
-                  non-advisory dan menyetujui{" "}
+                  I understand that Limina is a non-advisory mathematical early warning tool and agree to the{" "}
                   <span className="font-semibold text-[#2d6f9d]">Methodology Disclaimer.</span>
                 </span>
               </label>
@@ -315,7 +314,7 @@ const RegisterPage = ({ onNavigate }: RegisterPageProps) => {
                 className="mt-3 flex w-full items-center justify-center gap-3 rounded-xl bg-[#101a2b] px-5 py-4 text-lg font-semibold text-white shadow-[0_12px_30px_rgba(16,26,43,0.22)] transition hover:bg-[#18273d] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <><Loader2 className="h-5 w-5 animate-spin" /> Membuat akun…</>
+                  <><Loader2 className="h-5 w-5 animate-spin" /> Creating account…</>
                 ) : (
                   <>Register Account <ArrowRight className="h-5 w-5" /></>
                 )}
