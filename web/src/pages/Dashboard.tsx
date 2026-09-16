@@ -6,6 +6,7 @@ import {
   ArrowUp,
   ArrowUpDown,
   BarChart3,
+  Bell,
   Check,
   Download,
   ExternalLink,
@@ -29,6 +30,11 @@ import {
   type DashboardStockItem,
 } from "../lib/sectorsApi";
 import { fetchLiveModelRankings } from "../lib/modelApi";
+import {
+  areDeviceAlertsEnabled,
+  requestNotificationPermission,
+  sendDeviceNotification,
+} from "../lib/notifications";
 import type { View } from "../App";
 
 type DashboardPageProps = {
@@ -66,6 +72,36 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [selectedTicker, setSelectedTicker] = useState<string>("BELI");
   const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [deviceAlertsActive, setDeviceAlertsActive] = useState(false);
+
+  useEffect(() => {
+    setDeviceAlertsActive(areDeviceAlertsEnabled());
+  }, []);
+
+  const handleDeviceAlertClick = async () => {
+    if (!deviceAlertsActive) {
+      const res = await requestNotificationPermission();
+      if (res.granted) {
+        setDeviceAlertsActive(true);
+        setToastMessage("✓ Notifikasi perangkat aktif! Alert risiko IDX akan dikirim ke device Anda.");
+      } else {
+        setToastMessage("Izin notifikasi belum diaktifkan di browser Anda.");
+      }
+    } else {
+      const firstCritical = stocks.find((s) => s.tone === "red");
+      if (firstCritical) {
+        await sendDeviceNotification({
+          title: `🚨 ${firstCritical.ticker}: Critical Risk Alert`,
+          body: `Skor risiko ${firstCritical.score}/100. Driver: ${firstCritical.driver}. Perusahaan: ${firstCritical.company}.`,
+          url: "/dashboard",
+          tag: `stock-alert-${firstCritical.ticker}`,
+        });
+        setToastMessage(`✓ Push alert untuk ${firstCritical.ticker} berhasil dikirim ke perangkat Anda.`);
+      } else {
+        setToastMessage("Semua emiten saat ini dalam batas normal.");
+      }
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -268,6 +304,20 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
             <button
               type="button"
+              onClick={handleDeviceAlertClick}
+              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition shadow-xs ${
+                deviceAlertsActive
+                  ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                  : "border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+              }`}
+              title={deviceAlertsActive ? "Notifikasi Device Aktif" : "Klik untuk aktifkan notifikasi ke device"}
+            >
+              <Bell className="h-3.5 w-3.5 text-red-500" />
+              <span>{deviceAlertsActive ? "Alert On" : "Alert Off"}</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => onNavigate("profile")}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 px-4 py-2.5 text-sm font-semibold text-[#273244] dark:text-slate-200 transition hover:bg-white dark:hover:bg-slate-700 shadow-xs"
             >
@@ -310,17 +360,28 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setRiskFilter("critical");
-                setSearchQuery("");
-                setSelectedSector("All Sectors");
-              }}
-              className="inline-flex items-center justify-center rounded-xl bg-[#d93e3e] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-sm transition hover:bg-[#c83535] active:scale-[0.98]"
-            >
-              Focus Critical Issuers ({criticalCount})
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleDeviceAlertClick}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-300 dark:border-red-800/80 bg-white/90 dark:bg-slate-900/90 px-3.5 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-white dark:hover:bg-slate-800 transition shadow-xs"
+              >
+                <Bell className="h-3.5 w-3.5 text-red-500" />
+                {deviceAlertsActive ? "Kirim Alert ke Device" : "Aktifkan Push Alert"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setRiskFilter("critical");
+                  setSearchQuery("");
+                  setSelectedSector("All Sectors");
+                }}
+                className="inline-flex items-center justify-center rounded-xl bg-[#d93e3e] px-5 py-2.5 text-xs font-bold uppercase tracking-[0.14em] text-white shadow-sm transition hover:bg-[#c83535] active:scale-[0.98]"
+              >
+                Focus Critical Issuers ({criticalCount})
+              </button>
+            </div>
           </div>
           <p className="mt-2 text-sm text-[#4f5969] dark:text-slate-400 sm:pl-[3.8rem]">
             Early risk warnings are computed from operating cash deficit, debt-to-equity ratio (DER), and IDX regulatory compliance.

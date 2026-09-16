@@ -1,54 +1,58 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
 
-  server: {
-    host: "127.0.0.1",
-    port: 5173,
+  return {
+    plugins: [react(), tailwindcss()],
 
-    headers: {
-      "X-Frame-Options": "DENY",
-      "X-Content-Type-Options": "nosniff",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-    },
+    server: {
+      host: "127.0.0.1",
+      port: 5173,
 
-    proxy: {
-      "/api/sectors": {
-        target: "https://api.sectors.app/v2",
-        changeOrigin: true,
-        secure: true,
-        rewrite: (path) => path.replace(/^\/api\/sectors/, ""),
-        headers: {
-          Authorization: "95a384b1890f8b9f41d0c764591e19ce72c38f78e67bd87e984991ae81e85072",
-        },
+      headers: {
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
       },
-      "/api/model": {
-        target: process.env.VITE_MODEL_API_URL || "http://127.0.0.1:8000",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/model/, ""),
-        configure: (proxy) => {
-          proxy.on("error", (_err, _req, res) => {
-            if (res && "writeHead" in res && !res.headersSent) {
-              res.writeHead(503, { "Content-Type": "application/json" });
-              res.end(JSON.stringify({ error: "model_server_offline" }));
-            }
-          });
-        },
-      },
-    },
-  },
 
-  build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (id.includes("@supabase")) return "supabase";
+      proxy: {
+        "/api/sectors": {
+          target: "https://api.sectors.app/v2",
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/api\/sectors/, ""),
+          headers: {
+            Authorization: env.SECTORS_API_KEY || "",
+          },
+        },
+        "/api/model": {
+          target: env.VITE_MODEL_API_URL || "http://127.0.0.1:8000",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/model/, ""),
+          configure: (proxy) => {
+            proxy.on("error", (_err, _req, res) => {
+              if (res && "writeHead" in res && !res.headersSent) {
+                res.writeHead(503, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: "model_server_offline" }));
+              }
+            });
+          },
         },
       },
     },
-  },
+
+    build: {
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks(id: string) {
+            if (id.includes("@supabase")) return "supabase";
+          },
+        },
+      },
+    },
+  };
 });

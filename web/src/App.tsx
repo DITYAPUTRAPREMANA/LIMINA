@@ -163,13 +163,13 @@ function AppInner() {
 
     return (
       <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-100 selection:text-red-900 transition-colors duration-300">
-        <Navbar onNavigate={setView} />
-        <HeroSection />
-        <VisionSection />
-        <MethodologySection />
-        <CaseStudiesSection />
-        <RankingsSection />
-        <CTASection />
+        <Navbar onNavigate={navigate} />
+        <HeroSection onNavigate={navigate} />
+        <VisionSection onNavigate={navigate} />
+        <MethodologySection onNavigate={navigate} />
+        <CaseStudiesSection onNavigate={navigate} />
+        <RankingsSection onNavigate={navigate} />
+        <CTASection onNavigate={navigate} />
         <FooterSection />
       </div>
     );

@@ -1,6 +1,11 @@
 import { Activity, BookOpen, Lock, Shield } from "lucide-react";
+import type { View } from "../../App";
 
-const VisionSection: React.FC = () => {
+interface VisionSectionProps {
+  onNavigate?: (view: View) => void;
+}
+
+const VisionSection: React.FC<VisionSectionProps> = () => {
   return (
     <section
       id="vision"
@@ -45,19 +50,20 @@ const VisionSection: React.FC = () => {
           ].map((item, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 hover:shadow-lg transition-shadow"
+              className="group bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-red-300/80 dark:hover:border-red-500/40 rounded-2xl p-8 card-hover-lift hover:shadow-xl hover:shadow-red-500/5 dark:hover:shadow-black/30 transition-all duration-300"
             >
-              <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/50 text-red-500 flex items-center justify-center mb-6">
-                <item.icon className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/50 text-red-500 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white shadow-xs">
+                <item.icon className="w-5 h-5 transition-transform duration-300 group-hover:rotate-6" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
                 {item.title}
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-8">
                 {item.desc}
               </p>
-              <div className="text-xs font-mono text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700">
-                {item.pillar}
+              <div className="text-xs font-mono text-slate-400 dark:text-slate-500 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <span>{item.pillar}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 group-hover:bg-red-500 transition-colors"></span>
               </div>
             </div>
           ))}
