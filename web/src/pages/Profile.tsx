@@ -408,8 +408,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     onClick={handleToggleNotifications}
                     disabled={!notifSupported}
                     className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all shadow-xs ${deviceAlertsActive
-                        ? "border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100"
-                        : "bg-[#101a2b] dark:bg-violet-600 text-white hover:opacity-90"
+                      ? "border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100"
+                      : "bg-[#101a2b] dark:bg-violet-600 text-white hover:opacity-90"
                       } disabled:opacity-50`}
                   >
                     <Bell className="h-4 w-4" />
@@ -436,8 +436,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 <div
                   role="alert"
                   className={`mb-5 rounded-xl border px-4 py-3 text-sm flex items-start gap-2.5 ${testFeedback.success
-                      ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
-                      : "border-amber-200 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
+                    ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
+                    : "border-amber-200 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
                     }`}
                 >
                   {testFeedback.success ? (
@@ -460,8 +460,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                       type="button"
                       onClick={() => handleChangeThreshold("critical_only")}
                       className={`text-left p-3.5 rounded-xl border text-xs transition-all ${notifThreshold === "critical_only"
-                          ? "border-red-500 bg-red-50/70 dark:bg-red-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-red-500/20"
-                          : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                        ? "border-red-500 bg-red-50/70 dark:bg-red-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-red-500/20"
+                        : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
                         }`}
                     >
                       <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-bold mb-1">
@@ -476,8 +476,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                       type="button"
                       onClick={() => handleChangeThreshold("all_anomalies")}
                       className={`text-left p-3.5 rounded-xl border text-xs transition-all ${notifThreshold === "all_anomalies"
-                          ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-amber-500/20"
-                          : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                        ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-amber-500/20"
+                        : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
                         }`}
                     >
                       <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold mb-1">
