@@ -97,7 +97,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
         setDeviceAlertsActive(true);
         setTestFeedback({
           success: true,
-          message: "Izin diberikan! Notifikasi sistem ke device Anda sekarang aktif.",
+          message: "Permission granted! System notifications to your device are now active.",
         });
       } else {
         setDeviceAlertsActive(false);
@@ -105,8 +105,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
           success: false,
           message:
             res.status === "denied"
-              ? "Izin notifikasi diblokir di browser Anda. Klik ikon gembok di sebelah kiri URL untuk mengizinkan."
-              : "Izin notifikasi belum diberikan.",
+              ? "Notification permission is blocked in your browser. Click the lock icon to the left of the URL to allow it."
+              : "Notification permission has not been granted.",
         });
       }
     } else {
@@ -114,7 +114,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
       setDeviceAlertsActive(false);
       setTestFeedback({
         success: true,
-        message: "Notifikasi device dinonaktifkan.",
+        message: "Device notifications disabled.",
       });
     }
   };
@@ -377,26 +377,26 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                   <div>
                     <div className="flex flex-wrap items-center gap-2.5">
                       <h3 className="text-xl font-bold tracking-tight text-[#111827] dark:text-slate-100">
-                        Notifikasi Perangkat & Web Push
+                        Device & Web Push Notifications
                       </h3>
                       {notifPermission === "granted" && deviceAlertsActive ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          Aktif
+                          Active
                         </span>
                       ) : notifPermission === "denied" ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60">
                           <AlertCircle className="w-3 h-3 text-rose-500" />
-                          Diblokir Browser
+                          Blocked by Browser
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e7e4e0] dark:bg-slate-700 text-slate-600 dark:text-slate-300">
-                          Nonaktif
+                          Inactive
                         </span>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-[#5e6b7d] dark:text-slate-400 max-w-xl">
-                      Dapatkan peringatan sistem langsung ke Windows, macOS, Linux, atau HP Android Chrome saat terdeteksi anomali emiten IDX.
+                      Receive system alerts directly on Windows, macOS, Linux, or Android Chrome when an IDX issuer anomaly is detected.
                     </p>
                   </div>
                 </div>
@@ -413,7 +413,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                       } disabled:opacity-50`}
                   >
                     <Bell className="h-4 w-4" />
-                    {deviceAlertsActive ? "Nonaktifkan Alert" : "Aktifkan Notifikasi"}
+                    {deviceAlertsActive ? "Disable Alerts" : "Enable Notifications"}
                   </button>
                 </div>
               </div>
@@ -423,10 +423,10 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 <div className="mb-5 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/80 dark:bg-rose-950/30 p-4 text-xs text-rose-800 dark:text-rose-300">
                   <div className="font-bold flex items-center gap-1.5 text-sm mb-1 text-rose-700 dark:text-rose-300">
                     <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                    Izin Notifikasi Diblokir oleh Browser
+                    Notification Permission Blocked by Browser
                   </div>
                   <p className="leading-relaxed">
-                    Untuk mengaktifkan notifikasi: Klik <strong>ikon gembok / setelan situs</strong> di sebelah kiri kolom URL browser, ubah izin <strong>Notifications</strong> menjadi <strong>Allow (Izinkan)</strong>, lalu muat ulang halaman ini.
+                    To enable notifications: click the <strong>lock icon / site settings</strong> to the left of the browser's URL bar, change the <strong>Notifications</strong> permission to <strong>Allow</strong>, then reload this page.
                   </p>
                 </div>
               )}
@@ -453,7 +453,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
               <div className="space-y-4">
                 <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-[#d8d3cd] dark:border-slate-700 shadow-xs">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2.5">
-                    Tingkat Sensitivitas Notifikasi
+                    Notification Sensitivity Level
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <button
@@ -465,10 +465,10 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                         }`}
                     >
                       <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-bold mb-1">
-                        🚨 Critical Risk Saja (Rekomendasi)
+                        🚨 Critical Risk Only (Recommended)
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal leading-normal">
-                        Hanya kirim alert jika skor risiko emiten ≥ 7.5 (potensi suspensi, lonjakan volume anomali ekstrem).
+                        Only send alerts when an issuer's risk score is ≥ 7.5 (potential suspension, extreme anomalous volume spikes).
                       </p>
                     </button>
 
@@ -481,10 +481,10 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                         }`}
                     >
                       <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold mb-1">
-                        ⚡ Semua Anomali Terdeteksi
+                        ⚡ All Detected Anomalies
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal leading-normal">
-                        Kirim peringatan untuk setiap pergerakan janggal dan anomali akumulasi yang terdeteksi.
+                        Send alerts for every unusual movement and detected accumulation anomaly.
                       </p>
                     </button>
                   </div>
@@ -494,7 +494,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                   <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5">
-                      <Laptop className="w-3.5 h-3.5 text-slate-400" /> Desktop (Win / Mac / Linux)
+                      <Laptop className="w-3.5 h-3.5 text-slate-400" /> Desktop (Windows / macOS / Linux)
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Smartphone className="w-3.5 h-3.5 text-slate-400" /> Android Chrome
@@ -512,7 +512,7 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     ) : (
                       <Bell className="w-3.5 h-3.5 text-red-500" />
                     )}
-                    Kirim Uji Coba Alert ke Device
+                    Send Test Alert to Device
                   </button>
                 </div>
               </div>
