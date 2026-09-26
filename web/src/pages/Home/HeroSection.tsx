@@ -26,8 +26,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleExploreMethodology = () => {
-    const el = document.getElementById("methodology");
+  const handleExploreCaseStudies = () => {
+    const el = document.getElementById("case-studies");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     } else if (onNavigate) {
@@ -76,12 +76,12 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
             </button>
             <button
               type="button"
-              id="hero-explore-methodology"
-              onClick={handleExploreMethodology}
+              id="hero-explore-case-studies"
+              onClick={handleExploreCaseStudies}
               className="group cursor-pointer bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-500/50 hover:bg-red-50/30 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-300 px-6 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2.5 transition-all duration-300 shadow-xs hover:shadow-md btn-hover-lift"
             >
               <BookOpen className="w-5 h-5 text-slate-400 group-hover:text-red-500 transition-colors duration-200 group-hover:-rotate-6" />
-              <span>Explore Methodology</span>
+              <span>Explore Case Studies</span>
             </button>
           </div>
 
