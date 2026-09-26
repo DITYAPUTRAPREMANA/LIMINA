@@ -22,7 +22,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
         setTimeout(() => searchInput.focus(), 600);
       }
     } else if (onNavigate) {
-      onNavigate("search");
+      onNavigate("dashboard");
     }
   };
 
