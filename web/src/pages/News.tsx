@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -110,6 +110,21 @@ const tagClassNames = {
   slate: "border-[#dfe3ea] bg-[#f1f4f8] text-[#4b5563]",
 };
 
+const NEWS_TABS = [
+  "Updated News",
+  "Financial News",
+  "Key Filings",
+  "Buybacks",
+  "Suspensions & UMA",
+  "Indonesia IPOs",
+] as const;
+
+const FILTER_BUTTONS = [
+  "Filter by tag",
+  "Filter by ticker",
+  "Filter by counterparty",
+] as const;
+
 const NewsDetailModal = ({
   item,
   onClose,
@@ -181,6 +196,60 @@ const NewsDetailModal = ({
 const NewsPage = ({ onNavigate }: NewsPageProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<NewsItem | null>(null);
+  const [activeTab, setActiveTab] =
+    useState<(typeof NEWS_TABS)[number]>("Financial News");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState<
+    (typeof FILTER_BUTTONS)[number] | null
+  >(null);
+  const [page, setPage] = useState(1);
+
+  const filteredNews = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return NEWS_ITEMS.filter((item) => {
+      const matchesSearch =
+        !query ||
+        `${item.title} ${item.company} ${item.ticker} ${item.excerpt} ${item.tags.join(" ")}`
+          .toLowerCase()
+          .includes(query);
+
+      const matchesTab =
+        activeTab === "Financial News" ||
+        item.title
+          .toLowerCase()
+          .includes(
+            activeTab
+              .toLowerCase()
+              .replace(/&/g, "")
+              .replace(/\s+/g, " ")
+              .trim(),
+          ) ||
+        item.tags.some((tag) =>
+          tag
+            .toLowerCase()
+            .includes(
+              activeTab
+                .toLowerCase()
+                .replace(/&/g, "")
+                .replace(/\s+/g, " ")
+                .trim(),
+            ),
+        );
+
+      const matchesFilter =
+        !activeFilter ||
+        (activeFilter === "Filter by tag" && item.tags.length > 0) ||
+        (activeFilter === "Filter by ticker" && Boolean(item.ticker)) ||
+        (activeFilter === "Filter by counterparty" && Boolean(item.company));
+
+      return matchesSearch && matchesTab && matchesFilter;
+    });
+  }, [activeFilter, activeTab, searchTerm]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredNews.length / 5));
+
+  const paginatedNews = filteredNews.slice((page - 1) * 5, page * 5);
 
   const navItems = menuItems.map((item) => ({
     ...item,
@@ -216,8 +285,9 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9d5d1] bg-white text-[#3d4756] shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                    aria-label="Open news tools"
+                    onClick={() => setSearchTerm("")}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d9d5d1] bg-white text-[#3d4756] shadow-sm transition hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                    aria-label="Reset news filters"
                   >
                     <Sparkles className="h-4 w-4" />
                   </button>
@@ -231,18 +301,15 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
               </div>
 
               <nav className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-[#586476] dark:text-slate-300">
-                {[
-                  "Updated News",
-                  "Financial News",
-                  "Key Filings",
-                  "Buybacks",
-                  "Suspensions & UMA",
-                  "Indonesia IPOs",
-                ].map((item) => (
+                {NEWS_TABS.map((item) => (
                   <button
                     key={item}
                     type="button"
-                    className={`rounded-full px-2.5 py-1.5 transition ${item === "Financial News" ? "bg-[#ece7e3] text-[#1d2430] dark:bg-slate-700 dark:text-slate-100" : "hover:bg-[#ece7e3] dark:hover:bg-slate-700"}`}
+                    onClick={() => {
+                      setActiveTab(item);
+                      setPage(1);
+                    }}
+                    className={`rounded-full px-2.5 py-1.5 transition ${item === activeTab ? "bg-[#ece7e3] text-[#1d2430] dark:bg-slate-700 dark:text-slate-100" : "hover:bg-[#ece7e3] dark:hover:bg-slate-700"}`}
                   >
                     {item}
                   </button>
@@ -252,29 +319,31 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
 
             <div className="px-4 pb-4 pt-4 sm:px-5">
               <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-[#d9d5d1] bg-[#f0eeed] p-2 dark:border-slate-700 dark:bg-slate-800/80">
-                <button
-                  type="button"
-                  className="rounded-lg border border-[#d9d5d1] bg-white px-2.5 py-2 text-[11px] text-[#4f5b6a] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  Filter by tag
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-[#d9d5d1] bg-white px-2.5 py-2 text-[11px] text-[#4f5b6a] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  Filter by ticker
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg border border-[#d9d5d1] bg-white px-2.5 py-2 text-[11px] text-[#4f5b6a] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  Filter by counterparty
-                </button>
+                {FILTER_BUTTONS.map((filter) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => {
+                      setActiveFilter((current) =>
+                        current === filter ? null : filter,
+                      );
+                      setPage(1);
+                    }}
+                    className={`rounded-lg border px-2.5 py-2 text-[11px] transition ${activeFilter === filter ? "border-[#1d2430] bg-[#1d2430] text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900" : "border-[#d9d5d1] bg-white text-[#4f5b6a] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}
+                  >
+                    {filter}
+                  </button>
+                ))}
 
                 <div className="ml-auto flex min-w-55 items-center gap-2 rounded-lg border border-[#d9d5d1] bg-white px-3 py-2 text-[12px] text-[#6a7381] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                   <Search className="h-3.5 w-3.5" />
                   <input
                     aria-label="Search headlines"
+                    value={searchTerm}
+                    onChange={(event) => {
+                      setSearchTerm(event.target.value);
+                      setPage(1);
+                    }}
                     placeholder="Search keywords, headlines, refs..."
                     className="w-full bg-transparent text-[12px] text-[#1d2430] placeholder:text-[#7a7f87] focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-400"
                   />
@@ -294,112 +363,116 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
               </div>
 
               <div className="space-y-3">
-                {NEWS_ITEMS.map((item) => (
-                  <article
-                    key={`${item.ticker}-${item.title}`}
-                    className="flex gap-3 rounded-xl border border-[#d9d5d1] bg-[#fbfaf9] p-3 shadow-[0_1px_0_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-800/80"
-                  >
-                    <div className="flex min-w-27.5 items-start justify-between gap-3 pt-1">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#e8e3df] text-[10px] font-bold text-[#1d2430] dark:bg-slate-700 dark:text-slate-100">
-                          {item.ticker.slice(0, 2)}
-                        </span>
-                        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d2430] dark:text-slate-100">
-                          {item.ticker}
-                        </span>
-                      </div>
-                      <span className="rounded-full bg-[#f0efee] px-1.5 py-0.5 text-[10px] font-medium text-[#647084] dark:bg-slate-700 dark:text-slate-200">
-                        {item.score}
-                      </span>
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] text-[#7a7f87] dark:text-slate-400">
-                        <span>{item.date}</span>
-                        <span className="h-1 w-1 rounded-full bg-[#b4b9c0]" />
-                        <span>{item.company}</span>
-                      </div>
-
-                      <h3 className="text-[15px] font-semibold leading-snug text-[#1d2430] dark:text-slate-100 sm:text-[17px]">
-                        {item.title}
-                      </h3>
-
-                      <p className="mt-2 text-[12px] leading-relaxed text-[#5a6674] dark:text-slate-300">
-                        {item.excerpt}
-                      </p>
-
-                      <div className="mt-3 flex flex-wrap items-center gap-2">
-                        {item.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={`rounded-md border px-2 py-1 text-[10px] font-semibold ${tagClassNames[item.tagsTone]}`}
-                          >
-                            {tag}
+                {paginatedNews.length > 0 ? (
+                  paginatedNews.map((item) => (
+                    <article
+                      key={`${item.ticker}-${item.title}`}
+                      className="flex gap-3 rounded-xl border border-[#d9d5d1] bg-[#fbfaf9] p-3 shadow-[0_1px_0_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-800/80"
+                    >
+                      <div className="flex min-w-27.5 items-start justify-between gap-3 pt-1">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#e8e3df] text-[10px] font-bold text-[#1d2430] dark:bg-slate-700 dark:text-slate-100">
+                            {item.ticker.slice(0, 2)}
                           </span>
-                        ))}
+                          <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1d2430] dark:text-slate-100">
+                            {item.ticker}
+                          </span>
+                        </div>
+                        <span className="rounded-full bg-[#f0efee] px-1.5 py-0.5 text-[10px] font-medium text-[#647084] dark:bg-slate-700 dark:text-slate-200">
+                          {item.score}
+                        </span>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2 pt-2 text-[#5a6674] dark:text-slate-300">
-                      <button
-                        type="button"
-                        aria-label={`Open ${item.ticker}`}
-                        onClick={() => setSelectedItem(item)}
-                        className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
-                      >
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Open details for ${item.ticker}`}
-                        onClick={() => setSelectedItem(item)}
-                        className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
-                      >
-                        <FileText className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </article>
-                ))}
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex flex-wrap items-center gap-2 text-[11px] text-[#7a7f87] dark:text-slate-400">
+                          <span>{item.date}</span>
+                          <span className="h-1 w-1 rounded-full bg-[#b4b9c0]" />
+                          <span>{item.company}</span>
+                        </div>
+
+                        <h3 className="text-[15px] font-semibold leading-snug text-[#1d2430] dark:text-slate-100 sm:text-[17px]">
+                          {item.title}
+                        </h3>
+
+                        <p className="mt-2 text-[12px] leading-relaxed text-[#5a6674] dark:text-slate-300">
+                          {item.excerpt}
+                        </p>
+
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {item.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className={`rounded-md border px-2 py-1 text-[10px] font-semibold ${tagClassNames[item.tagsTone]}`}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-2 text-[#5a6674] dark:text-slate-300">
+                        <button
+                          type="button"
+                          aria-label={`Open ${item.ticker}`}
+                          onClick={() => setSelectedItem(item)}
+                          className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
+                        >
+                          <ArrowRight className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Open details for ${item.ticker}`}
+                          onClick={() => setSelectedItem(item)}
+                          className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-xl border border-dashed border-[#d9d5d1] bg-[#fbfaf9] p-8 text-center text-sm text-[#5a6674] dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300">
+                    No news matches your current filters.
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-between gap-3 border-t border-[#d9d5d1] px-5 py-3 text-[12px] text-[#5c6777] dark:border-slate-700 dark:text-slate-300">
-              <div>Showing 5 of 38 Market Dispatches</div>
+              <div>
+                Showing {Math.min(filteredNews.length, paginatedNews.length)} of{" "}
+                {filteredNews.length} Market Dispatches
+              </div>
 
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  className="rounded-md border border-[#d9d5d1] bg-white p-2 text-[#8893a1] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={page === 1}
+                  className="rounded-md border border-[#d9d5d1] bg-white p-2 text-[#8893a1] disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                   <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
+                {Array.from(
+                  { length: totalPages },
+                  (_, index) => index + 1,
+                ).map((pageNumber) => (
+                  <button
+                    key={pageNumber}
+                    type="button"
+                    onClick={() => setPage(pageNumber)}
+                    className={`rounded-md px-2.5 py-1.5 font-semibold ${page === pageNumber ? "bg-[#1d2430] text-white dark:bg-slate-100 dark:text-slate-900" : "border border-[#d9d5d1] bg-white text-[#3c4a5d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"}`}
+                  >
+                    {pageNumber}
+                  </button>
+                ))}
                 <button
                   type="button"
-                  className="rounded-md bg-[#1d2430] px-2.5 py-1.5 font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-                >
-                  1
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-[#d9d5d1] bg-white px-2.5 py-1.5 font-semibold text-[#3c4a5d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  2
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-[#d9d5d1] bg-white px-2.5 py-1.5 font-semibold text-[#3c4a5d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  3
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-[#d9d5d1] bg-white px-2.5 py-1.5 font-semibold text-[#3c4a5d] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  4
-                </button>
-                <button
-                  type="button"
-                  className="rounded-md border border-[#d9d5d1] bg-white p-2 text-[#5c6777] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  onClick={() =>
+                    setPage((current) => Math.min(totalPages, current + 1))
+                  }
+                  disabled={page === totalPages}
+                  className="rounded-md border border-[#d9d5d1] bg-white p-2 text-[#5c6777] disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
                 >
                   <ChevronRight className="h-3.5 w-3.5" />
                 </button>
