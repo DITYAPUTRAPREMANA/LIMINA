@@ -1,4 +1,12 @@
-import { ArrowRight, LayoutDashboard, Menu, Moon, Sun, User, X } from "lucide-react";
+import {
+  ArrowRight,
+  LayoutDashboard,
+  Menu,
+  Moon,
+  Sun,
+  User,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import BrandLogo from "../../components/BrandLogo";
 import { useAuth } from "../../context/AuthContext";
@@ -17,7 +25,6 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const menuItems = [
     { label: "Home", href: "#" },
     { label: "Our Vision", href: "#vision" },
-    { label: "Methodology", href: "#methodology" },
     { label: "Case Studies", href: "#case-studies" },
     { label: "Risk Rankings", href: "#rankings" },
   ];
@@ -67,7 +74,9 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           <button
             type="button"
             id="theme-toggle-desktop"
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
             onClick={toggleTheme}
             className="cursor-pointer flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-slate-750 shadow-2xs btn-hover-lift"
           >
@@ -112,7 +121,9 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           <button
             type="button"
             id="theme-toggle-mobile"
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
             onClick={toggleTheme}
             className="cursor-pointer inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-slate-600 dark:text-slate-300 transition-all shadow-2xs"
           >
@@ -129,7 +140,11 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
             onClick={() => setMenuOpen((prev) => !prev)}
             className="cursor-pointer inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-slate-700 dark:text-slate-300 shadow-2xs"
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
       </div>
@@ -191,4 +206,3 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
 };
 
 export default Navbar;
-

@@ -19,11 +19,11 @@ export const CTASection: React.FC<CTASectionProps> = ({ onNavigate }) => {
   };
 
   const handleReviewFormulas = () => {
-    const el = document.getElementById("methodology");
+    const el = document.getElementById("rankings");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     } else if (onNavigate) {
-      onNavigate("home");
+      onNavigate("dashboard");
     }
   };
 
@@ -69,7 +69,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ onNavigate }) => {
             className="group cursor-pointer bg-slate-800/90 dark:bg-slate-700/90 hover:bg-slate-750 dark:hover:bg-slate-650 border border-slate-700 dark:border-slate-600 hover:border-slate-500 text-white px-6 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all duration-200 whitespace-nowrap btn-hover-lift shadow-xs"
           >
             <BookOpen className="w-4 h-4 text-slate-400 group-hover:text-red-400 transition-colors" />
-            <span>Review Formulas</span>
+            <span>Review Rankings</span>
           </button>
         </div>
       </div>
@@ -112,7 +112,6 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
           {[
             { label: "Home", href: "#" },
             { label: "Vision", href: "#vision" },
-            { label: "Methodology", href: "#methodology" },
             { label: "News", href: "#case-studies" },
             { label: "Ranking", href: "#rankings" },
           ].map((link) => (

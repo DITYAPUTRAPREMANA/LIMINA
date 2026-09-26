@@ -142,25 +142,38 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     [stocks, selectedTicker],
   );
 
-  const analysisResult = useMemo(
-    () => ({
-      symbol: selectedStock?.ticker ?? "",
-      company_name: selectedStock?.company ?? "",
-      sector: selectedStock?.sector ?? "",
-      risk_index: selectedStock?.score ?? 0,
+  const analysisResult = useMemo(() => {
+    const fallback = {
+      symbol: "UDNG.JK",
+      company_name: "PT Agro Bahari Nusantara Tbk",
+      as_of_date: "2026-09-16",
+      sector: "Consumer Non-Cyclicals",
+      risk_index: 88,
+      risk_level: "Critical",
+      price: "Rp 432",
+      delta: "-1.8%",
+      market_cap: "Rp 52.4 T",
+    };
+
+    const riskIndex = selectedStock?.score ?? fallback.risk_index;
+
+    return {
+      symbol: selectedStock?.ticker ?? fallback.symbol,
+      company_name: selectedStock?.company ?? fallback.company_name,
+      as_of_date: new Date().toISOString().slice(0, 10),
+      sector: selectedStock?.sector ?? fallback.sector,
+      risk_index: riskIndex,
       risk_level:
-        (selectedStock?.score ?? 0) >= 85
+        riskIndex >= 85
           ? "Critical"
-          : (selectedStock?.score ?? 0) >= 70
+          : riskIndex >= 70
             ? "High Watch"
             : "Normal",
-      price: selectedStock?.priceFormatted ?? "Rp 0",
-      delta: selectedStock?.delta ?? "0.0%",
-      market_cap: selectedStock?.marketCap ?? "Rp 0",
-      as_of_date: new Date().toISOString().slice(0, 10),
-    }),
-    [selectedStock],
-  );
+      price: selectedStock?.priceFormatted ?? fallback.price,
+      delta: selectedStock?.delta ?? fallback.delta,
+      market_cap: selectedStock?.marketCap ?? fallback.market_cap,
+    };
+  }, [selectedStock]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
@@ -900,23 +913,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0f172a] dark:bg-slate-700 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 cursor-pointer"
               >
-                View Forensic Evidence <ExternalLink className="h-3.5 w-3.5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setInspectTicker(null);
-                  onNavigate("home");
-                  window.setTimeout(() => {
-                    document
-                      .getElementById("methodology")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }, 50);
-                }}
-                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#f26a4d] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#f26a4d]/20 transition hover:bg-[#d95e39] cursor-pointer"
-              >
-                View Methodology <ArrowRight className="h-3.5 w-3.5" />
+                View News <ExternalLink className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>

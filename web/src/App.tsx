@@ -4,7 +4,6 @@ import { isSupabaseConfigured } from "./lib/supabase";
 import Navbar from "./pages/Home/Navbar";
 import HeroSection from "./pages/Home/HeroSection";
 import VisionSection from "./pages/Home/VisionSection";
-import MethodologySection from "./pages/Home/MethodologySection";
 import CaseStudiesSection from "./pages/Home/CaseStudiesSection";
 import RankingsSection from "./pages/Home/RankingsSection";
 import { CTASection, FooterSection } from "./pages/Home/CtaFooter";
@@ -171,7 +170,6 @@ function AppInner() {
         <Navbar onNavigate={navigate} />
         <HeroSection onNavigate={navigate} />
         <VisionSection onNavigate={navigate} />
-        <MethodologySection onNavigate={navigate} />
         <CaseStudiesSection onNavigate={navigate} />
         <RankingsSection onNavigate={navigate} />
         <CTASection onNavigate={navigate} />

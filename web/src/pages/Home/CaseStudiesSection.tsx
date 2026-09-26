@@ -1,5 +1,6 @@
 import { Clock, Shield } from "lucide-react";
 import type { View } from "../../App";
+import { BASELINE_STOCKS } from "../../lib/sectorsApi";
 
 interface CaseStudiesSectionProps {
   onNavigate?: (view: View) => void;
@@ -8,6 +9,23 @@ interface CaseStudiesSectionProps {
 const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
   onNavigate,
 }) => {
+  const caseStudyRankings = BASELINE_STOCKS.slice(0, 3).map((stock) => ({
+    symbol: stock.ticker,
+    company_name: stock.company,
+    as_of_date: "2026-09-16",
+    sector: stock.sector,
+    risk_index: stock.score,
+    risk_level:
+      stock.score >= 85
+        ? "Critical"
+        : stock.score >= 70
+          ? "High Watch"
+          : "Normal",
+    lead_time_days: stock.daysToSuspension.includes("Days")
+      ? Number.parseInt(stock.daysToSuspension, 10)
+      : 0,
+  }));
+
   const handleTickerClick = (ticker: string) => {
     const rankingsEl = document.getElementById("rankings");
     if (rankingsEl) {
@@ -142,66 +160,27 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
                 HISTORICAL MATRIX VALIDATION
               </h3>
               <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={() => handleTickerClick("WSKT")}
-                  className="w-full text-left p-2.5 -mx-2.5 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all cursor-pointer group"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-red-500 transition-colors">
-                      WSKT (Waskita Karya)
+                {caseStudyRankings.map((ranking) => (
+                  <button
+                    key={ranking.symbol}
+                    type="button"
+                    onClick={() => handleTickerClick(ranking.symbol)}
+                    className="w-full text-left p-2.5 -mx-2.5 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all cursor-pointer group"
+                  >
+                    <div className="flex justify-between items-center mb-1">
+                      <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-red-500 transition-colors">
+                        {ranking.symbol} ({ranking.company_name})
+                      </div>
+                      <div className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded font-mono">
+                        {ranking.lead_time_days} Days Lead
+                      </div>
                     </div>
-                    <div className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded font-mono">
-                      42 Days Lead
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      {ranking.sector} · {ranking.risk_level} risk index{" "}
+                      {ranking.risk_index}/100 · {ranking.as_of_date}
                     </div>
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Suspended following debt restructuring defaults. Click to
-                    inspect.
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTickerClick("KAEF")}
-                  className="w-full text-left p-2.5 -mx-2.5 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all cursor-pointer group"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-red-500 transition-colors">
-                      KAEF (Kimia Farma)
-                    </div>
-                    <div className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded font-mono">
-                      21 Days Lead
-                    </div>
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Audit qualification and negative equity breach. Click to
-                    inspect.
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTickerClick("SRTG")}
-                  className="w-full text-left p-2.5 -mx-2.5 rounded-xl border border-transparent hover:border-orange-200 dark:hover:border-orange-900/60 hover:bg-orange-50/40 dark:hover:bg-orange-950/20 transition-all cursor-pointer group"
-                >
-                  <div className="flex justify-between items-center mb-1">
-                    <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-orange-500 transition-colors">
-                      SRTG (Saratoga)
-                    </div>
-                    <div className="text-xs font-bold text-orange-500 flex items-center gap-1 bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-radar-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-                      </span>
-                      Live Alert Active
-                    </div>
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Volatility spike approaching primary criteria. Click to
-                    inspect.
-                  </div>
-                </button>
+                  </button>
+                ))}
               </div>
             </div>
 
