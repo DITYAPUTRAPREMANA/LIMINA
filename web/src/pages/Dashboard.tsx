@@ -137,43 +137,123 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     },
   }));
 
-  const selectedStock = useMemo(
-    () => stocks.find((item) => item.ticker === selectedTicker) ?? stocks[0],
-    [stocks, selectedTicker],
-  );
-
   const analysisResult = useMemo(() => {
-    const fallback = {
-      symbol: "UDNG.JK",
-      company_name: "PT Agro Bahari Nusantara Tbk",
+    const currentTicker = inspectTicker?.ticker ?? selectedTicker;
+
+    const payloadByTicker: Record<string, typeof defaultModelPayload> = {
+      BELI: {
+        symbol: "BELI",
+        company_name: "Global Digital Niaga Tbk.",
+        as_of_date: "2026-09-16",
+        sector: "Technology",
+        sub_sector: "E-Commerce",
+        board: "Acceleration",
+        skor: 0.4836,
+        persentil: 100.0,
+        kategori: "Very High",
+        arah_30h: "stable",
+        status: "flagged",
+        indikator_dominan: "debt_to_asset",
+        kontribusi: {
+          report_days_gap: -0.198,
+          delayed_report: -0.1431,
+          no_revenue: 0.0,
+          negative_equity: 0.0,
+          debt_to_asset: 1.6848,
+          consecutive_negative_ako: 0.1867,
+          days_without_trade_90d: -0.288,
+          volume_ratio_30_90: 0.6044,
+          below_lower_band_90d: 0.0,
+          down_from_peak_90d: -0.1566,
+          volatility_90d: 1.0321,
+        },
+      },
+      SRAJ: {
+        symbol: "SRAJ",
+        company_name: "Sejahteraya Anugrah",
+        as_of_date: "2026-09-16",
+        sector: "Healthcare",
+        sub_sector: "Pharmaceuticals",
+        board: "Monitoring",
+        skor: 0.3211,
+        persentil: 80.0,
+        kategori: "High",
+        arah_30h: "upward",
+        status: "watchlist",
+        indikator_dominan: "cash_flow_pressure",
+        kontribusi: {
+          report_days_gap: -0.088,
+          delayed_report: -0.093,
+          no_revenue: 0.0,
+          negative_equity: 0.0,
+          debt_to_asset: 0.94,
+          consecutive_negative_ako: 0.08,
+          days_without_trade_90d: -0.14,
+          volume_ratio_30_90: 0.53,
+          below_lower_band_90d: 0.0,
+          down_from_peak_90d: -0.12,
+          volatility_90d: 0.84,
+        },
+      },
+      MGLV: {
+        symbol: "MGLV",
+        company_name: "Panca Anugrah Wisesa",
+        as_of_date: "2026-09-16",
+        sector: "Consumer Cyclicals",
+        sub_sector: "Retail",
+        board: "Monitoring",
+        skor: 0.2418,
+        persentil: 68.0,
+        kategori: "Medium",
+        arah_30h: "stable",
+        status: "monitoring",
+        indikator_dominan: "inventory_risk",
+        kontribusi: {
+          report_days_gap: -0.06,
+          delayed_report: -0.072,
+          no_revenue: 0.0,
+          negative_equity: 0.0,
+          debt_to_asset: 0.81,
+          consecutive_negative_ako: 0.06,
+          days_without_trade_90d: -0.095,
+          volume_ratio_30_90: 0.46,
+          below_lower_band_90d: 0.0,
+          down_from_peak_90d: -0.08,
+          volatility_90d: 0.73,
+        },
+      },
+    };
+
+    const defaultModelPayload = {
+      symbol: currentTicker,
+      company_name: inspectTicker?.company ?? "Selected issuer",
       as_of_date: "2026-09-16",
-      sector: "Consumer Non-Cyclicals",
-      risk_index: 88,
-      risk_level: "Critical",
-      price: "Rp 432",
-      delta: "-1.8%",
-      market_cap: "Rp 52.4 T",
+      sector: inspectTicker?.sector ?? "General",
+      sub_sector: inspectTicker?.sector ?? "General",
+      board: "Acceleration",
+      skor: 0.2316,
+      persentil: 63.2,
+      kategori: "Moderate",
+      arah_30h: "stable",
+      status: "monitoring",
+      indikator_dominan: "cash_flow_pressure",
+      kontribusi: {
+        report_days_gap: -0.07,
+        delayed_report: -0.08,
+        no_revenue: 0.0,
+        negative_equity: 0.0,
+        debt_to_asset: 0.72,
+        consecutive_negative_ako: 0.05,
+        days_without_trade_90d: -0.11,
+        volume_ratio_30_90: 0.4,
+        below_lower_band_90d: 0.0,
+        down_from_peak_90d: -0.1,
+        volatility_90d: 0.68,
+      },
     };
 
-    const riskIndex = selectedStock?.score ?? fallback.risk_index;
-
-    return {
-      symbol: selectedStock?.ticker ?? fallback.symbol,
-      company_name: selectedStock?.company ?? fallback.company_name,
-      as_of_date: new Date().toISOString().slice(0, 10),
-      sector: selectedStock?.sector ?? fallback.sector,
-      risk_index: riskIndex,
-      risk_level:
-        riskIndex >= 85
-          ? "Critical"
-          : riskIndex >= 70
-            ? "High Watch"
-            : "Normal",
-      price: selectedStock?.priceFormatted ?? fallback.price,
-      delta: selectedStock?.delta ?? fallback.delta,
-      market_cap: selectedStock?.marketCap ?? fallback.market_cap,
-    };
-  }, [selectedStock]);
+    return payloadByTicker[currentTicker] ?? defaultModelPayload;
+  }, [inspectTicker, selectedTicker]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
@@ -334,7 +414,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
             <div className="inline-flex items-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[#465267] dark:text-slate-300">
               <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#f26a4d]" />
-              {analysisResult.risk_level}
+              {analysisResult.kategori}
             </div>
           </div>
 
@@ -359,10 +439,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
             <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
               <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
-                Risk Index
+                Skor
               </div>
               <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
-                {analysisResult.risk_index}/100
+                {analysisResult.skor}
               </div>
             </div>
 
@@ -380,14 +460,13 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <span className="font-black text-[#d93e3e] dark:text-red-400">
-                  {analysisResult.risk_level}
+                  {analysisResult.kategori}
                 </span>
-                <span className="ml-2">
-                  based on suspension-risk model output
-                </span>
+                <span className="ml-2">based on AI model output</span>
               </div>
               <div className="font-bold text-slate-700 dark:text-slate-200">
-                Price: {analysisResult.price} · Delta: {analysisResult.delta}
+                Persentil: {analysisResult.persentil}% · Arah 30H:{" "}
+                {analysisResult.arah_30h}
               </div>
             </div>
           </div>
@@ -723,38 +802,25 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           onClick={() => setInspectTicker(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-[#181a24] p-6 sm:p-8 shadow-2xl transition-all"
+            className="w-full max-w-[840px] rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-[#181a24] p-0 shadow-2xl transition-all overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="flex items-start justify-between border-b border-[#d8d3cd] dark:border-slate-700/80 pb-5">
+            <div className="flex items-center justify-between border-b border-[#d8d3cd] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-[#181a24] px-5 py-4">
               <div className="flex items-center gap-3.5">
-                <span
-                  className={[
-                    "flex h-12 w-12 items-center justify-center rounded-xl text-xl font-black text-white shadow-md",
-                    inspectTicker.tone === "red"
-                      ? "bg-[#d93e3e]"
-                      : inspectTicker.tone === "amber"
-                        ? "bg-[#f1b234]"
-                        : "bg-[#28b67a]",
-                  ].join(" ")}
-                >
-                  {inspectTicker.ticker[0]}
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#d93e3e] text-xl font-black text-white shadow-md">
+                  {analysisResult.symbol.charAt(0)}
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-black text-[#111827] dark:text-white">
-                      {inspectTicker.ticker}
+                    <h2 className="text-[1.1rem] font-black tracking-[-0.04em] text-[#111827] dark:text-white">
+                      {analysisResult.symbol}
                     </h2>
-                    <span className="rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs font-bold text-slate-700 dark:text-slate-300">
-                      Rank {inspectTicker.rank}
-                    </span>
-                    <span className="text-xs text-slate-400 font-mono">
-                      {inspectTicker.isin}
+                    <span className="rounded bg-black/5 dark:bg-white/10 px-2 py-0.5 text-[0.7rem] font-bold text-slate-700 dark:text-slate-300">
+                      {analysisResult.status}
                     </span>
                   </div>
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {inspectTicker.company} · {inspectTicker.sector}
+                    {analysisResult.company_name} · {analysisResult.sector}
                   </p>
                 </div>
               </div>
@@ -763,135 +829,111 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 type="button"
                 onClick={() => setInspectTicker(null)}
                 className="rounded-lg p-2 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 cursor-pointer"
-                aria-label="Close modal"
+                aria-label="Close detail modal"
+                title="Close"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            {/* Body */}
-            <div className="mt-6 space-y-6">
-              {/* Score Highlight Box */}
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 p-4">
-                <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                    Suspension Risk Index &amp; Market Price
-                  </span>
-                  <div className="flex items-baseline gap-3 mt-1">
-                    <span
-                      className={[
-                        "text-3xl font-black tracking-tight",
-                        inspectTicker.tone === "red"
-                          ? "text-[#d93e3e]"
-                          : inspectTicker.tone === "amber"
-                            ? "text-[#f1b234]"
-                            : "text-[#28b67a]",
-                      ].join(" ")}
-                    >
-                      {inspectTicker.score}/100
-                    </span>
-                    <span className="text-lg font-bold text-slate-900 dark:text-white">
-                      {inspectTicker.priceFormatted}
-                    </span>
-                    <span
-                      className={`text-xs font-bold ${
-                        inspectTicker.changePercent.startsWith("-")
-                          ? "text-red-500"
-                          : "text-emerald-500"
-                      }`}
-                    >
-                      {inspectTicker.changePercent}
+            <div className="px-5 py-5 sm:px-6 sm:py-6">
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                  <div className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                    Model payload
+                  </div>
+                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-[2rem] font-black leading-none tracking-[-0.08em] text-[#d93e3e]">
+                        {analysisResult.skor}
+                      </span>
+                      <span className="text-[1.05rem] font-black tracking-[-0.04em] text-[#111827] dark:text-slate-100">
+                        {analysisResult.kategori}
+                      </span>
+                    </div>
+
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#d93e3e] px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.14em] text-white shadow-sm">
+                      <ShieldAlert className="h-3.5 w-3.5" />
+                      {analysisResult.board}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span
-                    className={[
-                      "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide",
-                      inspectTicker.tone === "red"
-                        ? "bg-red-100 dark:bg-red-950/80 text-red-700 dark:text-red-300"
-                        : inspectTicker.tone === "amber"
-                          ? "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300"
-                          : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300",
-                    ].join(" ")}
-                  >
-                    {inspectTicker.tone === "red" ? (
-                      <ShieldAlert className="h-3.5 w-3.5" />
-                    ) : (
-                      <ShieldCheck className="h-3.5 w-3.5" />
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                      AS OF DATE
+                    </div>
+                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                      {analysisResult.as_of_date}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                      SECTOR
+                    </div>
+                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                      {analysisResult.sector}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                      SUB SECTOR
+                    </div>
+                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                      {analysisResult.sub_sector}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                      PERCENTILE
+                    </div>
+                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                      {analysisResult.persentil}%
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                  <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                    DOMINANT INDICATOR
+                  </div>
+                  <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                    {analysisResult.indikator_dominan}
+                  </div>
+                  <div className="mt-2 text-[0.9rem] font-bold text-[#5a6576] dark:text-slate-300">
+                    30H trend:{" "}
+                    <span className="text-[#d93e3e]">
+                      {analysisResult.arah_30h}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                  <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                    CONTRIBUTION FACTORS
+                  </div>
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {Object.entries(analysisResult.kontribusi).map(
+                      ([key, value]) => (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900/50 px-3 py-2"
+                        >
+                          <span className="text-[0.85rem] font-medium text-slate-600 dark:text-slate-300">
+                            {key}
+                          </span>
+                          <span className="text-[0.9rem] font-black text-[#111827] dark:text-slate-100">
+                            {String(value)}
+                          </span>
+                        </div>
+                      ),
                     )}
-                    {inspectTicker.tone === "red"
-                      ? "Critical Suspension Risk"
-                      : inspectTicker.tone === "amber"
-                        ? "High Monitoring Risk"
-                        : "Normal / Low Risk"}
-                  </span>
+                  </div>
                 </div>
-              </div>
-
-              {/* Detailed Metrics Grid */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 text-xs">
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">
-                    Market Capitalization
-                  </span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
-                    {inspectTicker.marketCap}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">
-                    Debt to Equity (DER)
-                  </span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
-                    {inspectTicker.der}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">
-                    Equity Condition
-                  </span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
-                    {inspectTicker.equityStatus}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">
-                    Est. Days to Suspension
-                  </span>
-                  <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">
-                    {inspectTicker.daysToSuspension}
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3 sm:col-span-2">
-                  <span className="text-slate-400 font-medium">
-                    Latest Audit Opinion
-                  </span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1 truncate">
-                    {inspectTicker.lastAuditOpinion}
-                  </p>
-                </div>
-              </div>
-
-              {/* Regulatory Trigger Description */}
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/60 p-4">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Primary Risk Driver &amp; Regulation
-                </span>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">
-                  {inspectTicker.driver}
-                </p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Regulatory Trigger:{" "}
-                  <strong className="text-[#f26a4d]">
-                    {inspectTicker.ruleViolation}
-                  </strong>
-                </p>
               </div>
             </div>
 

@@ -9,22 +9,7 @@ interface CaseStudiesSectionProps {
 const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
   onNavigate,
 }) => {
-  const caseStudyRankings = BASELINE_STOCKS.slice(0, 3).map((stock) => ({
-    symbol: stock.ticker,
-    company_name: stock.company,
-    as_of_date: "2026-09-16",
-    sector: stock.sector,
-    risk_index: stock.score,
-    risk_level:
-      stock.score >= 85
-        ? "Critical"
-        : stock.score >= 70
-          ? "High Watch"
-          : "Normal",
-    lead_time_days: stock.daysToSuspension.includes("Days")
-      ? Number.parseInt(stock.daysToSuspension, 10)
-      : 0,
-  }));
+  const caseStudyRankings = BASELINE_STOCKS.slice(0, 3);
 
   const handleTickerClick = (ticker: string) => {
     const rankingsEl = document.getElementById("rankings");
@@ -155,32 +140,86 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
           </div>
 
           <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm card-hover-lift hover:shadow-xl transition-all">
-              <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-6 uppercase">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm card-hover-lift hover:shadow-xl transition-all">
+              <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-wider mb-4 uppercase">
                 HISTORICAL MATRIX VALIDATION
               </h3>
-              <div className="space-y-4">
-                {caseStudyRankings.map((ranking) => (
-                  <button
-                    key={ranking.symbol}
-                    type="button"
-                    onClick={() => handleTickerClick(ranking.symbol)}
-                    className="w-full text-left p-2.5 -mx-2.5 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-750 transition-all cursor-pointer group"
-                  >
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-red-500 transition-colors">
-                        {ranking.symbol} ({ranking.company_name})
+
+              <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+                <div className="grid grid-cols-[1.3fr_1.1fr_1fr_0.9fr] items-center gap-3 border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2 text-[0.66rem] font-bold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+                  <span>Issuer</span>
+                  <span>Price</span>
+                  <span>Sector</span>
+                  <span>Risk</span>
+                </div>
+
+                <div className="space-y-2 p-2">
+                  {caseStudyRankings.map((ranking) => (
+                    <button
+                      key={ranking.ticker}
+                      type="button"
+                      onClick={() => handleTickerClick(ranking.ticker)}
+                      className="w-full rounded-xl border border-transparent bg-white/60 dark:bg-slate-800/60 p-2 text-left transition hover:border-slate-200 dark:hover:border-slate-700 hover:bg-white dark:hover:bg-slate-700/80 cursor-pointer"
+                    >
+                      <div className="grid grid-cols-[1.3fr_1.1fr_1fr_0.9fr] items-center gap-3">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl text-[0.7rem] font-black text-white shadow-sm bg-red-500">
+                            {ranking.ticker[0]}
+                          </span>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 text-sm font-black text-slate-900 dark:text-slate-100">
+                              <span>{ranking.ticker}</span>
+                              <span className="rounded bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 text-[0.62rem] font-bold text-slate-600 dark:text-slate-300">
+                                {ranking.rank}
+                              </span>
+                            </div>
+                            <div className="truncate text-[0.72rem] text-slate-500 dark:text-slate-400">
+                              {ranking.company}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-[0.82rem] font-black text-slate-900 dark:text-slate-100">
+                            {ranking.priceFormatted}
+                          </div>
+                          <div
+                            className={`text-[0.7rem] font-bold ${
+                              ranking.changePercent.startsWith("-")
+                                ? "text-red-500"
+                                : "text-emerald-500"
+                            }`}
+                          >
+                            {ranking.changePercent}
+                          </div>
+                        </div>
+
+                        <div className="text-[0.78rem] font-medium text-slate-600 dark:text-slate-300">
+                          {ranking.sector}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-full max-w-[74px] overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                            <div
+                              className={[
+                                "h-full rounded-full",
+                                ranking.tone === "red"
+                                  ? "bg-red-500"
+                                  : ranking.tone === "amber"
+                                    ? "bg-amber-400"
+                                    : "bg-emerald-500",
+                              ].join(" ")}
+                              style={{ width: `${ranking.score}%` }}
+                            />
+                          </div>
+                          <span className="min-w-[42px] text-right text-[0.8rem] font-black text-slate-900 dark:text-slate-100">
+                            {ranking.score}/100
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded font-mono">
-                        {ranking.lead_time_days} Days Lead
-                      </div>
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                      {ranking.sector} · {ranking.risk_level} risk index{" "}
-                      {ranking.risk_index}/100 · {ranking.as_of_date}
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
