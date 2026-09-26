@@ -10,7 +10,6 @@ import {
   Loader2,
   LogOut,
   Save,
-  Search,
   ShieldCheck,
   Smartphone,
   User,
@@ -38,7 +37,6 @@ type ProfilePageProps = {
 
 const menuItems = [
   { label: "Ranking", icon: BarChart3, view: "dashboard" as const },
-  { label: "Search", icon: Search, view: "search" as const },
   { label: "News", icon: FileText, view: "news" as const },
   { label: "Profile", icon: User, view: "profile" as const, active: true },
 ];

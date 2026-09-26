@@ -8,21 +8,16 @@ import {
   BarChart3,
   Bell,
   Check,
-  Download,
   ExternalLink,
   FileText,
-  Filter,
   RefreshCw,
   RotateCcw,
-  Search,
   ShieldAlert,
   ShieldCheck,
-  SlidersHorizontal,
   User,
   X,
 } from "lucide-react";
 import AppShell from "../components/AppShell";
-import { DashboardCharts } from "../components/DashboardCharts";
 import {
   BASELINE_STOCKS,
   fetchSectorsUniverseData,
@@ -47,7 +42,6 @@ const menuItems = [
     view: "dashboard" as const,
     active: true,
   },
-  { label: "Search", icon: Search, view: "search" as const },
   { label: "News", icon: FileText, view: "news" as const },
   { label: "Profile", icon: User, view: "profile" as const },
 ];
@@ -70,7 +64,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
   const [selectedSector, setSelectedSector] = useState("All Sectors");
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
-  const [showFiltersPanel, setShowFiltersPanel] = useState(false);
 
   const [selectedTicker, setSelectedTicker] = useState<string>("BELI");
   const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(
@@ -144,10 +137,37 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     },
   }));
 
-  const availableSectors = useMemo(() => {
-    const list = Array.from(new Set(stocks.map((s) => s.sector)));
-    return ["All Sectors", ...list];
-  }, [stocks]);
+  const selectedStock = useMemo(
+    () => stocks.find((item) => item.ticker === selectedTicker) ?? stocks[0],
+    [stocks, selectedTicker],
+  );
+
+  const analysisResult = useMemo(
+    () => ({
+      symbol: selectedStock?.ticker ?? "",
+      company_name: selectedStock?.company ?? "",
+      sector: selectedStock?.sector ?? "",
+      risk_index: selectedStock?.score ?? 0,
+      risk_level:
+        (selectedStock?.score ?? 0) >= 85
+          ? "Critical"
+          : (selectedStock?.score ?? 0) >= 70
+            ? "High Watch"
+            : "Normal",
+      price: selectedStock?.priceFormatted ?? "Rp 0",
+      delta: selectedStock?.delta ?? "0.0%",
+      market_cap: selectedStock?.marketCap ?? "Rp 0",
+      as_of_date: new Date().toISOString().slice(0, 10),
+    }),
+    [selectedStock],
+  );
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setRiskFilter("all");
+    setSelectedSector("All Sectors");
+    setSortBy("score-desc");
+  };
 
   const criticalCount = useMemo(
     () => stocks.filter((t) => t.score >= 85).length,
@@ -201,76 +221,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
     return list;
   }, [stocks, searchQuery, riskFilter, selectedSector, sortBy]);
-
-  const handleResetFilters = () => {
-    setSearchQuery("");
-    setRiskFilter("all");
-    setSelectedSector("All Sectors");
-    setSortBy("score-desc");
-  };
-
-  const isCustomFilterActive =
-    searchQuery.trim() !== "" ||
-    riskFilter !== "all" ||
-    selectedSector !== "All Sectors" ||
-    sortBy !== "score-desc";
-
-  const handleExportCSV = () => {
-    if (filteredTickers.length === 0) return;
-
-    const headers = [
-      "Rank",
-      "Ticker",
-      "Company",
-      "Sector",
-      "Price",
-      "24h Change",
-      "Market Cap",
-      "Suspension Risk Index",
-      "Delta",
-      "Primary Risk Driver",
-      "DER",
-      "ISIN",
-      "Last Audit",
-    ];
-
-    const rows = filteredTickers.map((t) => [
-      t.rank,
-      t.ticker,
-      `"${t.company}"`,
-      `"${t.sector}"`,
-      t.price,
-      `"${t.changePercent}"`,
-      `"${t.marketCap}"`,
-      t.score,
-      t.delta,
-      `"${t.driver}"`,
-      `"${t.der}"`,
-      t.isin,
-      `"${t.lastAuditOpinion}"`,
-    ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((r) => r.join(",")),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    const dateStr = new Date().toISOString().split("T")[0];
-    link.setAttribute("href", url);
-    link.setAttribute("download", `LIMINA_Sectors_Ranking_${dateStr}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    setToastMessage(
-      `Successfully exported ${filteredTickers.length} issuers to CSV file.`,
-    );
-    setTimeout(() => setToastMessage(null), 3500);
-  };
 
   return (
     <AppShell
@@ -355,12 +305,80 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           </div>
         </div>
 
-        {/* ── Visual Charts Component ── */}
-        <DashboardCharts
-          stocks={stocks}
-          selectedTicker={selectedTicker}
-          onSelectTicker={(t) => setSelectedTicker(t)}
-        />
+        <div className="mt-8 rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/90 p-5 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-[10px] font-black uppercase tracking-[0.24em] text-[#f26a4d]">
+                Analysis Result
+              </div>
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.07em] text-[#111827] dark:text-slate-100">
+                {analysisResult.symbol}
+              </h2>
+              <p className="mt-1 text-sm text-[#58677a] dark:text-slate-400">
+                {analysisResult.company_name}
+              </p>
+            </div>
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[#465267] dark:text-slate-300">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#f26a4d]" />
+              {analysisResult.risk_level}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-4">
+            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                Symbol
+              </div>
+              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                {analysisResult.symbol}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                Sector
+              </div>
+              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                {analysisResult.sector}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                Risk Index
+              </div>
+              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                {analysisResult.risk_index}/100
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                As of
+              </div>
+              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                {analysisResult.as_of_date}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-[#f0b5b5] dark:border-red-900/40 bg-[#fff1f1] dark:bg-red-950/30 p-4 text-sm text-[#4f5969] dark:text-slate-300">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <span className="font-black text-[#d93e3e] dark:text-red-400">
+                  {analysisResult.risk_level}
+                </span>
+                <span className="ml-2">
+                  based on suspension-risk model output
+                </span>
+              </div>
+              <div className="font-bold text-slate-700 dark:text-slate-200">
+                Price: {analysisResult.price} · Delta: {analysisResult.delta}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ── Critical Alert Banner ── */}
         <div className="mt-8 rounded-2xl border border-[#f0b5b5] dark:border-red-900/40 bg-[#fff1f1] dark:bg-red-950/30 px-5 py-4 shadow-sm transition-all">
@@ -409,157 +427,6 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             debt-to-equity ratio (DER), and IDX regulatory compliance.
           </p>
         </div>
-
-        {/* ── Search & Filter Action Bar ── */}
-        <div className="mt-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <label className="relative block w-full max-w-[720px]">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8594] sm:h-5 sm:w-5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search across 12 issuers: BBCA, TLKM, ASII, AMMN, IMPC, AADI, MGLV, SOHO, BELI, SRAJ, BRPT, TPIA..."
-              className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 py-3 pl-11 pr-10 text-sm text-slate-700 dark:text-slate-200 outline-none placeholder:text-[#778194] dark:placeholder:text-slate-500 focus:border-[#f26a4d] focus:ring-2 focus:ring-[#f26a4d]/20 transition sm:py-3.5 sm:pl-12 sm:text-[1.02rem]"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                aria-label="Clear search"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </label>
-
-          <div className="flex items-center gap-2 self-end lg:self-auto">
-            {/* Toggle Filters Panel */}
-            <button
-              type="button"
-              onClick={() => setShowFiltersPanel((v) => !v)}
-              className={[
-                "inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition shadow-xs cursor-pointer",
-                showFiltersPanel || isCustomFilterActive
-                  ? "border-[#f26a4d] bg-[#f26a4d]/10 text-[#f26a4d]"
-                  : "border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 text-[#475367] dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700",
-              ].join(" ")}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-              {isCustomFilterActive && (
-                <span className="h-2 w-2 rounded-full bg-[#f26a4d]" />
-              )}
-            </button>
-
-            {/* Export CSV Button */}
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              disabled={filteredTickers.length === 0}
-              className="inline-flex items-center gap-2 rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-[#475367] dark:text-slate-300 transition hover:bg-white dark:hover:bg-slate-700 disabled:opacity-50 shadow-xs cursor-pointer"
-              title="Download CSV report"
-            >
-              <Download className="h-4 w-4" />
-              Export CSV
-            </button>
-          </div>
-        </div>
-
-        {/* ── Expandable Filter Settings Panel ── */}
-        {showFiltersPanel && (
-          <div className="mt-4 rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-white/90 dark:bg-slate-800/95 p-5 shadow-lg backdrop-blur-md transition-all">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 mb-4">
-              <span className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                <Filter className="h-3.5 w-3.5 text-[#f26a4d]" />
-                Customize Filters & Sorting
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowFiltersPanel(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-              {/* Sector Select */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Industry Sector
-                </label>
-                <select
-                  value={selectedSector}
-                  onChange={(e) => setSelectedSector(e.target.value)}
-                  className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
-                >
-                  {availableSectors.map((sec) => (
-                    <option key={sec} value={sec}>
-                      {sec}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Risk Level Category */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Risk Level Category
-                </label>
-                <select
-                  value={riskFilter}
-                  onChange={(e) =>
-                    setRiskFilter(e.target.value as RiskCategory)
-                  }
-                  className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
-                >
-                  <option value="all">All Risk Levels</option>
-                  <option value="critical">
-                    Critical Risk (Indeks &ge; 85)
-                  </option>
-                  <option value="high">High Watch (70 - 84)</option>
-                  <option value="normal">Normal / Low Risk (&lt; 70)</option>
-                </select>
-              </div>
-
-              {/* Sort By */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
-                  Sort By
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as SortOption)}
-                  className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
-                >
-                  <option value="score-desc">
-                    Risk Index: Highest &rarr; Lowest
-                  </option>
-                  <option value="score-asc">
-                    Risk Index: Lowest &rarr; Highest
-                  </option>
-                  <option value="price-desc">Stock Price: Highest</option>
-                  <option value="ticker-asc">Ticker Name (A to Z)</option>
-                  <option value="delta-desc">Largest Delta Change</option>
-                </select>
-              </div>
-            </div>
-
-            {isCustomFilterActive && (
-              <div className="mt-4 flex justify-end border-t border-slate-200 dark:border-slate-700 pt-3">
-                <button
-                  type="button"
-                  onClick={handleResetFilters}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#f26a4d] hover:underline cursor-pointer"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Reset All Filters to Default
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* ── Risk Filter Chips ── */}
         <div className="mt-6 flex flex-wrap items-center gap-3">

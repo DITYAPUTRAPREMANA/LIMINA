@@ -14,7 +14,6 @@ import EmailOtpPage from "./pages/EmailOtp";
 import NotFoundPage from "./pages/NotFound";
 import SuccessPage from "./pages/Success";
 import DashboardPage from "./pages/Dashboard";
-import SearchPage from "./pages/Search";
 import ProfilePage from "./pages/Profile";
 import ForgotPasswordPage from "./pages/ForgotPassword";
 import NewsPage from "./pages/News";
@@ -27,19 +26,12 @@ export type View =
   | "not-found"
   | "success"
   | "dashboard"
-  | "search"
   | "news"
   | "evidence"
   | "profile"
   | "forgot-password";
 
-const PROTECTED_VIEWS: View[] = [
-  "dashboard",
-  "search",
-  "news",
-  "evidence",
-  "profile",
-];
+const PROTECTED_VIEWS: View[] = ["dashboard", "news", "evidence", "profile"];
 
 function AppInner() {
   const { session, loading } = useAuth();
@@ -156,13 +148,6 @@ function AppInner() {
         return null;
       }
       return <DashboardPage onNavigate={navigate} />;
-    }
-    if (view === "search") {
-      if (!session) {
-        navigate("login");
-        return null;
-      }
-      return <SearchPage onNavigate={navigate} />;
     }
     if (view === "news" || view === "evidence") {
       if (!session) {
