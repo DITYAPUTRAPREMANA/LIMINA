@@ -12,7 +12,6 @@ import {
   ExternalLink,
   FileText,
   Filter,
-  Landmark,
   RefreshCw,
   RotateCcw,
   Search,
@@ -42,10 +41,14 @@ type DashboardPageProps = {
 };
 
 const menuItems = [
-  { label: "Ranking", icon: BarChart3, view: "dashboard" as const, active: true },
+  {
+    label: "Ranking",
+    icon: BarChart3,
+    view: "dashboard" as const,
+    active: true,
+  },
   { label: "Search", icon: Search, view: "search" as const },
-  { label: "Evidence", icon: FileText, view: "evidence" as const },
-  { label: "Methodology", icon: Landmark, view: "methodology" as const },
+  { label: "News", icon: FileText, view: "news" as const },
   { label: "Profile", icon: User, view: "profile" as const },
 ];
 
@@ -70,20 +73,22 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
 
   const [selectedTicker, setSelectedTicker] = useState<string>("BELI");
-  const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(null);
+  const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(
+    null,
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [deviceAlertsActive, setDeviceAlertsActive] = useState(false);
-
-  useEffect(() => {
-    setDeviceAlertsActive(areDeviceAlertsEnabled());
-  }, []);
+  const [deviceAlertsActive, setDeviceAlertsActive] = useState(
+    areDeviceAlertsEnabled(),
+  );
 
   const handleDeviceAlertClick = async () => {
     if (!deviceAlertsActive) {
       const res = await requestNotificationPermission();
       if (res.granted) {
         setDeviceAlertsActive(true);
-        setToastMessage("✓ Notifikasi perangkat aktif! Alert risiko IDX akan dikirim ke device Anda.");
+        setToastMessage(
+          "✓ Notifikasi perangkat aktif! Alert risiko IDX akan dikirim ke device Anda.",
+        );
       } else {
         setToastMessage("Izin notifikasi belum diaktifkan di browser Anda.");
       }
@@ -96,7 +101,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           url: "/dashboard",
           tag: `stock-alert-${firstCritical.ticker}`,
         });
-        setToastMessage(`✓ Push alert untuk ${firstCritical.ticker} berhasil dikirim ke perangkat Anda.`);
+        setToastMessage(
+          `✓ Push alert untuk ${firstCritical.ticker} berhasil dikirim ke perangkat Anda.`,
+        );
       } else {
         setToastMessage("Semua emiten saat ini dalam batas normal.");
       }
@@ -144,15 +151,15 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
   const criticalCount = useMemo(
     () => stocks.filter((t) => t.score >= 85).length,
-    [stocks]
+    [stocks],
   );
   const highWatchCount = useMemo(
     () => stocks.filter((t) => t.score >= 70 && t.score < 85).length,
-    [stocks]
+    [stocks],
   );
   const normalCount = useMemo(
     () => stocks.filter((t) => t.score < 70).length,
-    [stocks]
+    [stocks],
   );
 
   const filteredTickers = useMemo(() => {
@@ -166,7 +173,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           t.company.toLowerCase().includes(q) ||
           t.sector.toLowerCase().includes(q) ||
           t.driver.toLowerCase().includes(q) ||
-          t.isin.toLowerCase().includes(q)
+          t.isin.toLowerCase().includes(q),
       );
     }
 
@@ -243,9 +250,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
       `"${t.lastAuditOpinion}"`,
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join(
-      "\n"
-    );
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((r) => r.join(",")),
+    ].join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -258,7 +266,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    setToastMessage(`Successfully exported ${filteredTickers.length} issuers to CSV file.`);
+    setToastMessage(
+      `Successfully exported ${filteredTickers.length} issuers to CSV file.`,
+    );
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -285,7 +295,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-md bg-[#f26a4d]/15 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[#f26a4d]">
-                {isRemoteModelOnline ? "FastAPI Model Live Feed" : "Sectors.app API Live Feed"}
+                {isRemoteModelOnline
+                  ? "FastAPI Model Live Feed"
+                  : "Sectors.app API Live Feed"}
               </span>
               {loadingApi && (
                 <span className="flex items-center gap-1 text-[10px] text-slate-400 animate-pulse">
@@ -310,7 +322,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
                   : "border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
               }`}
-              title={deviceAlertsActive ? "Notifikasi Device Aktif" : "Klik untuk aktifkan notifikasi ke device"}
+              title={
+                deviceAlertsActive
+                  ? "Notifikasi Device Aktif"
+                  : "Klik untuk aktifkan notifikasi ke device"
+              }
             >
               <Bell className="h-3.5 w-3.5 text-red-500" />
               <span>{deviceAlertsActive ? "Alert On" : "Alert Off"}</span>
@@ -326,8 +342,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             </button>
             <div className="inline-flex items-center justify-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-[#f3f1ee] dark:bg-slate-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#465267] dark:text-slate-400 sm:text-[11px]">
               <span
-                className={`inline-flex h-2.5 w-2.5 rounded-full ${isRemoteModelOnline ? "bg-emerald-500 animate-pulse" : "bg-[#2ec784]"
-                  }`}
+                className={`inline-flex h-2.5 w-2.5 rounded-full ${
+                  isRemoteModelOnline
+                    ? "bg-emerald-500 animate-pulse"
+                    : "bg-[#2ec784]"
+                }`}
               />
               {isRemoteModelOnline
                 ? "AI Model Server: Connected"
@@ -367,7 +386,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-300 dark:border-red-800/80 bg-white/90 dark:bg-slate-900/90 px-3.5 py-2.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-white dark:hover:bg-slate-800 transition shadow-xs"
               >
                 <Bell className="h-3.5 w-3.5 text-red-500" />
-                {deviceAlertsActive ? "Kirim Alert ke Device" : "Aktifkan Push Alert"}
+                {deviceAlertsActive
+                  ? "Kirim Alert ke Device"
+                  : "Aktifkan Push Alert"}
               </button>
 
               <button
@@ -384,7 +405,8 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             </div>
           </div>
           <p className="mt-2 text-sm text-[#4f5969] dark:text-slate-400 sm:pl-[3.8rem]">
-            Early risk warnings are computed from operating cash deficit, debt-to-equity ratio (DER), and IDX regulatory compliance.
+            Early risk warnings are computed from operating cash deficit,
+            debt-to-equity ratio (DER), and IDX regulatory compliance.
           </p>
         </div>
 
@@ -487,11 +509,15 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 </label>
                 <select
                   value={riskFilter}
-                  onChange={(e) => setRiskFilter(e.target.value as RiskCategory)}
+                  onChange={(e) =>
+                    setRiskFilter(e.target.value as RiskCategory)
+                  }
                   className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
                   <option value="all">All Risk Levels</option>
-                  <option value="critical">Critical Risk (Indeks &ge; 85)</option>
+                  <option value="critical">
+                    Critical Risk (Indeks &ge; 85)
+                  </option>
                   <option value="high">High Watch (70 - 84)</option>
                   <option value="normal">Normal / Low Risk (&lt; 70)</option>
                 </select>
@@ -507,8 +533,12 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="w-full rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900 px-3.5 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
-                  <option value="score-desc">Risk Index: Highest &rarr; Lowest</option>
-                  <option value="score-asc">Risk Index: Lowest &rarr; Highest</option>
+                  <option value="score-desc">
+                    Risk Index: Highest &rarr; Lowest
+                  </option>
+                  <option value="score-asc">
+                    Risk Index: Lowest &rarr; Highest
+                  </option>
                   <option value="price-desc">Stock Price: Highest</option>
                   <option value="ticker-asc">Ticker Name (A to Z)</option>
                   <option value="delta-desc">Largest Delta Change</option>
@@ -534,10 +564,25 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
         {/* ── Risk Filter Chips ── */}
         <div className="mt-6 flex flex-wrap items-center gap-3">
           {[
-            { id: "all" as RiskCategory, label: `All Issuers (${stocks.length})` },
-            { id: "critical" as RiskCategory, label: `Critical Risk (${criticalCount})`, tone: "red" },
-            { id: "high" as RiskCategory, label: `High Watch (${highWatchCount})`, tone: "amber" },
-            { id: "normal" as RiskCategory, label: `Normal / Low Risk (${normalCount})`, tone: "green" },
+            {
+              id: "all" as RiskCategory,
+              label: `All Issuers (${stocks.length})`,
+            },
+            {
+              id: "critical" as RiskCategory,
+              label: `Critical Risk (${criticalCount})`,
+              tone: "red",
+            },
+            {
+              id: "high" as RiskCategory,
+              label: `High Watch (${highWatchCount})`,
+              tone: "amber",
+            },
+            {
+              id: "normal" as RiskCategory,
+              label: `Normal / Low Risk (${normalCount})`,
+              tone: "green",
+            },
           ].map((chip) => {
             const isActive = riskFilter === chip.id;
             return (
@@ -578,7 +623,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           })}
 
           <div className="ml-auto text-xs font-bold text-[#667285] dark:text-slate-400">
-            Showing <span className="text-slate-900 dark:text-slate-100 font-black">{filteredTickers.length}</span> of {stocks.length} issuers
+            Showing{" "}
+            <span className="text-slate-900 dark:text-slate-100 font-black">
+              {filteredTickers.length}
+            </span>{" "}
+            of {stocks.length} issuers
           </div>
         </div>
 
@@ -589,7 +638,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             <div className="grid grid-cols-[1.6fr_1.1fr_1.1fr_1.4fr_1fr_0.8fr] items-center gap-4 border-b border-[#d8d3cd] dark:border-slate-700 bg-[#eceae7] dark:bg-slate-900 px-6 py-4 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-[#58677a] dark:text-slate-400 select-none">
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "ticker-asc" ? "score-desc" : "ticker-asc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "ticker-asc" ? "score-desc" : "ticker-asc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Ticker &amp; Issuer Name</span>
@@ -602,7 +655,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "price-desc" ? "score-desc" : "price-desc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "price-desc" ? "score-desc" : "price-desc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Market Price &amp; 24h</span>
@@ -619,7 +676,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "score-desc" ? "score-asc" : "score-desc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "score-desc" ? "score-asc" : "score-desc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Suspension Risk Index</span>
@@ -640,10 +701,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               filteredTickers.map((row) => (
                 <div
                   key={row.ticker}
-                  className={`grid grid-cols-[1.6fr_1.1fr_1.1fr_1.4fr_1fr_0.8fr] items-center gap-4 border-b border-[#e7e0d8] dark:border-slate-700/80 px-6 py-4.5 last:border-b-0 hover:bg-white/70 dark:hover:bg-slate-700/40 transition cursor-pointer ${row.ticker === selectedTicker
-                    ? "bg-white/80 dark:bg-slate-700/50"
-                    : ""
-                    }`}
+                  className={`grid grid-cols-[1.6fr_1.1fr_1.1fr_1.4fr_1fr_0.8fr] items-center gap-4 border-b border-[#e7e0d8] dark:border-slate-700/80 px-6 py-4.5 last:border-b-0 hover:bg-white/70 dark:hover:bg-slate-700/40 transition cursor-pointer ${
+                    row.ticker === selectedTicker
+                      ? "bg-white/80 dark:bg-slate-700/50"
+                      : ""
+                  }`}
                   onClick={() => setSelectedTicker(row.ticker)}
                 >
                   {/* Ticker & Issuer */}
@@ -681,10 +743,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                       {row.priceFormatted}
                     </div>
                     <div
-                      className={`text-[0.8rem] font-bold ${row.changePercent.startsWith("-")
-                        ? "text-red-500"
-                        : "text-emerald-500"
-                        }`}
+                      className={`text-[0.8rem] font-bold ${
+                        row.changePercent.startsWith("-")
+                          ? "text-red-500"
+                          : "text-emerald-500"
+                      }`}
                     >
                       {row.changePercent}
                     </div>
@@ -755,7 +818,8 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   No matching issuers
                 </h3>
                 <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-                  Try adjusting your search term or reset filters to show all 12 issuers.
+                  Try adjusting your search term or reset filters to show all 12
+                  issuers.
                 </p>
                 <button
                   type="button"
@@ -850,10 +914,11 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                       {inspectTicker.priceFormatted}
                     </span>
                     <span
-                      className={`text-xs font-bold ${inspectTicker.changePercent.startsWith("-")
-                        ? "text-red-500"
-                        : "text-emerald-500"
-                        }`}
+                      className={`text-xs font-bold ${
+                        inspectTicker.changePercent.startsWith("-")
+                          ? "text-red-500"
+                          : "text-emerald-500"
+                      }`}
                     >
                       {inspectTicker.changePercent}
                     </span>
@@ -888,35 +953,45 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               {/* Detailed Metrics Grid */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 text-xs">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Market Capitalization</span>
+                  <span className="text-slate-400 font-medium">
+                    Market Capitalization
+                  </span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
                     {inspectTicker.marketCap}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Debt to Equity (DER)</span>
+                  <span className="text-slate-400 font-medium">
+                    Debt to Equity (DER)
+                  </span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
                     {inspectTicker.der}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Equity Condition</span>
+                  <span className="text-slate-400 font-medium">
+                    Equity Condition
+                  </span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
                     {inspectTicker.equityStatus}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Est. Days to Suspension</span>
+                  <span className="text-slate-400 font-medium">
+                    Est. Days to Suspension
+                  </span>
                   <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">
                     {inspectTicker.daysToSuspension}
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3 sm:col-span-2">
-                  <span className="text-slate-400 font-medium">Latest Audit Opinion</span>
+                  <span className="text-slate-400 font-medium">
+                    Latest Audit Opinion
+                  </span>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1 truncate">
                     {inspectTicker.lastAuditOpinion}
                   </p>
@@ -932,7 +1007,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                   {inspectTicker.driver}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Regulatory Trigger: <strong className="text-[#f26a4d]">{inspectTicker.ruleViolation}</strong>
+                  Regulatory Trigger:{" "}
+                  <strong className="text-[#f26a4d]">
+                    {inspectTicker.ruleViolation}
+                  </strong>
                 </p>
               </div>
             </div>
@@ -951,7 +1029,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 type="button"
                 onClick={() => {
                   setInspectTicker(null);
-                  onNavigate("evidence");
+                  onNavigate("news");
                 }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#0f172a] dark:bg-slate-700 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 cursor-pointer"
               >
@@ -962,7 +1040,12 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                 type="button"
                 onClick={() => {
                   setInspectTicker(null);
-                  onNavigate("methodology");
+                  onNavigate("home");
+                  window.setTimeout(() => {
+                    document
+                      .getElementById("methodology")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }, 50);
                 }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#f26a4d] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#f26a4d]/20 transition hover:bg-[#d95e39] cursor-pointer"
               >

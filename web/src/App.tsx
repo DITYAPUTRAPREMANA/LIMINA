@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { isSupabaseConfigured } from "./lib/supabase";
 import Navbar from "./pages/Home/Navbar";
@@ -15,10 +15,9 @@ import NotFoundPage from "./pages/NotFound";
 import SuccessPage from "./pages/Success";
 import DashboardPage from "./pages/Dashboard";
 import SearchPage from "./pages/Search";
-import EvidencePage from "./pages/Evidence";
-import MethodologyPage from "./pages/Methodology";
 import ProfilePage from "./pages/Profile";
 import ForgotPasswordPage from "./pages/ForgotPassword";
+import NewsPage from "./pages/News";
 
 export type View =
   | "home"
@@ -29,16 +28,16 @@ export type View =
   | "success"
   | "dashboard"
   | "search"
+  | "news"
   | "evidence"
-  | "methodology"
   | "profile"
   | "forgot-password";
 
 const PROTECTED_VIEWS: View[] = [
   "dashboard",
   "search",
+  "news",
   "evidence",
-  "methodology",
   "profile",
 ];
 
@@ -65,28 +64,6 @@ function AppInner() {
     if (isAuthCallback) return "dashboard";
     return "home";
   });
-
-  // Auto-navigate to dashboard as soon as session is ready after clicking magic link
-  useEffect(() => {
-    if (session) {
-      // If we have auth callback params in URL, clean them and go to dashboard
-      const hasAuthParams =
-        window.location.search.includes("code=") ||
-        window.location.search.includes("token_hash=") ||
-        window.location.hash.includes("access_token") ||
-        window.location.hash.includes("type=magiclink") ||
-        window.location.hash.includes("type=signup");
-
-      if (hasAuthParams) {
-        // Clean URL to keep it pristine and prevent re-evaluating tokens
-        window.history.replaceState(null, "", window.location.pathname);
-        setView("dashboard");
-      } else if (view === "login" || view === "register" || view === "otp") {
-        // Already authenticated, no need to stay on auth pages
-        setView("dashboard");
-      }
-    }
-  }, [session, view]);
 
   const navigate = (nextView: View) => {
     if (PROTECTED_VIEWS.includes(nextView) && !session) {
@@ -118,14 +95,27 @@ function AppInner() {
             Supabase Not Configured
           </div>
           <p className="mt-1 text-sm text-slate-300">
-            Edit the <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">.env</code> file in the{" "}
-            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">web/</code> directory and configure{" "}
-            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">VITE_SUPABASE_ANON_KEY</code>{" "}
-            from <strong className="text-white">Supabase Dashboard → Settings → API</strong>.
-            After saving, refresh this page.
+            Edit the{" "}
+            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">
+              .env
+            </code>{" "}
+            file in the{" "}
+            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">
+              web/
+            </code>{" "}
+            directory and configure{" "}
+            <code className="rounded bg-slate-700 px-1.5 py-0.5 text-[#f9a15d] font-mono text-xs">
+              VITE_SUPABASE_ANON_KEY
+            </code>{" "}
+            from{" "}
+            <strong className="text-white">
+              Supabase Dashboard → Settings → API
+            </strong>
+            . After saving, refresh this page.
           </p>
           <p className="mt-1.5 text-xs text-slate-500">
-            Authentication (login/register/OTP) will remain disabled until setup is complete. Public pages remain accessible.
+            Authentication (login/register/OTP) will remain disabled until setup
+            is complete. Public pages remain accessible.
           </p>
         </div>
       </div>
@@ -133,6 +123,27 @@ function AppInner() {
   );
 
   const renderPage = () => {
+    const hasAuthParams =
+      typeof window !== "undefined" &&
+      (window.location.search.includes("code=") ||
+        window.location.search.includes("token_hash=") ||
+        window.location.hash.includes("access_token") ||
+        window.location.hash.includes("type=magiclink") ||
+        window.location.hash.includes("type=signup"));
+
+    if (
+      session &&
+      (hasAuthParams ||
+        view === "login" ||
+        view === "register" ||
+        view === "otp")
+    ) {
+      if (hasAuthParams) {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+      return <DashboardPage onNavigate={navigate} />;
+    }
+
     if (view === "register") return <RegisterPage onNavigate={navigate} />;
     if (view === "login") return <LoginPage onNavigate={navigate} />;
     if (view === "otp") return <EmailOtpPage onNavigate={navigate} />;
@@ -140,26 +151,35 @@ function AppInner() {
     if (view === "success") return <SuccessPage onNavigate={navigate} />;
 
     if (view === "dashboard") {
-      if (!session) { navigate("login"); return null; }
+      if (!session) {
+        navigate("login");
+        return null;
+      }
       return <DashboardPage onNavigate={navigate} />;
     }
     if (view === "search") {
-      if (!session) { navigate("login"); return null; }
+      if (!session) {
+        navigate("login");
+        return null;
+      }
       return <SearchPage onNavigate={navigate} />;
     }
-    if (view === "evidence") {
-      if (!session) { navigate("login"); return null; }
-      return <EvidencePage onNavigate={navigate} />;
-    }
-    if (view === "methodology") {
-      if (!session) { navigate("login"); return null; }
-      return <MethodologyPage onNavigate={navigate} />;
+    if (view === "news" || view === "evidence") {
+      if (!session) {
+        navigate("login");
+        return null;
+      }
+      return <NewsPage onNavigate={navigate} />;
     }
     if (view === "profile") {
-      if (!session) { navigate("login"); return null; }
+      if (!session) {
+        navigate("login");
+        return null;
+      }
       return <ProfilePage onNavigate={navigate} />;
     }
-    if (view === "forgot-password") return <ForgotPasswordPage onNavigate={navigate} />;
+    if (view === "forgot-password")
+      return <ForgotPasswordPage onNavigate={navigate} />;
 
     return (
       <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-sans selection:bg-red-100 selection:text-red-900 transition-colors duration-300">

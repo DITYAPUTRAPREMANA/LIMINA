@@ -31,7 +31,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     } else if (onNavigate) {
-      onNavigate("methodology");
+      onNavigate("home");
     }
   };
 
@@ -86,19 +86,23 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
-            <Info className="w-4 h-4 text-slate-400" /> Strictly informational research; not a
-            recommendation to buy, sell, or hold.
+            <Info className="w-4 h-4 text-slate-400" /> Strictly informational
+            research; not a recommendation to buy, sell, or hold.
           </div>
 
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-100 dark:border-slate-700">
             <div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">30 Days</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                30 Days
+              </div>
               <div className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
                 Average Lead Time
               </div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">820+</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+                820+
+              </div>
               <div className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">
                 IDX Issuers Tracked
               </div>
@@ -134,7 +138,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
               <div className="bg-red-50 dark:bg-red-950/50 border border-red-100 dark:border-red-900 rounded-xl p-4 mb-4 transition-all hover:scale-[1.02]">
                 <div className="flex justify-between items-start mb-2">
                   <div className="text-[10px] font-bold text-red-600 flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3 text-red-500 animate-bounce" /> CRITICAL RISK
+                    <AlertTriangle className="w-3 h-3 text-red-500 animate-bounce" />{" "}
+                    CRITICAL RISK
                   </div>
                   <div className="text-xl font-bold text-red-600">
                     92<span className="text-xs text-red-400">/100</span>

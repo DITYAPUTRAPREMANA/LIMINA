@@ -5,7 +5,9 @@ interface CaseStudiesSectionProps {
   onNavigate?: (view: View) => void;
 }
 
-const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) => {
+const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
+  onNavigate,
+}) => {
   const handleTickerClick = (ticker: string) => {
     const rankingsEl = document.getElementById("rankings");
     if (rankingsEl) {
@@ -17,7 +19,7 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
         setTimeout(() => searchInput.focus(), 600);
       }
     } else if (onNavigate) {
-      onNavigate("evidence");
+      onNavigate("news");
     }
   };
 
@@ -28,7 +30,8 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
     >
       <div className="w-full mx-auto">
         <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-2">
-          <Clock className="w-4 h-4" /> HISTORICAL VALIDATION &amp; LEAD-TIME PROOF
+          <Clock className="w-4 h-4" /> HISTORICAL VALIDATION &amp; LEAD-TIME
+          PROOF
         </div>
         <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-slate-50 mb-3">
           Backtesting Case Study: The Lead-Time
@@ -153,7 +156,8 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
                     </div>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Suspended following debt restructuring defaults. Click to inspect.
+                    Suspended following debt restructuring defaults. Click to
+                    inspect.
                   </div>
                 </button>
 
@@ -171,7 +175,8 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
                     </div>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Audit qualification and negative equity breach. Click to inspect.
+                    Audit qualification and negative equity breach. Click to
+                    inspect.
                   </div>
                 </button>
 
@@ -193,7 +198,8 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
                     </div>
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Volatility spike approaching primary criteria. Click to inspect.
+                    Volatility spike approaching primary criteria. Click to
+                    inspect.
                   </div>
                 </button>
               </div>
@@ -207,7 +213,9 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onNavigate }) =
                 </div>
                 <div className="text-5xl font-extrabold text-red-500 mb-3 flex items-baseline gap-2">
                   <span>89.4%</span>
-                  <span className="text-xs font-medium text-emerald-400">Validated</span>
+                  <span className="text-xs font-medium text-emerald-400">
+                    Validated
+                  </span>
                 </div>
                 <p className="text-sm text-slate-300 leading-relaxed">
                   Backtested across 24 historical IDX leading suspensions over

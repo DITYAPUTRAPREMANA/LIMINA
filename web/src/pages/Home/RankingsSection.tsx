@@ -41,7 +41,9 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [showFiltersPanel, setShowFiltersPanel] = useState(false);
-  const [inspectStock, setInspectStock] = useState<DashboardStockItem | null>(null);
+  const [inspectStock, setInspectStock] = useState<DashboardStockItem | null>(
+    null,
+  );
 
   // ── Live data fetch (same pipeline as Dashboard) ──────────────────────────
   useEffect(() => {
@@ -65,13 +67,24 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
       }
     };
     load();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // ── Computed stats ────────────────────────────────────────────────────────
-  const criticalCount = useMemo(() => stocks.filter((s) => s.score >= 85).length, [stocks]);
-  const highWatchCount = useMemo(() => stocks.filter((s) => s.score >= 70 && s.score < 85).length, [stocks]);
-  const normalCount = useMemo(() => stocks.filter((s) => s.score < 70).length, [stocks]);
+  const criticalCount = useMemo(
+    () => stocks.filter((s) => s.score >= 85).length,
+    [stocks],
+  );
+  const highWatchCount = useMemo(
+    () => stocks.filter((s) => s.score >= 70 && s.score < 85).length,
+    [stocks],
+  );
+  const normalCount = useMemo(
+    () => stocks.filter((s) => s.score < 70).length,
+    [stocks],
+  );
 
   const filteredStocks = useMemo(() => {
     let list = [...stocks];
@@ -82,11 +95,12 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
           s.ticker.toLowerCase().includes(q) ||
           s.company.toLowerCase().includes(q) ||
           s.sector.toLowerCase().includes(q) ||
-          s.driver.toLowerCase().includes(q)
+          s.driver.toLowerCase().includes(q),
       );
     }
     if (riskFilter === "critical") list = list.filter((s) => s.score >= 85);
-    else if (riskFilter === "high") list = list.filter((s) => s.score >= 70 && s.score < 85);
+    else if (riskFilter === "high")
+      list = list.filter((s) => s.score >= 70 && s.score < 85);
     else if (riskFilter === "normal") list = list.filter((s) => s.score < 70);
 
     list.sort((a, b) => {
@@ -110,17 +124,20 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
           s.ticker.toLowerCase().includes(q) ||
           s.company.toLowerCase().includes(q) ||
           s.sector.toLowerCase().includes(q) ||
-          s.driver.toLowerCase().includes(q)
+          s.driver.toLowerCase().includes(q),
       );
     }
     if (riskFilter === "critical") list = list.filter((s) => s.score >= 85);
-    else if (riskFilter === "high") list = list.filter((s) => s.score >= 70 && s.score < 85);
+    else if (riskFilter === "high")
+      list = list.filter((s) => s.score >= 70 && s.score < 85);
     else if (riskFilter === "normal") list = list.filter((s) => s.score < 70);
     return list.length;
   }, [stocks, searchQuery, riskFilter]);
 
   const isCustomFilterActive =
-    searchQuery.trim() !== "" || riskFilter !== "all" || sortBy !== "score-desc";
+    searchQuery.trim() !== "" ||
+    riskFilter !== "all" ||
+    sortBy !== "score-desc";
 
   const handleReset = () => {
     setSearchQuery("");
@@ -134,11 +151,12 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
       className="w-full py-24 px-4 sm:px-6 lg:px-10 bg-white dark:bg-slate-950 relative"
     >
       <div className="w-full mx-auto">
-
         {/* ── Section Header ── */}
         <div className="text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4" />
-          {isRemoteModelOnline ? "FastAPI Model Live Feed" : "Sectors.app API Live Feed"}
+          {isRemoteModelOnline
+            ? "FastAPI Model Live Feed"
+            : "Sectors.app API Live Feed"}
           {loadingApi && (
             <span className="flex items-center gap-1 text-slate-400 normal-case font-normal animate-pulse">
               <RefreshCw className="w-3 h-3 animate-spin" /> Syncing...
@@ -182,10 +200,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => setShowFiltersPanel((v) => !v)}
-              className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-all duration-200 shadow-2xs btn-hover-lift ${showFiltersPanel || isCustomFilterActive
-                ? "bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400"
-                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                }`}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-all duration-200 shadow-2xs btn-hover-lift ${
+                showFiltersPanel || isCustomFilterActive
+                  ? "bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400"
+                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+              }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Filters</span>
@@ -212,10 +231,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                 key={s.id}
                 type="button"
                 onClick={() => setSortBy(s.id as SortOption)}
-                className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 btn-hover-lift ${sortBy === s.id
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
-                  : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
-                  }`}
+                className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 btn-hover-lift ${
+                  sortBy === s.id
+                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
+                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
+                }`}
               >
                 {s.label}
               </button>
@@ -235,10 +255,25 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
         {/* ── Risk Category Chips ── */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
           {[
-            { id: "all" as RiskCategory, label: `All Issuers (${stocks.length})` },
-            { id: "critical" as RiskCategory, label: `Critical Risk (${criticalCount})`, tone: "red" },
-            { id: "high" as RiskCategory, label: `High Watch (${highWatchCount})`, tone: "amber" },
-            { id: "normal" as RiskCategory, label: `Normal / Low (${normalCount})`, tone: "green" },
+            {
+              id: "all" as RiskCategory,
+              label: `All Issuers (${stocks.length})`,
+            },
+            {
+              id: "critical" as RiskCategory,
+              label: `Critical Risk (${criticalCount})`,
+              tone: "red",
+            },
+            {
+              id: "high" as RiskCategory,
+              label: `High Watch (${highWatchCount})`,
+              tone: "amber",
+            },
+            {
+              id: "normal" as RiskCategory,
+              label: `Normal / Low (${normalCount})`,
+              tone: "green",
+            },
           ].map((chip) => {
             const active = riskFilter === chip.id;
             return (
@@ -262,10 +297,14 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                 <span
                   className={[
                     "h-2 w-2 rounded-full inline-block",
-                    active ? "bg-white dark:bg-slate-900"
-                      : chip.tone === "red" ? "bg-red-500"
-                        : chip.tone === "amber" ? "bg-amber-500"
-                          : chip.tone === "green" ? "bg-emerald-500"
+                    active
+                      ? "bg-white dark:bg-slate-900"
+                      : chip.tone === "red"
+                        ? "bg-red-500"
+                        : chip.tone === "amber"
+                          ? "bg-amber-500"
+                          : chip.tone === "green"
+                            ? "bg-emerald-500"
                             : "bg-slate-400",
                   ].join(" ")}
                 />
@@ -274,7 +313,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
             );
           })}
           <div className="ml-auto text-xs font-bold text-slate-500 dark:text-slate-400">
-            Top <span className="text-slate-900 dark:text-slate-100 font-black">{filteredStocks.length}</span> of {totalMatching} matching · {stocks.length} total issuers
+            Top{" "}
+            <span className="text-slate-900 dark:text-slate-100 font-black">
+              {filteredStocks.length}
+            </span>{" "}
+            of {totalMatching} matching · {stocks.length} total issuers
           </div>
         </div>
 
@@ -287,10 +330,12 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
               </div>
               <div>
                 <div className="text-sm font-bold text-red-700 dark:text-red-400">
-                  {criticalCount} Issuer{criticalCount > 1 ? "s" : ""} Exceeding Critical Risk Threshold (≥85)
+                  {criticalCount} Issuer{criticalCount > 1 ? "s" : ""} Exceeding
+                  Critical Risk Threshold (≥85)
                 </div>
                 <div className="text-xs text-red-500 dark:text-red-400/90">
-                  Immediate investor attention recommended under IDX suspension methodology.
+                  Immediate investor attention recommended under IDX suspension
+                  methodology.
                 </div>
               </div>
             </div>
@@ -308,31 +353,57 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
             <div className="grid grid-cols-[1.5fr_1fr_1.3fr_1fr_0.8fr] items-center gap-4 border-b border-[#d8d3cd] dark:border-slate-700 bg-[#eceae7] dark:bg-slate-900 px-6 py-4 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-[#58677a] dark:text-slate-400 select-none">
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "ticker-asc" ? "score-desc" : "ticker-asc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "ticker-asc" ? "score-desc" : "ticker-asc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Ticker &amp; Issuer</span>
-                {sortBy === "ticker-asc" ? <ArrowUp className="h-3 w-3 text-red-500" /> : <ArrowUpDown className="h-3 w-3 opacity-60" />}
+                {sortBy === "ticker-asc" ? (
+                  <ArrowUp className="h-3 w-3 text-red-500" />
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-60" />
+                )}
               </button>
 
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "price-desc" ? "score-desc" : "price-desc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "price-desc" ? "score-desc" : "price-desc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Price &amp; 24h</span>
-                {sortBy === "price-desc" ? <ArrowDown className="h-3 w-3 text-red-500" /> : <ArrowUpDown className="h-3 w-3 opacity-60" />}
+                {sortBy === "price-desc" ? (
+                  <ArrowDown className="h-3 w-3 text-red-500" />
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-60" />
+                )}
               </button>
 
               <span>Primary Risk Driver</span>
 
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "score-desc" ? "score-asc" : "score-desc")}
+                onClick={() =>
+                  setSortBy(
+                    sortBy === "score-desc" ? "score-asc" : "score-desc",
+                  )
+                }
                 className="flex items-center gap-1 text-left hover:text-slate-900 dark:hover:text-slate-100 transition cursor-pointer"
               >
                 <span>Risk Index</span>
-                {sortBy === "score-desc" ? <ArrowDown className="h-3 w-3 text-red-500" /> : sortBy === "score-asc" ? <ArrowUp className="h-3 w-3 text-red-500" /> : <ArrowUpDown className="h-3 w-3 opacity-60" />}
+                {sortBy === "score-desc" ? (
+                  <ArrowDown className="h-3 w-3 text-red-500" />
+                ) : sortBy === "score-asc" ? (
+                  <ArrowUp className="h-3 w-3 text-red-500" />
+                ) : (
+                  <ArrowUpDown className="h-3 w-3 opacity-60" />
+                )}
               </button>
 
               <span className="text-right">Action</span>
@@ -351,7 +422,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                     <span
                       className={[
                         "inline-flex h-8 w-8 items-center justify-center rounded-xl text-xs font-black text-white shadow-xs shrink-0",
-                        row.tone === "red" ? "bg-red-600" : row.tone === "amber" ? "bg-amber-400" : "bg-emerald-500",
+                        row.tone === "red"
+                          ? "bg-red-600"
+                          : row.tone === "amber"
+                            ? "bg-amber-400"
+                            : "bg-emerald-500",
                       ].join(" ")}
                     >
                       {row.ticker[0]}
@@ -379,7 +454,9 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                     <div className="text-[0.95rem] font-black text-[#1b2433] dark:text-slate-100">
                       {row.priceFormatted}
                     </div>
-                    <div className={`text-[0.8rem] font-bold ${row.changePercent.startsWith("-") ? "text-red-500" : "text-emerald-500"}`}>
+                    <div
+                      className={`text-[0.8rem] font-bold ${row.changePercent.startsWith("-") ? "text-red-500" : "text-emerald-500"}`}
+                    >
                       {row.changePercent}
                     </div>
                   </div>
@@ -407,7 +484,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                       <div
                         className={[
                           "h-2 rounded-full transition-all duration-700",
-                          row.tone === "red" ? "bg-red-600" : row.tone === "amber" ? "bg-amber-400" : "bg-emerald-500",
+                          row.tone === "red"
+                            ? "bg-red-600"
+                            : row.tone === "amber"
+                              ? "bg-amber-400"
+                              : "bg-emerald-500",
                         ].join(" ")}
                         style={{ width: `${row.score}%` }}
                       />
@@ -421,7 +502,10 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                   <div className="flex items-center justify-end">
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); setInspectStock(row); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setInspectStock(row);
+                      }}
                       className="inline-flex items-center justify-center rounded-lg border border-[#d8d3cd] dark:border-slate-600 bg-[#f7f5f3] dark:bg-slate-700 px-3 py-1.5 text-[0.82rem] font-bold text-[#263140] dark:text-slate-200 transition hover:border-red-400 dark:hover:border-red-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-600 shadow-xs cursor-pointer"
                     >
                       Analyze <ArrowRight className="ml-1 h-3 w-3" />
@@ -432,7 +516,9 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
             ) : (
               <div className="py-16 text-center">
                 <ShieldCheck className="mx-auto h-10 w-10 text-slate-400 opacity-60 mb-3" />
-                <h3 className="text-base font-bold text-slate-700 dark:text-slate-200">No matching issuers</h3>
+                <h3 className="text-base font-bold text-slate-700 dark:text-slate-200">
+                  No matching issuers
+                </h3>
                 <p className="mt-1 text-xs text-slate-500 max-w-xs mx-auto">
                   Try a different search term or reset the filters.
                 </p>
@@ -478,7 +564,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                 <span
                   className={[
                     "flex h-12 w-12 items-center justify-center rounded-xl text-xl font-black text-white shadow-md",
-                    inspectStock.tone === "red" ? "bg-red-600" : inspectStock.tone === "amber" ? "bg-amber-400" : "bg-emerald-500",
+                    inspectStock.tone === "red"
+                      ? "bg-red-600"
+                      : inspectStock.tone === "amber"
+                        ? "bg-amber-400"
+                        : "bg-emerald-500",
                   ].join(" ")}
                 >
                   {inspectStock.ticker[0]}
@@ -491,7 +581,9 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                     <span className="rounded bg-black/10 dark:bg-white/10 px-2 py-0.5 text-xs font-bold text-slate-700 dark:text-slate-300">
                       Rank {inspectStock.rank}
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">{inspectStock.isin}</span>
+                    <span className="text-xs text-slate-400 font-mono">
+                      {inspectStock.isin}
+                    </span>
                   </div>
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                     {inspectStock.company} · {inspectStock.sector}
@@ -520,7 +612,11 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                     <span
                       className={[
                         "text-3xl font-black tracking-tight",
-                        inspectStock.tone === "red" ? "text-red-600" : inspectStock.tone === "amber" ? "text-amber-500" : "text-emerald-500",
+                        inspectStock.tone === "red"
+                          ? "text-red-600"
+                          : inspectStock.tone === "amber"
+                            ? "text-amber-500"
+                            : "text-emerald-500",
                       ].join(" ")}
                     >
                       {inspectStock.score}/100
@@ -528,7 +624,9 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                     <span className="text-lg font-bold text-slate-900 dark:text-white">
                       {inspectStock.priceFormatted}
                     </span>
-                    <span className={`text-xs font-bold ${inspectStock.changePercent.startsWith("-") ? "text-red-500" : "text-emerald-500"}`}>
+                    <span
+                      className={`text-xs font-bold ${inspectStock.changePercent.startsWith("-") ? "text-red-500" : "text-emerald-500"}`}
+                    >
                       {inspectStock.changePercent}
                     </span>
                   </div>
@@ -543,8 +641,16 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                         : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300",
                   ].join(" ")}
                 >
-                  {inspectStock.tone === "red" ? <ShieldAlert className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-                  {inspectStock.tone === "red" ? "Critical Suspension Risk" : inspectStock.tone === "amber" ? "High Monitoring Risk" : "Normal / Low Risk"}
+                  {inspectStock.tone === "red" ? (
+                    <ShieldAlert className="h-3.5 w-3.5" />
+                  ) : (
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  )}
+                  {inspectStock.tone === "red"
+                    ? "Critical Suspension Risk"
+                    : inspectStock.tone === "amber"
+                      ? "High Monitoring Risk"
+                      : "Normal / Low Risk"}
                 </span>
               </div>
 
@@ -552,23 +658,41 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 text-xs">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
                   <span className="text-slate-400 font-medium">Market Cap</span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">{inspectStock.marketCap}</p>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
+                    {inspectStock.marketCap}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Debt / Equity (DER)</span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">{inspectStock.der}</p>
+                  <span className="text-slate-400 font-medium">
+                    Debt / Equity (DER)
+                  </span>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
+                    {inspectStock.der}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Equity Condition</span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">{inspectStock.equityStatus}</p>
+                  <span className="text-slate-400 font-medium">
+                    Equity Condition
+                  </span>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1">
+                    {inspectStock.equityStatus}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3">
-                  <span className="text-slate-400 font-medium">Est. Days to Suspension</span>
-                  <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">{inspectStock.daysToSuspension}</p>
+                  <span className="text-slate-400 font-medium">
+                    Est. Days to Suspension
+                  </span>
+                  <p className="text-sm font-bold text-red-600 dark:text-red-400 mt-1">
+                    {inspectStock.daysToSuspension}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 p-3 sm:col-span-2">
-                  <span className="text-slate-400 font-medium">Latest Audit Opinion</span>
-                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1 truncate">{inspectStock.lastAuditOpinion}</p>
+                  <span className="text-slate-400 font-medium">
+                    Latest Audit Opinion
+                  </span>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mt-1 truncate">
+                    {inspectStock.lastAuditOpinion}
+                  </p>
                 </div>
               </div>
 
@@ -577,9 +701,14 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                 <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                   Primary Risk Driver &amp; Regulation
                 </span>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">{inspectStock.driver}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mt-1">
+                  {inspectStock.driver}
+                </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Regulatory Trigger: <strong className="text-red-500">{inspectStock.ruleViolation}</strong>
+                  Regulatory Trigger:{" "}
+                  <strong className="text-red-500">
+                    {inspectStock.ruleViolation}
+                  </strong>
                 </p>
               </div>
             </div>
@@ -595,14 +724,20 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
               </button>
               <button
                 type="button"
-                onClick={() => { setInspectStock(null); onNavigate?.("evidence"); }}
+                onClick={() => {
+                  setInspectStock(null);
+                  onNavigate?.("news");
+                }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 dark:bg-slate-700 px-5 py-2.5 text-xs font-bold text-white hover:bg-slate-800 cursor-pointer"
               >
                 View Forensic Evidence <ExternalLink className="h-3.5 w-3.5" />
               </button>
               <button
                 type="button"
-                onClick={() => { setInspectStock(null); onNavigate?.("dashboard"); }}
+                onClick={() => {
+                  setInspectStock(null);
+                  onNavigate?.("dashboard");
+                }}
                 className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-500 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-red-500/20 hover:bg-red-600 cursor-pointer"
               >
                 Open Full Dashboard <ArrowRight className="h-3.5 w-3.5" />

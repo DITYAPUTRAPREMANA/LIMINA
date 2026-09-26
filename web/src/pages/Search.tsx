@@ -6,7 +6,6 @@ import {
   Download,
   FileText,
   Info,
-  Landmark,
   RotateCcw,
   Search,
   SlidersHorizontal,
@@ -30,8 +29,7 @@ type SearchPageProps = {
 const menuItems = [
   { label: "Ranking", icon: BarChart3, view: "dashboard" as const },
   { label: "Search", icon: Search, view: "search" as const, active: true },
-  { label: "Evidence", icon: FileText, view: "evidence" as const },
-  { label: "Methodology", icon: Landmark, view: "methodology" as const },
+  { label: "News", icon: FileText, view: "news" as const },
   { label: "Profile", icon: User, view: "profile" as const },
 ];
 
@@ -49,7 +47,9 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [showFilters, setShowFilters] = useState(false);
 
-  const [selectedStock, setSelectedStock] = useState<DashboardStockItem | null>(null);
+  const [selectedStock, setSelectedStock] = useState<DashboardStockItem | null>(
+    null,
+  );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -98,16 +98,24 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
           const matchSector = s.sector.toLowerCase().includes(q);
           const matchDriver = s.driver.toLowerCase().includes(q);
           const matchIsin = s.isin.toLowerCase().includes(q);
-          if (!matchTicker && !matchCompany && !matchSector && !matchDriver && !matchIsin) {
+          if (
+            !matchTicker &&
+            !matchCompany &&
+            !matchSector &&
+            !matchDriver &&
+            !matchIsin
+          ) {
             return false;
           }
         }
 
         if (riskFilter === "critical" && s.score < 75) return false;
-        if (riskFilter === "high" && (s.score < 40 || s.score >= 75)) return false;
+        if (riskFilter === "high" && (s.score < 40 || s.score >= 75))
+          return false;
         if (riskFilter === "normal" && s.score >= 40) return false;
 
-        if (sectorFilter !== "All Sectors" && s.sector !== sectorFilter) return false;
+        if (sectorFilter !== "All Sectors" && s.sector !== sectorFilter)
+          return false;
 
         return true;
       })
@@ -154,16 +162,23 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
       `"${s.isin}"`,
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `LIMINA_Search_Export_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute(
+      "download",
+      `LIMINA_Search_Export_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    setToastMessage(`Successfully exported ${filteredStocks.length} issuers to CSV format.`);
+    setToastMessage(
+      `Successfully exported ${filteredStocks.length} issuers to CSV format.`,
+    );
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -201,7 +216,9 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                 Issuer Intelligence
               </span>
               {loading && (
-                <span className="text-[10px] text-slate-400 animate-pulse">Syncing...</span>
+                <span className="text-[10px] text-slate-400 animate-pulse">
+                  Syncing...
+                </span>
               )}
             </div>
             <h1 className="text-3xl font-black tracking-[-0.07em] text-[#111827] dark:text-slate-100 sm:text-4xl lg:text-5xl mt-1">
@@ -255,14 +272,16 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
               <button
                 type="button"
                 onClick={() => setShowFilters((prev) => !prev)}
-                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${showFilters
-                  ? "border-[#f26a4d] bg-[#fdf5f2] dark:bg-slate-700 text-[#f26a4d]"
-                  : "border-[#d8d3cd] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#475367] dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
+                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                  showFilters
+                    ? "border-[#f26a4d] bg-[#fdf5f2] dark:bg-slate-700 text-[#f26a4d]"
+                    : "border-[#d8d3cd] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#475367] dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                }`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
-                {(sectorFilter !== "All Sectors" || sortBy !== "score-desc") && (
+                {(sectorFilter !== "All Sectors" ||
+                  sortBy !== "score-desc") && (
                   <span className="h-2 w-2 rounded-full bg-[#f26a4d]" />
                 )}
               </button>
@@ -307,8 +326,12 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-[#f26a4d]"
                 >
-                  <option value="score-desc">Risk Score: Highest to Lowest</option>
-                  <option value="score-asc">Risk Score: Lowest to Highest</option>
+                  <option value="score-desc">
+                    Risk Score: Highest to Lowest
+                  </option>
+                  <option value="score-asc">
+                    Risk Score: Lowest to Highest
+                  </option>
                   <option value="price-desc">Stock Price: Highest</option>
                   <option value="ticker-asc">Ticker: A - Z</option>
                 </select>
@@ -332,10 +355,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
             <button
               type="button"
               onClick={() => setRiskFilter("all")}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${riskFilter === "all"
-                ? "border-[#111827] dark:border-slate-400 bg-[#111827] text-white dark:bg-slate-200 dark:text-slate-900"
-                : "border-[#ddd5cf] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
-                }`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${
+                riskFilter === "all"
+                  ? "border-[#111827] dark:border-slate-400 bg-[#111827] text-white dark:bg-slate-200 dark:text-slate-900"
+                  : "border-[#ddd5cf] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-50"
+              }`}
             >
               All Tickers ({counts.all})
             </button>
@@ -343,10 +367,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
             <button
               type="button"
               onClick={() => setRiskFilter("critical")}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${riskFilter === "critical"
-                ? "border-red-600 bg-red-600 text-white shadow-xs"
-                : "border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 hover:bg-red-100"
-                }`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${
+                riskFilter === "critical"
+                  ? "border-red-600 bg-red-600 text-white shadow-xs"
+                  : "border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 hover:bg-red-100"
+              }`}
             >
               <span className="h-2 w-2 rounded-full bg-red-500" />
               Critical Risk ({counts.critical})
@@ -355,10 +380,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
             <button
               type="button"
               onClick={() => setRiskFilter("high")}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${riskFilter === "high"
-                ? "border-amber-600 bg-amber-600 text-white shadow-xs"
-                : "border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 hover:bg-amber-100"
-                }`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${
+                riskFilter === "high"
+                  ? "border-amber-600 bg-amber-600 text-white shadow-xs"
+                  : "border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-400 hover:bg-amber-100"
+              }`}
             >
               <span className="h-2 w-2 rounded-full bg-amber-500" />
               Under Watch ({counts.high})
@@ -367,10 +393,11 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
             <button
               type="button"
               onClick={() => setRiskFilter("normal")}
-              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${riskFilter === "normal"
-                ? "border-emerald-600 bg-emerald-600 text-white shadow-xs"
-                : "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-400 hover:bg-emerald-100"
-                }`}
+              className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 font-semibold transition ${
+                riskFilter === "normal"
+                  ? "border-emerald-600 bg-emerald-600 text-white shadow-xs"
+                  : "border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-400 hover:bg-emerald-100"
+              }`}
             >
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Normal / Low ({counts.normal})
@@ -421,12 +448,13 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                     {/* Ticker Badge */}
                     <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white shadow-xs ${isCritical
-                          ? "bg-gradient-to-br from-red-500 to-rose-600"
-                          : isWatch
-                            ? "bg-gradient-to-br from-amber-500 to-orange-500"
-                            : "bg-gradient-to-br from-emerald-500 to-teal-600"
-                          }`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black text-white shadow-xs ${
+                          isCritical
+                            ? "bg-gradient-to-br from-red-500 to-rose-600"
+                            : isWatch
+                              ? "bg-gradient-to-br from-amber-500 to-orange-500"
+                              : "bg-gradient-to-br from-emerald-500 to-teal-600"
+                        }`}
                       >
                         {stock.ticker.slice(0, 2)}
                       </div>
@@ -462,12 +490,13 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                         {stock.priceFormatted}
                       </div>
                       <div
-                        className={`mt-0.5 text-xs font-semibold flex items-center gap-1 ${stock.changePercent.startsWith("+")
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : stock.changePercent.startsWith("-")
-                            ? "text-rose-600 dark:text-rose-400"
-                            : "text-slate-500"
-                          }`}
+                        className={`mt-0.5 text-xs font-semibold flex items-center gap-1 ${
+                          stock.changePercent.startsWith("+")
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : stock.changePercent.startsWith("-")
+                              ? "text-rose-600 dark:text-rose-400"
+                              : "text-slate-500"
+                        }`}
                       >
                         {stock.changePercent.startsWith("+") ? (
                           <TrendingUp className="h-3 w-3" />
@@ -482,12 +511,13 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                     <div>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-black ${isCritical
-                            ? "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400"
-                            : isWatch
-                              ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400"
-                              : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400"
-                            }`}
+                          className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-black ${
+                            isCritical
+                              ? "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400"
+                              : isWatch
+                                ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400"
+                                : "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400"
+                          }`}
                         >
                           {stock.score} / 100
                         </span>
@@ -532,12 +562,13 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
 
               <div className="flex items-center gap-3">
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg font-black text-white ${selectedStock.score >= 75
-                    ? "bg-red-600"
-                    : selectedStock.score >= 40
-                      ? "bg-amber-500"
-                      : "bg-emerald-600"
-                    }`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-xl text-lg font-black text-white ${
+                    selectedStock.score >= 75
+                      ? "bg-red-600"
+                      : selectedStock.score >= 40
+                        ? "bg-amber-500"
+                        : "bg-emerald-600"
+                  }`}
                 >
                   {selectedStock.ticker.slice(0, 2)}
                 </div>
@@ -545,35 +576,61 @@ const SearchPage = ({ onNavigate }: SearchPageProps) => {
                   <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                     {selectedStock.ticker} — {selectedStock.company}
                   </h3>
-                  <p className="text-xs text-slate-500">{selectedStock.sector} • ISIN: {selectedStock.isin}</p>
+                  <p className="text-xs text-slate-500">
+                    {selectedStock.sector} • ISIN: {selectedStock.isin}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Risk Score</span>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.score} / 100</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">
+                    Risk Score
+                  </span>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">
+                    {selectedStock.score} / 100
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Stock Price</span>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.priceFormatted}</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">
+                    Stock Price
+                  </span>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">
+                    {selectedStock.priceFormatted}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">DER Ratio</span>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">{selectedStock.der}</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">
+                    DER Ratio
+                  </span>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5">
+                    {selectedStock.der}
+                  </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Market Cap</span>
-                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">{selectedStock.marketCap}</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-400">
+                    Market Cap
+                  </span>
+                  <p className="text-lg font-black text-slate-900 dark:text-slate-100 mt-0.5 truncate">
+                    {selectedStock.marketCap}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-4 space-y-2">
-                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">Primary Suspension Anomaly Driver:</div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{selectedStock.driver}</p>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Primary Suspension Anomaly Driver:
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {selectedStock.driver}
+                </p>
                 <div className="pt-2 flex items-center justify-between text-xs text-slate-500">
-                  <span>Last Audit Opinion: {selectedStock.lastAuditOpinion}</span>
-                  <span>Prediction Lead Time: {selectedStock.leadTimeDays} Days</span>
+                  <span>
+                    Last Audit Opinion: {selectedStock.lastAuditOpinion}
+                  </span>
+                  <span>
+                    Prediction Lead Time: {selectedStock.leadTimeDays} Days
+                  </span>
                 </div>
               </div>
 
