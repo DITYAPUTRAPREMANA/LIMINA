@@ -6,7 +6,6 @@ import {
   BellRing,
   CheckCircle2,
   FileText,
-  Landmark,
   Laptop,
   Loader2,
   LogOut,
@@ -40,8 +39,7 @@ type ProfilePageProps = {
 const menuItems = [
   { label: "Ranking", icon: BarChart3, view: "dashboard" as const },
   { label: "Search", icon: Search, view: "search" as const },
-  { label: "Evidence", icon: FileText, view: "evidence" as const },
-  { label: "Methodology", icon: Landmark, view: "methodology" as const },
+  { label: "News", icon: FileText, view: "news" as const },
   { label: "Profile", icon: User, view: "profile" as const, active: true },
 ];
 
@@ -64,11 +62,17 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
   }));
 
   const [notifSupported, setNotifSupported] = useState(false);
-  const [notifPermission, setNotifPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [notifPermission, setNotifPermission] = useState<
+    NotificationPermission | "unsupported"
+  >("default");
   const [deviceAlertsActive, setDeviceAlertsActive] = useState(false);
-  const [notifThreshold, setNotifThresholdState] = useState<NotificationThreshold>("critical_only");
+  const [notifThreshold, setNotifThresholdState] =
+    useState<NotificationThreshold>("critical_only");
   const [testingNotif, setTestingNotif] = useState(false);
-  const [testFeedback, setTestFeedback] = useState<{ success: boolean; message: string } | null>(null);
+  const [testFeedback, setTestFeedback] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const updatePerm = () => {
@@ -97,7 +101,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
         setDeviceAlertsActive(true);
         setTestFeedback({
           success: true,
-          message: "Permission granted! System notifications to your device are now active.",
+          message:
+            "Permission granted! System notifications to your device are now active.",
         });
       } else {
         setDeviceAlertsActive(false);
@@ -199,15 +204,23 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
 
   const navItems = menuItems.map((item) => ({
     ...item,
-    onClick: () => { setSidebarOpen(false); onNavigate(item.view); },
+    onClick: () => {
+      setSidebarOpen(false);
+      onNavigate(item.view);
+    },
   }));
 
   const inputClass =
     "w-full rounded-xl border border-[#dfe2ea] dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-3 text-[15px] text-slate-700 dark:text-slate-200 outline-none focus:border-[#b5c6d9] transition";
 
   const initials = formData.full_name
-    ? formData.full_name.split(" ").slice(0, 2).map((w: string) => w[0] ?? "").join("").toUpperCase()
-    : user?.email?.[0]?.toUpperCase() ?? "?";
+    ? formData.full_name
+        .split(" ")
+        .slice(0, 2)
+        .map((w: string) => w[0] ?? "")
+        .join("")
+        .toUpperCase()
+    : (user?.email?.[0]?.toUpperCase() ?? "?");
 
   return (
     <AppShell
@@ -314,7 +327,10 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 </div>
               )}
               {saveError && (
-                <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300">
+                <div
+                  role="alert"
+                  className="mb-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300"
+                >
                   {saveError}
                 </div>
               )}
@@ -333,7 +349,12 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     </label>
                     <input
                       value={formData[field as keyof typeof formData]}
-                      onChange={(e) => handleChange(field as keyof typeof formData, e.target.value)}
+                      onChange={(e) =>
+                        handleChange(
+                          field as keyof typeof formData,
+                          e.target.value,
+                        )
+                      }
                       className={inputClass}
                     />
                   </div>
@@ -361,7 +382,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     title="Email cannot be changed directly. Contact support if you need to update your email."
                   />
                   <p className="mt-1 text-[11px] text-[#7a8697] dark:text-slate-500">
-                    To change your email address, re-verification via Supabase is required.
+                    To change your email address, re-verification via Supabase
+                    is required.
                   </p>
                 </div>
               </div>
@@ -396,7 +418,8 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                       )}
                     </div>
                     <p className="mt-1 text-xs text-[#5e6b7d] dark:text-slate-400 max-w-xl">
-                      Receive system alerts directly on Windows, macOS, Linux, or Android Chrome when an IDX issuer anomaly is detected.
+                      Receive system alerts directly on Windows, macOS, Linux,
+                      or Android Chrome when an IDX issuer anomaly is detected.
                     </p>
                   </div>
                 </div>
@@ -407,13 +430,16 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     type="button"
                     onClick={handleToggleNotifications}
                     disabled={!notifSupported}
-                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all shadow-xs ${deviceAlertsActive
-                      ? "border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100"
-                      : "bg-[#101a2b] dark:bg-violet-600 text-white hover:opacity-90"
-                      } disabled:opacity-50`}
+                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all shadow-xs ${
+                      deviceAlertsActive
+                        ? "border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100"
+                        : "bg-[#101a2b] dark:bg-violet-600 text-white hover:opacity-90"
+                    } disabled:opacity-50`}
                   >
                     <Bell className="h-4 w-4" />
-                    {deviceAlertsActive ? "Disable Alerts" : "Enable Notifications"}
+                    {deviceAlertsActive
+                      ? "Disable Alerts"
+                      : "Enable Notifications"}
                   </button>
                 </div>
               </div>
@@ -426,7 +452,11 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     Notification Permission Blocked by Browser
                   </div>
                   <p className="leading-relaxed">
-                    To enable notifications: click the <strong>lock icon / site settings</strong> to the left of the browser's URL bar, change the <strong>Notifications</strong> permission to <strong>Allow</strong>, then reload this page.
+                    To enable notifications: click the{" "}
+                    <strong>lock icon / site settings</strong> to the left of
+                    the browser's URL bar, change the{" "}
+                    <strong>Notifications</strong> permission to{" "}
+                    <strong>Allow</strong>, then reload this page.
                   </p>
                 </div>
               )}
@@ -435,10 +465,11 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
               {testFeedback && (
                 <div
                   role="alert"
-                  className={`mb-5 rounded-xl border px-4 py-3 text-sm flex items-start gap-2.5 ${testFeedback.success
-                    ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
-                    : "border-amber-200 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
-                    }`}
+                  className={`mb-5 rounded-xl border px-4 py-3 text-sm flex items-start gap-2.5 ${
+                    testFeedback.success
+                      ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300"
+                      : "border-amber-200 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
+                  }`}
                 >
                   {testFeedback.success ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -459,32 +490,36 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                     <button
                       type="button"
                       onClick={() => handleChangeThreshold("critical_only")}
-                      className={`text-left p-3.5 rounded-xl border text-xs transition-all ${notifThreshold === "critical_only"
-                        ? "border-red-500 bg-red-50/70 dark:bg-red-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-red-500/20"
-                        : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
-                        }`}
+                      className={`text-left p-3.5 rounded-xl border text-xs transition-all ${
+                        notifThreshold === "critical_only"
+                          ? "border-red-500 bg-red-50/70 dark:bg-red-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-red-500/20"
+                          : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                      }`}
                     >
                       <div className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-bold mb-1">
                         🚨 Critical Risk Only (Recommended)
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal leading-normal">
-                        Only send alerts when an issuer's risk score is ≥ 7.5 (potential suspension, extreme anomalous volume spikes).
+                        Only send alerts when an issuer's risk score is ≥ 7.5
+                        (potential suspension, extreme anomalous volume spikes).
                       </p>
                     </button>
 
                     <button
                       type="button"
                       onClick={() => handleChangeThreshold("all_anomalies")}
-                      className={`text-left p-3.5 rounded-xl border text-xs transition-all ${notifThreshold === "all_anomalies"
-                        ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-amber-500/20"
-                        : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
-                        }`}
+                      className={`text-left p-3.5 rounded-xl border text-xs transition-all ${
+                        notifThreshold === "all_anomalies"
+                          ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/30 text-slate-900 dark:text-slate-100 font-semibold shadow-xs ring-1 ring-amber-500/20"
+                          : "border-[#dfe4ea] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400"
+                      }`}
                     >
                       <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-bold mb-1">
                         ⚡ All Detected Anomalies
                       </div>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 font-normal leading-normal">
-                        Send alerts for every unusual movement and detected accumulation anomaly.
+                        Send alerts for every unusual movement and detected
+                        accumulation anomaly.
                       </p>
                     </button>
                   </div>
@@ -494,10 +529,12 @@ const ProfilePage = ({ onNavigate }: ProfilePageProps) => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                   <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1.5">
-                      <Laptop className="w-3.5 h-3.5 text-slate-400" /> Desktop (Windows / macOS / Linux)
+                      <Laptop className="w-3.5 h-3.5 text-slate-400" /> Desktop
+                      (Windows / macOS / Linux)
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <Smartphone className="w-3.5 h-3.5 text-slate-400" /> Android Chrome
+                      <Smartphone className="w-3.5 h-3.5 text-slate-400" />{" "}
+                      Android Chrome
                     </span>
                   </div>
 

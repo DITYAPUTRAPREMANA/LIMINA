@@ -23,7 +23,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ onNavigate }) => {
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
     } else if (onNavigate) {
-      onNavigate("methodology");
+      onNavigate("home");
     }
   };
 
@@ -44,7 +44,8 @@ export const CTASection: React.FC<CTASectionProps> = ({ onNavigate }) => {
           </h2>
           <p className="text-slate-300 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
             Jump straight into the full interactive PWA or review the exact
-            mathematical formulas behind our Point-in-Time surveillance calculations.
+            mathematical formulas behind our Point-in-Time surveillance
+            calculations.
           </p>
         </div>
 
@@ -76,7 +77,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ onNavigate }) => {
   );
 };
 
-interface FooterSectionProps {}
+type FooterSectionProps = Record<string, never>;
 
 export const FooterSection: React.FC<FooterSectionProps> = () => {
   const scrollToSection = (e: React.MouseEvent, id?: string) => {
@@ -102,7 +103,9 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
           >
             LIMINA
           </button>
-          <span className="text-xs text-slate-400">— IDX Risk Surveillance</span>
+          <span className="text-xs text-slate-400">
+            — IDX Risk Surveillance
+          </span>
         </div>
 
         <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -110,7 +113,7 @@ export const FooterSection: React.FC<FooterSectionProps> = () => {
             { label: "Home", href: "#" },
             { label: "Vision", href: "#vision" },
             { label: "Methodology", href: "#methodology" },
-            { label: "Evidence", href: "#case-studies" },
+            { label: "News", href: "#case-studies" },
             { label: "Ranking", href: "#rankings" },
           ].map((link) => (
             <a

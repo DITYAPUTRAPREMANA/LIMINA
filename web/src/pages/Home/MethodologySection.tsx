@@ -5,10 +5,12 @@ interface MethodologySectionProps {
   onNavigate?: (view: View) => void;
 }
 
-const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) => {
+const MethodologySection: React.FC<MethodologySectionProps> = ({
+  onNavigate,
+}) => {
   const handleReadSpecs = () => {
     if (onNavigate) {
-      onNavigate("methodology");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -61,15 +63,24 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
               <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
                 <li className="flex items-start gap-2.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0"></div>{" "}
-                  <span>PIT Snapshot Frequency: 15-minute intervals during active IDX market hours</span>
+                  <span>
+                    PIT Snapshot Frequency: 15-minute intervals during active
+                    IDX market hours
+                  </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0"></div>{" "}
-                  <span>Corporate Actions: Ex-date adjustments for splits, reverse splits &amp; rights issues</span>
+                  <span>
+                    Corporate Actions: Ex-date adjustments for splits, reverse
+                    splits &amp; rights issues
+                  </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0"></div>{" "}
-                  <span>Disclosure Latency: 24h operational processing buffer for official exchange filings</span>
+                  <span>
+                    Disclosure Latency: 24h operational processing buffer for
+                    official exchange filings
+                  </span>
                 </li>
               </ul>
             </div>
@@ -117,23 +128,70 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                     </div>
 
                     <div className="relative w-full h-24 bg-slate-950/60 rounded-lg p-2 border border-slate-800/80 overflow-hidden">
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 260 70" preserveAspectRatio="none">
+                      <svg
+                        className="w-full h-full overflow-visible"
+                        viewBox="0 0 260 70"
+                        preserveAspectRatio="none"
+                      >
                         <defs>
-                          <linearGradient id="lsiGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
-                            <stop offset="60%" stopColor="#f59e0b" stopOpacity="0.2" />
-                            <stop offset="100%" stopColor="#ef4444" stopOpacity="0.5" />
+                          <linearGradient
+                            id="lsiGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="#10b981"
+                              stopOpacity="0.4"
+                            />
+                            <stop
+                              offset="60%"
+                              stopColor="#f59e0b"
+                              stopOpacity="0.2"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="#ef4444"
+                              stopOpacity="0.5"
+                            />
                           </linearGradient>
                         </defs>
 
                         {/* Critical Threshold Line */}
-                        <line x1="0" y1="48" x2="260" y2="48" stroke="#ef4444" strokeWidth="1" strokeDasharray="3,3" opacity="0.65" />
-                        <text x="4" y="44" fill="#ef4444" fontSize="7" fontFamily="monospace" opacity="0.8">
+                        <line
+                          x1="0"
+                          y1="48"
+                          x2="260"
+                          y2="48"
+                          stroke="#ef4444"
+                          strokeWidth="1"
+                          strokeDasharray="3,3"
+                          opacity="0.65"
+                        />
+                        <text
+                          x="4"
+                          y="44"
+                          fill="#ef4444"
+                          fontSize="7"
+                          fontFamily="monospace"
+                          opacity="0.8"
+                        >
                           CRITICAL BREACH THRESHOLD
                         </text>
 
                         {/* Normal Line Grid */}
-                        <line x1="0" y1="20" x2="260" y2="20" stroke="#334155" strokeWidth="0.5" strokeDasharray="2,2" opacity="0.5" />
+                        <line
+                          x1="0"
+                          y1="20"
+                          x2="260"
+                          y2="20"
+                          stroke="#334155"
+                          strokeWidth="0.5"
+                          strokeDasharray="2,2"
+                          opacity="0.5"
+                        />
 
                         {/* Shaded Area */}
                         <path
@@ -161,7 +219,14 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                         />
 
                         {/* Live Pulsing Beacon on Current Value */}
-                        <circle cx="245" cy="62" r="5" fill="#ef4444" opacity="0.4" className="animate-ping" />
+                        <circle
+                          cx="245"
+                          cy="62"
+                          r="5"
+                          fill="#ef4444"
+                          opacity="0.4"
+                          className="animate-ping"
+                        />
                         <circle cx="245" cy="62" r="3" fill="#ef4444" />
                       </svg>
                     </div>
@@ -169,7 +234,9 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                     <div className="flex justify-between text-[8px] font-mono text-slate-400 mt-1.5 px-0.5">
                       <span>Day -30 (Normal)</span>
                       <span>Day -15</span>
-                      <span className="text-red-400 font-bold">Halt Trigger</span>
+                      <span className="text-red-400 font-bold">
+                        Halt Trigger
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -204,17 +271,50 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                     </div>
 
                     <div className="relative w-full h-24 bg-slate-950/60 rounded-lg p-2 border border-slate-800/80 overflow-hidden">
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 260 70" preserveAspectRatio="none">
+                      <svg
+                        className="w-full h-full overflow-visible"
+                        viewBox="0 0 260 70"
+                        preserveAspectRatio="none"
+                      >
                         <defs>
-                          <linearGradient id="erpGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.35" />
-                            <stop offset="100%" stopColor="#ef4444" stopOpacity="0.25" />
+                          <linearGradient
+                            id="erpGradient"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="#3b82f6"
+                              stopOpacity="0.35"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="#ef4444"
+                              stopOpacity="0.25"
+                            />
                           </linearGradient>
                         </defs>
 
                         {/* Benchmark Baseline: 10Y IDN Bond Yield ~6.8% */}
-                        <line x1="0" y1="30" x2="260" y2="30" stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="4,4" opacity="0.8" />
-                        <text x="4" y="24" fill="#93c5fd" fontSize="7" fontFamily="monospace">
+                        <line
+                          x1="0"
+                          y1="30"
+                          x2="260"
+                          y2="30"
+                          stroke="#60a5fa"
+                          strokeWidth="1.5"
+                          strokeDasharray="4,4"
+                          opacity="0.8"
+                        />
+                        <text
+                          x="4"
+                          y="24"
+                          fill="#93c5fd"
+                          fontSize="7"
+                          fontFamily="monospace"
+                        >
                           10Y IDN GOVT BOND YIELD (Rf = 6.8%)
                         </text>
 
@@ -243,7 +343,14 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                         />
 
                         {/* Live Pulsing Beacon */}
-                        <circle cx="245" cy="60" r="5" fill="#f97316" opacity="0.4" className="animate-ping" />
+                        <circle
+                          cx="245"
+                          cy="60"
+                          r="5"
+                          fill="#f97316"
+                          opacity="0.4"
+                          className="animate-ping"
+                        />
                         <circle cx="245" cy="60" r="3" fill="#f97316" />
                       </svg>
                     </div>
@@ -251,7 +358,9 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                     <div className="flex justify-between text-[8px] font-mono text-slate-400 mt-1.5 px-0.5">
                       <span>ERP &gt; 0 (Safe Premium)</span>
                       <span>Spread Parity</span>
-                      <span className="text-orange-400 font-bold">Negative Spread</span>
+                      <span className="text-orange-400 font-bold">
+                        Negative Spread
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -266,8 +375,8 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                 Criteria Employed
               </h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">
-                Weighted components derived directly from IDX suspension rules &amp;
-                Special Monitoring Board criteria:
+                Weighted components derived directly from IDX suspension rules
+                &amp; Special Monitoring Board criteria:
               </p>
 
               <div className="space-y-6">
@@ -303,15 +412,21 @@ const MethodologySection: React.FC<MethodologySectionProps> = ({ onNavigate }) =
                 ].map((crit, i) => (
                   <div key={i} className="group">
                     <div className="flex justify-between text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
-                      <span className="group-hover:text-red-500 transition-colors">{crit.label}</span>
-                      <span className="text-red-500 text-xs font-mono">{crit.weight}</span>
+                      <span className="group-hover:text-red-500 transition-colors">
+                        {crit.label}
+                      </span>
+                      <span className="text-red-500 text-xs font-mono">
+                        {crit.weight}
+                      </span>
                     </div>
                     <div className="w-full bg-slate-100 dark:bg-slate-700 h-1.5 rounded-full mb-1 overflow-hidden">
                       <div
                         className={`h-1.5 rounded-full ${crit.color} ${crit.width} transition-all duration-500 group-hover:brightness-110`}
                       ></div>
                     </div>
-                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{crit.desc}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {crit.desc}
+                    </p>
                   </div>
                 ))}
               </div>
