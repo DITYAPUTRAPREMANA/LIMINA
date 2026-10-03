@@ -30,8 +30,7 @@ export default defineConfig(({ mode }) => {
         },
         "/api/model": {
           target:
-            env.VITE_MODEL_API_URL ||
-            "https://limina-model-train-production.up.railway.app",
+            env.VITE_MODEL_API_URL,
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/api\/model/, ""),
