@@ -19,11 +19,16 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import {
-  BASELINE_STOCKS,
   fetchSectorsUniverseData,
   type DashboardStockItem,
 } from "../lib/sectorsApi";
-import { fetchLiveModelRankings, type SkorEmiten } from "../lib/modelApi";
+import {
+  fetchLiveModelRankings,
+  getFactorLabel,
+  ALL_MODEL_SCORES,
+  INITIAL_MODEL_STOCKS,
+  type SkorEmiten,
+} from "../lib/modelApi";
 import {
   areDeviceAlertsEnabled,
   requestNotificationPermission,
@@ -56,19 +61,18 @@ type SortOption =
 
 const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [stocks, setStocks] = useState<DashboardStockItem[]>(BASELINE_STOCKS);
+  const [stocks, setStocks] = useState<DashboardStockItem[]>(INITIAL_MODEL_STOCKS);
   const [loadingApi, setLoadingApi] = useState(false);
   const [isRemoteModelOnline, setIsRemoteModelOnline] = useState(false);
-  const [modelScores, setModelScores] = useState<Record<string, SkorEmiten>>(
-    {},
-  );
+  const [modelScores, setModelScores] =
+    useState<Record<string, SkorEmiten>>(ALL_MODEL_SCORES);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
   const [selectedSector, setSelectedSector] = useState("All Sectors");
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
 
-  const [selectedTicker, setSelectedTicker] = useState<string>("BELI");
+  const [selectedTicker, setSelectedTicker] = useState<string>("ALKA");
   const [inspectTicker, setInspectTicker] = useState<DashboardStockItem | null>(
     null,
   );
@@ -113,19 +117,36 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
       const modelResult = await fetchLiveModelRankings();
       if (!mounted) return;
 
-      if (modelResult.isFromRemoteModel) {
-        setStocks(modelResult.stocks);
-        setModelScores(modelResult.scores);
-        setIsRemoteModelOnline(true);
-        setLoadingApi(false);
-      } else {
+      setModelScores(modelResult.scores);
+      setIsRemoteModelOnline(modelResult.isFromRemoteModel);
+
+      // Enrich stock prices & market cap with fresh live quotes from Sectors API if accessible
+      try {
         const sectorsData = await fetchSectorsUniverseData();
-        if (mounted) {
-          setStocks(sectorsData);
-          setIsRemoteModelOnline(false);
+        if (mounted && sectorsData && sectorsData.length > 0) {
+          const enriched = modelResult.stocks.map((item) => {
+            const sec = sectorsData.find((s) => s.ticker === item.ticker);
+            if (!sec) return item;
+            return {
+              ...item,
+              price: sec.price ?? item.price,
+              priceFormatted: sec.priceFormatted ?? item.priceFormatted,
+              changePercent: sec.changePercent ?? item.changePercent,
+              marketCap: sec.marketCap ?? item.marketCap,
+              marketCapRaw: sec.marketCapRaw ?? item.marketCapRaw,
+              der: sec.der ?? item.der,
+            };
+          });
+          setStocks(enriched);
           setLoadingApi(false);
+          return;
         }
+      } catch {
+        // Fall back to pure model stocks
       }
+
+      setStocks(modelResult.stocks);
+      setLoadingApi(false);
     };
     loadApiData();
     return () => {
@@ -143,123 +164,12 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
   const analysisResult = useMemo(() => {
     const currentTicker = inspectTicker?.ticker ?? selectedTicker;
-
-    const payloadByTicker: Record<string, typeof defaultModelPayload> = {
-      BELI: {
-        symbol: "BELI",
-        company_name: "Global Digital Niaga Tbk.",
-        as_of_date: "2026-09-16",
-        sector: "Technology",
-        sub_sector: "E-Commerce",
-        board: "Acceleration",
-        skor: 0.4836,
-        persentil: 100.0,
-        kategori: "Very High",
-        arah_30h: "stable",
-        status: "flagged",
-        indikator_dominan: "debt_to_asset",
-        kontribusi: {
-          report_days_gap: -0.198,
-          delayed_report: -0.1431,
-          no_revenue: 0.0,
-          negative_equity: 0.0,
-          debt_to_asset: 1.6848,
-          consecutive_negative_ako: 0.1867,
-          days_without_trade_90d: -0.288,
-          volume_ratio_30_90: 0.6044,
-          below_lower_band_90d: 0.0,
-          down_from_peak_90d: -0.1566,
-          volatility_90d: 1.0321,
-        },
-      },
-      SRAJ: {
-        symbol: "SRAJ",
-        company_name: "Sejahteraya Anugrah",
-        as_of_date: "2026-09-16",
-        sector: "Healthcare",
-        sub_sector: "Pharmaceuticals",
-        board: "Monitoring",
-        skor: 0.3211,
-        persentil: 80.0,
-        kategori: "High",
-        arah_30h: "upward",
-        status: "watchlist",
-        indikator_dominan: "cash_flow_pressure",
-        kontribusi: {
-          report_days_gap: -0.088,
-          delayed_report: -0.093,
-          no_revenue: 0.0,
-          negative_equity: 0.0,
-          debt_to_asset: 0.94,
-          consecutive_negative_ako: 0.08,
-          days_without_trade_90d: -0.14,
-          volume_ratio_30_90: 0.53,
-          below_lower_band_90d: 0.0,
-          down_from_peak_90d: -0.12,
-          volatility_90d: 0.84,
-        },
-      },
-      MGLV: {
-        symbol: "MGLV",
-        company_name: "Panca Anugrah Wisesa",
-        as_of_date: "2026-09-16",
-        sector: "Consumer Cyclicals",
-        sub_sector: "Retail",
-        board: "Monitoring",
-        skor: 0.2418,
-        persentil: 68.0,
-        kategori: "Medium",
-        arah_30h: "stable",
-        status: "monitoring",
-        indikator_dominan: "inventory_risk",
-        kontribusi: {
-          report_days_gap: -0.06,
-          delayed_report: -0.072,
-          no_revenue: 0.0,
-          negative_equity: 0.0,
-          debt_to_asset: 0.81,
-          consecutive_negative_ako: 0.06,
-          days_without_trade_90d: -0.095,
-          volume_ratio_30_90: 0.46,
-          below_lower_band_90d: 0.0,
-          down_from_peak_90d: -0.08,
-          volatility_90d: 0.73,
-        },
-      },
-    };
-
-    const defaultModelPayload = {
-      symbol: currentTicker,
-      company_name: inspectTicker?.company ?? "Selected issuer",
-      as_of_date: "2026-09-16",
-      sector: inspectTicker?.sector ?? "General",
-      sub_sector: inspectTicker?.sector ?? "General",
-      board: "Acceleration",
-      skor: 0.2316,
-      persentil: 63.2,
-      kategori: "Moderate",
-      arah_30h: "stable",
-      status: "monitoring",
-      indikator_dominan: "cash_flow_pressure",
-      kontribusi: {
-        report_days_gap: -0.07,
-        delayed_report: -0.08,
-        no_revenue: 0.0,
-        negative_equity: 0.0,
-        debt_to_asset: 0.72,
-        consecutive_negative_ako: 0.05,
-        days_without_trade_90d: -0.11,
-        volume_ratio_30_90: 0.4,
-        below_lower_band_90d: 0.0,
-        down_from_peak_90d: -0.1,
-        volatility_90d: 0.68,
-      },
-    };
+    if (!currentTicker) return null;
 
     return (
       modelScores[currentTicker] ??
-      payloadByTicker[currentTicker] ??
-      defaultModelPayload
+      modelScores[`${currentTicker}.JK`] ??
+      null
     );
   }, [inspectTicker, selectedTicker, modelScores]);
 
@@ -404,79 +314,95 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/90 p-5 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.24em] text-[#f26a4d]">
-                Analysis Result
-              </div>
-              <h2 className="mt-2 text-3xl font-black tracking-[-0.07em] text-[#111827] dark:text-slate-100">
-                {analysisResult.symbol}
-              </h2>
-              <p className="mt-1 text-sm text-[#58677a] dark:text-slate-400">
-                {analysisResult.company_name}
-              </p>
-            </div>
-
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[#465267] dark:text-slate-300">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#f26a4d]" />
-              {analysisResult.kategori}
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-3 md:grid-cols-4">
-            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
-                Symbol
-              </div>
-              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
-                {analysisResult.symbol}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
-                Sector
-              </div>
-              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
-                {analysisResult.sector}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
-                Skor
-              </div>
-              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
-                {analysisResult.skor}
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
-              <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
-                As of
-              </div>
-              <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
-                {analysisResult.as_of_date}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-xl border border-[#f0b5b5] dark:border-red-900/40 bg-[#fff1f1] dark:bg-red-950/30 p-4 text-sm text-[#4f5969] dark:text-slate-300">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        {analysisResult && (
+          <div className="mt-8 rounded-2xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/90 p-5 shadow-sm">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <span className="font-black text-[#d93e3e] dark:text-red-400">
-                  {analysisResult.kategori}
-                </span>
-                <span className="ml-2">based on AI model output</span>
+                <div className="text-[10px] font-black uppercase tracking-[0.24em] text-[#f26a4d]">
+                  Hasil Inferensi Model AI
+                </div>
+                <h2 className="mt-2 text-3xl font-black tracking-[-0.07em] text-[#111827] dark:text-slate-100">
+                  {analysisResult.symbol.replace(/\.JK$/i, "")}
+                </h2>
+                <p className="mt-1 text-sm text-[#58677a] dark:text-slate-400">
+                  {analysisResult.company_name}
+                </p>
               </div>
-              <div className="font-bold text-slate-700 dark:text-slate-200">
-                Persentil: {analysisResult.persentil}% · Arah 30H:{" "}
-                {analysisResult.arah_30h}
+
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[#465267] dark:text-slate-300">
+                <span
+                  className={`inline-block h-2.5 w-2.5 rounded-full ${analysisResult.persentil >= 85
+                    ? "bg-[#d93e3e]"
+                    : analysisResult.persentil >= 70
+                      ? "bg-[#f1b234]"
+                      : "bg-[#28b67a]"
+                    }`}
+                />
+                {analysisResult.kategori}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-4">
+              <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                  Ticker IDX
+                </div>
+                <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                  {analysisResult.symbol.replace(/\.JK$/i, "")}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                  Sektor
+                </div>
+                <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100 truncate">
+                  {analysisResult.sector || "IDX Listed"}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                  Skor Model (Raw)
+                </div>
+                <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                  {typeof analysisResult.skor === "number"
+                    ? analysisResult.skor.toFixed(4)
+                    : analysisResult.skor}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-white dark:bg-slate-900/80 p-3">
+                <div className="text-[10px] font-bold uppercase tracking-[0.20em] text-slate-500 dark:text-slate-400">
+                  As of Date
+                </div>
+                <div className="mt-2 text-lg font-black text-slate-900 dark:text-slate-100">
+                  {analysisResult.as_of_date}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 rounded-xl border border-[#f0b5b5] dark:border-red-900/40 bg-[#fff1f1] dark:bg-red-950/30 p-4 text-sm text-[#4f5969] dark:text-slate-300">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <span className="font-black text-[#d93e3e] dark:text-red-400">
+                    {analysisResult.kategori}
+                  </span>
+                  <span className="ml-2">
+                    Status: <strong className="uppercase">{analysisResult.status}</strong> · Indikator Dominan:{" "}
+                    <strong>{getFactorLabel(analysisResult.indikator_dominan)}</strong>
+                  </span>
+                </div>
+                <div className="font-bold text-slate-700 dark:text-slate-200">
+                  Persentil Risiko: {analysisResult.persentil}% · Tren 30H:{" "}
+                  <span className="uppercase text-[#d93e3e] font-black">
+                    {analysisResult.arah_30h}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ── Critical Alert Banner ── */}
         <div className="mt-8 rounded-2xl border border-[#f0b5b5] dark:border-red-900/40 bg-[#fff1f1] dark:bg-red-950/30 px-5 py-4 shadow-sm transition-all">
@@ -812,19 +738,21 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             <div className="flex items-center justify-between border-b border-[#d8d3cd] dark:border-slate-700/80 bg-[#f7f5f3] dark:bg-[#181a24] px-5 py-4">
               <div className="flex items-center gap-3.5">
                 <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#d93e3e] text-xl font-black text-white shadow-md">
-                  {analysisResult.symbol.charAt(0)}
+                  {analysisResult?.symbol?.replace(/\.JK$/i, "")?.charAt(0) ?? inspectTicker.ticker.charAt(0)}
                 </span>
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-[1.1rem] font-black tracking-[-0.04em] text-[#111827] dark:text-white">
-                      {analysisResult.symbol}
+                      {analysisResult?.symbol?.replace(/\.JK$/i, "") ?? inspectTicker.ticker}
                     </h2>
-                    <span className="rounded bg-black/5 dark:bg-white/10 px-2 py-0.5 text-[0.7rem] font-bold text-slate-700 dark:text-slate-300">
-                      {analysisResult.status}
-                    </span>
+                    {analysisResult?.status && (
+                      <span className="rounded bg-black/5 dark:bg-white/10 px-2 py-0.5 text-[0.7rem] font-bold text-slate-700 dark:text-slate-300 uppercase">
+                        {analysisResult.status}
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {analysisResult.company_name} · {analysisResult.sector}
+                    {analysisResult?.company_name ?? inspectTicker.company} · {analysisResult?.sector ?? inspectTicker.sector}
                   </p>
                 </div>
               </div>
@@ -841,104 +769,125 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             </div>
 
             <div className="px-5 py-5 sm:px-6 sm:py-6">
-              <div className="space-y-4">
-                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
-                  <div className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                    Model payload
-                  </div>
-                  <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-[2rem] font-black leading-none tracking-[-0.08em] text-[#d93e3e]">
-                        {analysisResult.skor}
+              {analysisResult ? (
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                    <div className="text-[0.68rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                      Hasil Inferensi Model Machine Learning
+                    </div>
+                    <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-[2rem] font-black leading-none tracking-[-0.08em] text-[#d93e3e]">
+                          {typeof analysisResult.skor === "number"
+                            ? analysisResult.skor.toFixed(4)
+                            : analysisResult.skor}
+                        </span>
+                        <span className="text-[1.05rem] font-black tracking-[-0.04em] text-[#111827] dark:text-slate-100">
+                          {analysisResult.kategori}
+                        </span>
+                      </div>
+
+                      <span
+                        className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.14em] text-white shadow-sm ${analysisResult.persentil >= 85
+                          ? "bg-[#d93e3e]"
+                          : analysisResult.persentil >= 70
+                            ? "bg-[#f1b234]"
+                            : "bg-[#28b67a]"
+                          }`}
+                      >
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        {analysisResult.board || "Papan Utama"}
                       </span>
-                      <span className="text-[1.05rem] font-black tracking-[-0.04em] text-[#111827] dark:text-slate-100">
-                        {analysisResult.kategori}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                      <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                        AS OF DATE
+                      </div>
+                      <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                        {analysisResult.as_of_date}
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                      <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                        SECTOR
+                      </div>
+                      <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100 truncate">
+                        {analysisResult.sector || "IDX Listed"}
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                      <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                        SUB SECTOR
+                      </div>
+                      <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100 truncate">
+                        {analysisResult.sub_sector || analysisResult.sector || "—"}
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
+                      <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                        RISK PERCENTILE
+                      </div>
+                      <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                        {analysisResult.persentil}%
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                    <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                      INDIKATOR DOMINAN RISIKO
+                    </div>
+                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
+                      {getFactorLabel(analysisResult.indikator_dominan)}
+                    </div>
+                    <div className="mt-2 text-[0.9rem] font-bold text-[#5a6576] dark:text-slate-300">
+                      Tren 30 Hari:{" "}
+                      <span className="text-[#d93e3e] uppercase font-black">
+                        {analysisResult.arah_30h}
                       </span>
                     </div>
-
-                    <span className="inline-flex items-center gap-2 rounded-full bg-[#d93e3e] px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.14em] text-white shadow-sm">
-                      <ShieldAlert className="h-3.5 w-3.5" />
-                      {analysisResult.board}
-                    </span>
                   </div>
+
+                  {analysisResult.kontribusi && Object.keys(analysisResult.kontribusi).length > 0 && (
+                    <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
+                      <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
+                        KONTRIBUSI VARIABEL MODEL (14 FAKTOR RESMI)
+                      </div>
+                      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        {Object.entries(analysisResult.kontribusi).map(
+                          ([key, value]) => (
+                            <div
+                              key={key}
+                              className="flex items-center justify-between rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900/50 px-3 py-2"
+                            >
+                              <span className="text-[0.82rem] font-medium text-slate-600 dark:text-slate-300 truncate max-w-[210px]" title={getFactorLabel(key)}>
+                                {getFactorLabel(key)}
+                              </span>
+                              <span className="text-[0.88rem] font-mono font-black text-[#111827] dark:text-slate-100 shrink-0">
+                                {typeof value === "number"
+                                  ? value > 0
+                                    ? `+${value.toFixed(4)}`
+                                    : value.toFixed(4)
+                                  : String(value)}
+                              </span>
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
-                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                      AS OF DATE
-                    </div>
-                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
-                      {analysisResult.as_of_date}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
-                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                      SECTOR
-                    </div>
-                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
-                      {analysisResult.sector}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
-                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                      SUB SECTOR
-                    </div>
-                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
-                      {analysisResult.sub_sector}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-3">
-                    <div className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                      PERCENTILE
-                    </div>
-                    <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
-                      {analysisResult.persentil}%
-                    </div>
-                  </div>
+              ) : (
+                <div className="p-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                  Data model belum tersedia untuk {inspectTicker.ticker}.
                 </div>
-
-                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
-                  <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                    DOMINANT INDICATOR
-                  </div>
-                  <div className="mt-2 text-[1rem] font-black text-[#111827] dark:text-slate-100">
-                    {analysisResult.indikator_dominan}
-                  </div>
-                  <div className="mt-2 text-[0.9rem] font-bold text-[#5a6576] dark:text-slate-300">
-                    30H trend:{" "}
-                    <span className="text-[#d93e3e]">
-                      {analysisResult.arah_30h}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800/80 p-4">
-                  <div className="text-[0.7rem] font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                    CONTRIBUTION FACTORS
-                  </div>
-                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {Object.entries(analysisResult.kontribusi).map(
-                      ([key, value]) => (
-                        <div
-                          key={key}
-                          className="flex items-center justify-between rounded-xl border border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-900/50 px-3 py-2"
-                        >
-                          <span className="text-[0.85rem] font-medium text-slate-600 dark:text-slate-300">
-                            {key}
-                          </span>
-                          <span className="text-[0.9rem] font-black text-[#111827] dark:text-slate-100">
-                            {String(value)}
-                          </span>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Modal Actions Footer */}

@@ -46,69 +46,6 @@ type NewsItem = {
   url?: string;
 };
 
-const NEWS_ITEMS: NewsItem[] = [
-  {
-    ticker: "MDAK",
-    company: "Merkeda",
-    date: "Sep 26, 2024",
-    title:
-      "Merkeda (MDAK) reports USD10.1 million net profit in 2026, a 7.43% surge from last year's loss",
-    excerpt:
-      "Merkeda (MDAK), the Indonesian asset manager, posted a stronger earnings mix while margins improved as operating cash conversion strengthened in the latest quarterly report.",
-    tags: ["Annual Report", "Bullish", "Ref: IDX-FIN-2026-MDKA"],
-    tagsTone: "green",
-    score: 3,
-  },
-  {
-    ticker: "GOTO",
-    company: "GoTo Gojek Tokopedia",
-    date: "Sep 26, 2024",
-    title:
-      "BEI removes Rp 50 floor price, opening trading range for PT GoTo Gojek Tokopedia Tbk (GOTO)",
-    excerpt:
-      "The Indonesia Stock Exchange announced the removal of the Rp 50 minimum price floor for all listed securities, effectively easing a six-month trading restriction.",
-    tags: ["Regulation", "Neutral", "High Match", "Ref: IDX-2024-21"],
-    tagsTone: "amber",
-    score: 5,
-  },
-  {
-    ticker: "WASK",
-    company: "Waskita Karya",
-    date: "Today • 08:30",
-    title:
-      "IDX Extends Trading Suspension for PT Waskita Karya Amid Coupon Default & Standstill",
-    excerpt:
-      "Exchange officials extended the suspension after the issuer failed to provide timely updates on bond restructuring and debt covenant negotiations.",
-    tags: ["Critical Risk", "High Risk", "Suspension", "Ref: IDX-2023-02"],
-    tagsTone: "red",
-    score: 12,
-  },
-  {
-    ticker: "KAEF",
-    company: "Kimia Farma",
-    date: "2 Days Ago • 14:15 WIB",
-    title:
-      "Special Audit initiated on Subsidiary Accounting Irregularities and Inventory Delta",
-    excerpt:
-      "Investigation launched following inventory valuation discrepancies and delayed disclosures tied to a subsidiary financial restatement and compliance review.",
-    tags: ["Corporate Action", "Moderate Risk", "Ref: IDX-KAEF-2024"],
-    tagsTone: "slate",
-    score: 5,
-  },
-  {
-    ticker: "BBAA",
-    company: "Bank Central Asia",
-    date: "Oct 12, 2024",
-    title:
-      "Bank Indonesia Adjusts Reserve Requirements; Liquidity Headroom Resilient",
-    excerpt:
-      "Macroprudential liquidity policy update demonstrates adequate tier-1 capital buffers and continued resilience in system funding conditions.",
-    tags: ["Macro", "Risk - Low", "Ref: BI-IDX-CB-66"],
-    tagsTone: "green",
-    score: 19,
-  },
-];
-
 const tagClassNames = {
   red: "border-[#f4d1cb] bg-[#fbeceb] text-[#b2382d]",
   amber: "border-[#f4dfb0] bg-[#fff6df] text-[#8a6300]",
@@ -311,7 +248,7 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
     (typeof FILTER_BUTTONS)[number] | null
   >(null);
   const [page, setPage] = useState(1);
-  const [newsItems, setNewsItems] = useState<NewsItem[]>(NEWS_ITEMS);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Fetch live news from Sectors API on mount
@@ -323,10 +260,9 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
         if (apiItems.length > 0) {
           setNewsItems(apiItems.map(mapApiNewsItem));
         }
-        // else: keep baseline NEWS_ITEMS as fallback
       })
-      .catch(() => {
-        // silently keep baseline data
+      .catch((err) => {
+        console.warn("[News] Gagal memuat berita dari Sectors API:", err);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
