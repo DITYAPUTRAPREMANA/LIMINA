@@ -368,11 +368,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             <button
               type="button"
               onClick={handleDeviceAlertClick}
-              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition shadow-xs ${
-                deviceAlertsActive
-                  ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
-                  : "border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
-              }`}
+              className={`inline-flex items-center justify-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition shadow-xs ${deviceAlertsActive
+                ? "border-emerald-200 dark:border-emerald-800 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"
+                : "border-[#d8d3cd] dark:border-slate-700 bg-[#f7f5f3] dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
+                }`}
               title={
                 deviceAlertsActive
                   ? "Notifikasi Device Aktif"
@@ -393,11 +392,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
             </button>
             <div className="inline-flex items-center justify-center gap-2 rounded-full border border-[#d8d3cd] dark:border-slate-700 bg-[#f3f1ee] dark:bg-slate-800 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#465267] dark:text-slate-400 sm:text-[11px]">
               <span
-                className={`inline-flex h-2.5 w-2.5 rounded-full ${
-                  isRemoteModelOnline
-                    ? "bg-emerald-500 animate-pulse"
-                    : "bg-[#2ec784]"
-                }`}
+                className={`inline-flex h-2.5 w-2.5 rounded-full ${isRemoteModelOnline
+                  ? "bg-emerald-500 animate-pulse"
+                  : "bg-[#2ec784]"
+                  }`}
               />
               {isRemoteModelOnline
                 ? "AI Model Server: Connected"
@@ -668,11 +666,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
               filteredTickers.map((row) => (
                 <div
                   key={row.ticker}
-                  className={`grid grid-cols-[1.6fr_1.1fr_1.1fr_1.4fr_1fr_0.8fr] items-center gap-4 border-b border-[#e7e0d8] dark:border-slate-700/80 px-6 py-4.5 last:border-b-0 hover:bg-white/70 dark:hover:bg-slate-700/40 transition cursor-pointer ${
-                    row.ticker === selectedTicker
-                      ? "bg-white/80 dark:bg-slate-700/50"
-                      : ""
-                  }`}
+                  className={`grid grid-cols-[1.6fr_1.1fr_1.1fr_1.4fr_1fr_0.8fr] items-center gap-4 border-b border-[#e7e0d8] dark:border-slate-700/80 px-6 py-4.5 last:border-b-0 hover:bg-white/70 dark:hover:bg-slate-700/40 transition cursor-pointer ${row.ticker === selectedTicker
+                    ? "bg-white/80 dark:bg-slate-700/50"
+                    : ""
+                    }`}
                   onClick={() => setSelectedTicker(row.ticker)}
                 >
                   {/* Ticker & Issuer */}
@@ -710,11 +707,10 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
                       {row.priceFormatted}
                     </div>
                     <div
-                      className={`text-[0.8rem] font-bold ${
-                        row.changePercent.startsWith("-")
-                          ? "text-red-500"
-                          : "text-emerald-500"
-                      }`}
+                      className={`text-[0.8rem] font-bold ${row.changePercent.startsWith("-")
+                        ? "text-red-500"
+                        : "text-emerald-500"
+                        }`}
                     >
                       {row.changePercent}
                     </div>

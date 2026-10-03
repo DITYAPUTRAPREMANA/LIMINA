@@ -1,31 +1,21 @@
 import { BASELINE_STOCKS, type DashboardStockItem } from "./sectorsApi";
-
-/**
- * Response item of the LIMINA Scoring API (`GET /scores`, `GET /scores/{symbol}`).
- * Docs: https://limina-model-train-production.up.railway.app/docs
- */
 export interface SkorEmiten {
   symbol: string;
   company_name: string;
   as_of_date: string;
   sector?: string | null;
   sub_sector?: string | null;
-  board?: string | null;
-  /** Raw model score. */
+  board?: string | null
   skor: number;
-  /** Percentile rank within the scored universe (0 - 100). */
   persentil: number;
   kategori: string;
   arah_30h: string;
   status: string;
   indikator_dominan: string;
-  /** Per-indicator contribution to the score. */
   kontribusi: Record<string, number>;
 }
 
 const MODEL_API_BASE = "/api/model";
-
-/** Percentile thresholds shared with the dashboard legend (>=85 critical, >=70 watch). */
 const CRITICAL_PERCENTILE = 85;
 const WATCH_PERCENTILE = 70;
 
@@ -69,11 +59,6 @@ function toStockItem(
     equityStatus: humanize(score.status || base.equityStatus),
   };
 }
-
-/**
- * Fetch model scores for the covered tickers and map them to dashboard rows.
- * Falls back to baseline data when the model API is unreachable.
- */
 export async function fetchLiveModelRankings(): Promise<{
   stocks: DashboardStockItem[];
   scores: Record<string, SkorEmiten>;
@@ -106,7 +91,7 @@ export async function fetchLiveModelRankings(): Promise<{
       }
     }
   } catch {
-    // Model API unreachable — use fallback below.
+
   }
 
   return {
