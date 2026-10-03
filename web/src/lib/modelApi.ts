@@ -1,104 +1,117 @@
 import { BASELINE_STOCKS, type DashboardStockItem } from "./sectorsApi";
 
-interface ModelPrediction {
-  ticker: string;
+/**
+ * Response item of the LIMINA Scoring API (`GET /scores`, `GET /scores/{symbol}`).
+ * Docs: https://limina-model-train-production.up.railway.app/docs
+ */
+export interface SkorEmiten {
+  symbol: string;
   company_name: string;
-  sector: string;
-  risk_score: number;
-  risk_level: "CRITICAL" | "HIGH_WATCH" | "NORMAL" | "LOW";
-  confidence: number;
-  primary_driver: string;
-  delta_30d: number;
-  indicators: {
-    debt_to_equity?: number;
-    current_ratio?: number;
-    price_to_book?: number;
-    price_to_earnings?: number;
-    market_cap?: number;
-    price?: number;
-    change_24h?: number;
-    volatility_30d?: number;
-    negative_equity_flag?: boolean;
-    consecutive_loss_flag?: boolean;
-    special_notation_count?: number;
+  as_of_date: string;
+  sector?: string | null;
+  sub_sector?: string | null;
+  board?: string | null;
+  /** Raw model score. */
+  skor: number;
+  /** Percentile rank within the scored universe (0 - 100). */
+  persentil: number;
+  kategori: string;
+  arah_30h: string;
+  status: string;
+  indikator_dominan: string;
+  /** Per-indicator contribution to the score. */
+  kontribusi: Record<string, number>;
+}
+
+const MODEL_API_BASE = "/api/model";
+
+/** Percentile thresholds shared with the dashboard legend (>=85 critical, >=70 watch). */
+const CRITICAL_PERCENTILE = 85;
+const WATCH_PERCENTILE = 70;
+
+const stripSuffix = (symbol: string) => symbol.replace(/\.JK$/i, "").toUpperCase();
+
+const humanize = (key: string) =>
+  key
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+function toStockItem(
+  score: SkorEmiten,
+  rank: number,
+): DashboardStockItem {
+  const ticker = stripSuffix(score.symbol);
+  const base =
+    BASELINE_STOCKS.find((b) => b.ticker === ticker) ?? BASELINE_STOCKS[0];
+
+  const value = Math.round(score.persentil);
+  const tone: DashboardStockItem["tone"] =
+    value >= CRITICAL_PERCENTILE
+      ? "red"
+      : value >= WATCH_PERCENTILE
+        ? "amber"
+        : "green";
+
+  const direction = score.arah_30h?.toLowerCase();
+  const delta =
+    direction === "upward" ? "+1.0" : direction === "downward" ? "-1.0" : "0.0";
+
+  return {
+    ...base,
+    rank: `#${rank}`,
+    ticker,
+    company: score.company_name || base.company,
+    sector: score.sector || base.sector,
+    driver: humanize(score.indikator_dominan || base.driver),
+    score: value,
+    delta,
+    tone,
+    equityStatus: humanize(score.status || base.equityStatus),
   };
-  model_version: string;
-  evaluated_at: string;
 }
 
-interface ModelUniverseRankings {
-  universe_size: number;
-  last_updated: string;
-  critical_count: number;
-  watch_count: number;
-  normal_count: number;
-  rankings: ModelPrediction[];
-}
-
-const MODEL_API_BASE = "/api/model/api/v1";
-
+/**
+ * Fetch model scores for the covered tickers and map them to dashboard rows.
+ * Falls back to baseline data when the model API is unreachable.
+ */
 export async function fetchLiveModelRankings(): Promise<{
   stocks: DashboardStockItem[];
+  scores: Record<string, SkorEmiten>;
   isFromRemoteModel: boolean;
-  modelVersion?: string;
+  asOfDate?: string;
 }> {
   try {
-    const res = await fetch(`${MODEL_API_BASE}/rankings`, {
-      method: "GET",
+    const query = BASELINE_STOCKS.map(
+      (s) => `tickers=${encodeURIComponent(s.ticker)}`,
+    ).join("&");
+
+    const res = await fetch(`${MODEL_API_BASE}/scores?${query}`, {
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(3000),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (res.ok) {
-      const json: ModelUniverseRankings = await res.json();
-      if (Array.isArray(json.rankings) && json.rankings.length > 0) {
-        const mappedStocks: DashboardStockItem[] = json.rankings.map(
-          (pred, idx) => {
-            const base =
-              BASELINE_STOCKS.find((b) => b.ticker === pred.ticker) ||
-              BASELINE_STOCKS[0];
-
-            let tone: "red" | "amber" | "green" = "green";
-            if (pred.risk_score >= 75) tone = "red";
-            else if (pred.risk_score >= 40) tone = "amber";
-
-            const price = pred.indicators.price ?? base.price;
-
-            return {
-              ...base,
-              rank: String(idx + 1).padStart(2, "0"),
-              ticker: pred.ticker,
-              company: pred.company_name || base.company,
-              sector: pred.sector || base.sector,
-              score: Math.round(pred.risk_score),
-              driver: pred.primary_driver || base.driver,
-              tone,
-              price,
-              priceFormatted: `Rp ${price.toLocaleString("id-ID")}`,
-              der: pred.indicators.debt_to_equity
-                ? `${pred.indicators.debt_to_equity.toFixed(2)}x`
-                : base.der,
-              delta:
-                pred.delta_30d > 0
-                  ? `+${pred.delta_30d.toFixed(1)}%`
-                  : `${pred.delta_30d.toFixed(1)}%`,
-            };
-          }
-        );
+      const json: SkorEmiten[] = await res.json();
+      if (Array.isArray(json) && json.length > 0) {
+        const sorted = [...json].sort((a, b) => b.persentil - a.persentil);
+        const scores: Record<string, SkorEmiten> = {};
+        for (const item of sorted) scores[stripSuffix(item.symbol)] = item;
 
         return {
-          stocks: mappedStocks,
+          stocks: sorted.map((item, idx) => toStockItem(item, idx + 1)),
+          scores,
           isFromRemoteModel: true,
-          modelVersion: json.rankings[0]?.model_version,
+          asOfDate: sorted[0]?.as_of_date,
         };
       }
     }
   } catch {
-    // Standby fallback
+    // Model API unreachable — use fallback below.
   }
 
   return {
     stocks: BASELINE_STOCKS,
+    scores: {},
     isFromRemoteModel: false,
   };
 }

@@ -29,8 +29,11 @@ export default defineConfig(({ mode }) => {
           },
         },
         "/api/model": {
-          target: env.VITE_MODEL_API_URL || "http://127.0.0.1:8000",
+          target:
+            env.VITE_MODEL_API_URL ||
+            "https://limina-model-train-production.up.railway.app",
           changeOrigin: true,
+          secure: true,
           rewrite: (path) => path.replace(/^\/api\/model/, ""),
           configure: (proxy) => {
             proxy.on("error", (_err, _req, res) => {

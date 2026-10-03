@@ -23,7 +23,7 @@ import {
   fetchSectorsUniverseData,
   type DashboardStockItem,
 } from "../lib/sectorsApi";
-import { fetchLiveModelRankings } from "../lib/modelApi";
+import { fetchLiveModelRankings, type SkorEmiten } from "../lib/modelApi";
 import {
   areDeviceAlertsEnabled,
   requestNotificationPermission,
@@ -59,6 +59,9 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [stocks, setStocks] = useState<DashboardStockItem[]>(BASELINE_STOCKS);
   const [loadingApi, setLoadingApi] = useState(false);
   const [isRemoteModelOnline, setIsRemoteModelOnline] = useState(false);
+  const [modelScores, setModelScores] = useState<Record<string, SkorEmiten>>(
+    {},
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
@@ -112,6 +115,7 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
 
       if (modelResult.isFromRemoteModel) {
         setStocks(modelResult.stocks);
+        setModelScores(modelResult.scores);
         setIsRemoteModelOnline(true);
         setLoadingApi(false);
       } else {
@@ -252,8 +256,12 @@ const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
       },
     };
 
-    return payloadByTicker[currentTicker] ?? defaultModelPayload;
-  }, [inspectTicker, selectedTicker]);
+    return (
+      modelScores[currentTicker] ??
+      payloadByTicker[currentTicker] ??
+      defaultModelPayload
+    );
+  }, [inspectTicker, selectedTicker, modelScores]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
