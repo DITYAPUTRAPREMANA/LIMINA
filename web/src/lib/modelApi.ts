@@ -1,6 +1,6 @@
 import { BASELINE_STOCKS, type DashboardStockItem } from "./sectorsApi";
 
-export interface ModelPrediction {
+interface ModelPrediction {
   ticker: string;
   company_name: string;
   sector: string;
@@ -26,7 +26,7 @@ export interface ModelPrediction {
   evaluated_at: string;
 }
 
-export interface ModelUniverseRankings {
+interface ModelUniverseRankings {
   universe_size: number;
   last_updated: string;
   critical_count: number;
@@ -35,34 +35,7 @@ export interface ModelUniverseRankings {
   rankings: ModelPrediction[];
 }
 
-export interface ModelHealth {
-  status: string;
-  service: string;
-  model_version: string;
-  sectors_api_configured: boolean;
-}
-
 const MODEL_API_BASE = "/api/model/api/v1";
-
-export async function checkModelServerHealth(): Promise<{
-  online: boolean;
-  data?: ModelHealth;
-}> {
-  try {
-    const res = await fetch(`${MODEL_API_BASE}/health`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(2000),
-    });
-    if (res.ok) {
-      const data: ModelHealth = await res.json();
-      return { online: true, data };
-    }
-  } catch {
-    // Model server offline
-  }
-  return { online: false };
-}
 
 export async function fetchLiveModelRankings(): Promise<{
   stocks: DashboardStockItem[];
@@ -128,31 +101,4 @@ export async function fetchLiveModelRankings(): Promise<{
     stocks: BASELINE_STOCKS,
     isFromRemoteModel: false,
   };
-}
-
-export async function predictStockRisk(
-  ticker: string,
-  customIndicators?: Record<string, unknown>
-): Promise<ModelPrediction | null> {
-  try {
-    const res = await fetch(`${MODEL_API_BASE}/predict`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        ticker,
-        custom_indicators: customIndicators,
-      }),
-      signal: AbortSignal.timeout(4000),
-    });
-
-    if (res.ok) {
-      return (await res.json()) as ModelPrediction;
-    }
-  } catch {
-    // Prediction request failed
-  }
-  return null;
 }

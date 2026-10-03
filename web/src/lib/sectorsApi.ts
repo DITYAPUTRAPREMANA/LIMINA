@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from "./supabase";
 
-export const TARGET_TICKERS = [
+const TARGET_TICKERS = [
   "BBCA",
   "TLKM",
   "ASII",
@@ -15,9 +15,7 @@ export const TARGET_TICKERS = [
   "TPIA",
 ] as const;
 
-export type TargetSymbol = (typeof TARGET_TICKERS)[number];
-
-export interface SectorsCompanyData {
+interface SectorsCompanyData {
   symbol: string;
   company_name: string;
   sector: string;
@@ -33,6 +31,19 @@ export interface SectorsCompanyData {
   total_revenue_mrq?: number;
   earnings_mrq?: number;
   isin?: string;
+}
+
+export interface SectorsNewsItem {
+  title: string;
+  body: string;
+  source: string; // URL ke artikel asli
+  thumbnail?: string | null;
+  timestamp: string; // ISO datetime
+  sector?: string;
+  sub_sector?: string[];
+  tags?: string[];
+  symbols?: string[]; // e.g. ["ASII.JK", "BBCA.JK"]
+  dimension?: Record<string, number>;
 }
 
 export interface DashboardStockItem {
@@ -439,53 +450,54 @@ export async function fetchSectorsUniverseData(): Promise<DashboardStockItem[]> 
   return BASELINE_STOCKS;
 }
 
-export async function fetchStockDailyHistory(
-  symbol: string
-): Promise<{ date: string; close: number; volume: number }[]> {
-  const KEY = `daily_${symbol}_v1`;
-
-  const cached =
-    (await getSupabaseCache<{ date: string; close: number; volume: number }[]>(KEY)) ??
-    getLocalCache<{ date: string; close: number; volume: number }[]>(KEY);
-  if (cached) return cached;
-
-  try {
-    const res = await fetch(`/api/sectors/daily/${symbol}/`, {
-      headers: { Accept: "application/json" },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json) && json.length > 0) {
-        const history = json.slice(-30).map((d: any) => ({
-          date: d.date || "",
-          close: Number(d.close || d.price || 0),
-          volume: Number(d.volume || 0),
-        }));
-        await setSupabaseCache(KEY, history);
-        setLocalCache(KEY, history);
-        return history;
-      }
-    }
-  } catch (e) {
-    console.warn(`[sectorsApi] daily history fetch failed (${symbol}):`, e);
-  }
-
-  // fallback: generate synthetic curve from baseline price
-  const base = BASELINE_STOCKS.find((s) => s.ticker === symbol) ?? BASELINE_STOCKS[0];
-  const now = new Date();
-  return Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(now);
-    d.setDate(d.getDate() - (13 - i));
-    return {
-      date: d.toLocaleDateString("id-ID", { month: "short", day: "numeric" }),
-      close: Math.round(base.price * (1 + Math.sin(i * 0.8) * 0.04 - 0.02)),
-      volume: Math.round(5_000_000 + Math.random() * 8_000_000),
-    };
-  });
-}
-
 function formatIDR(val: number): string {
   if (val >= 1e12) return `Rp ${(val / 1e12).toFixed(1)} T`;
   if (val >= 1e9) return `Rp ${(val / 1e9).toFixed(1)} M`;
   return `Rp ${val.toLocaleString("id-ID")}`;
+}
+
+
+export async function fetchSectorsNews(): Promise<SectorsNewsItem[]> {
+  const KEY = "sectors_news_v5";
+
+  const cached =
+    (await getSupabaseCache<SectorsNewsItem[]>(KEY)) ??
+    getLocalCache<SectorsNewsItem[]>(KEY);
+  if (cached && cached.length > 0) return cached;
+
+  try {
+    const symbolsParam = TARGET_TICKERS.join(",");
+    const res = await fetch(
+      `/api/sectors/news/?symbols=${encodeURIComponent(symbolsParam)}&limit=50`,
+      { headers: { Accept: "application/json" } }
+    );
+
+    if (res.ok) {
+      const json = await res.json();
+      const results: SectorsNewsItem[] = Array.isArray(json.results)
+        ? json.results
+        : Array.isArray(json)
+          ? json
+          : [];
+
+      if (results.length > 0) {
+        // Sort newest first by timestamp
+        results.sort((a, b) => {
+          const da = new Date(a.timestamp ?? 0).getTime();
+          const db = new Date(b.timestamp ?? 0).getTime();
+          return db - da;
+        });
+
+        await setSupabaseCache(KEY, results);
+        setLocalCache(KEY, results);
+        return results;
+      }
+    } else {
+      console.warn(`[sectorsApi] news endpoint returned status ${res.status}`);
+    }
+  } catch (err) {
+    console.warn("[sectorsApi] news fetch failed:", err);
+  }
+
+  return [];
 }

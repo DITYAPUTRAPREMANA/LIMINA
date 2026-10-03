@@ -200,11 +200,10 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
             <button
               type="button"
               onClick={() => setShowFiltersPanel((v) => !v)}
-              className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-all duration-200 shadow-2xs btn-hover-lift ${
-                showFiltersPanel || isCustomFilterActive
-                  ? "bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400"
-                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-              }`}
+              className={`cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-all duration-200 shadow-2xs btn-hover-lift ${showFiltersPanel || isCustomFilterActive
+                ? "bg-red-50 dark:bg-red-950/60 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400"
+                : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                }`}
             >
               <SlidersHorizontal className="w-4 h-4" />
               <span>Filters</span>
@@ -231,11 +230,10 @@ const RankingsSection: React.FC<RankingsSectionProps> = ({ onNavigate }) => {
                 key={s.id}
                 type="button"
                 onClick={() => setSortBy(s.id as SortOption)}
-                className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 btn-hover-lift ${
-                  sortBy === s.id
-                    ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
-                    : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
-                }`}
+                className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 btn-hover-lift ${sortBy === s.id
+                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs"
+                  : "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300"
+                  }`}
               >
                 {s.label}
               </button>

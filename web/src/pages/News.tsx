@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowRight,
   BarChart3,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   FileText,
   Search,
   Sparkles,
@@ -12,6 +12,11 @@ import {
 } from "lucide-react";
 import AppShell from "../components/AppShell";
 import type { View } from "../App";
+import {
+  fetchSectorsNews,
+  type SectorsNewsItem,
+  BASELINE_STOCKS,
+} from "../lib/sectorsApi";
 
 type NewsPageProps = {
   onNavigate: (view: View) => void;
@@ -38,6 +43,7 @@ type NewsItem = {
   tags: string[];
   tagsTone: "red" | "amber" | "green" | "slate";
   score: number;
+  url?: string;
 };
 
 const NEWS_ITEMS: NewsItem[] = [
@@ -110,6 +116,85 @@ const tagClassNames = {
   slate: "border-[#dfe3ea] bg-[#f1f4f8] text-[#4b5563]",
 };
 
+/**
+ * Map a raw SectorsNewsItem from Sectors Financial API v2 to internal NewsItem.
+ */
+function mapApiNewsItem(raw: SectorsNewsItem): NewsItem {
+  // Extract primary ticker from symbols (e.g. "ASII.JK" -> "ASII")
+  const primarySymbol =
+    raw.symbols?.[0]?.replace(/\.JK$/i, "")?.toUpperCase() || "IDX";
+  const matchingStock = BASELINE_STOCKS.find((s) => s.ticker === primarySymbol);
+  const company = matchingStock?.company || primarySymbol;
+
+  // Sentiment / tone analysis based on tags
+  const tags = raw.tags && raw.tags.length > 0 ? raw.tags : ["Financial News"];
+  const tagsLower = tags.map((t) => t.toLowerCase());
+
+  let tagsTone: NewsItem["tagsTone"] = "slate";
+  if (
+    tagsLower.some((t) =>
+      [
+        "bearish",
+        "violation",
+        "suspension",
+        "negative",
+        "critical",
+        "risk",
+        "short selling",
+      ].includes(t)
+    )
+  ) {
+    tagsTone = "red";
+  } else if (
+    tagsLower.some((t) =>
+      ["bullish", "dividend", "positive", "growth", "buy"].includes(t)
+    )
+  ) {
+    tagsTone = "green";
+  } else if (
+    tagsLower.some((t) =>
+      ["neutral", "regulation", "politics", "macro"].includes(t)
+    )
+  ) {
+    tagsTone = "amber";
+  }
+
+  // Format date from ISO timestamp
+  let date = raw.timestamp;
+  if (raw.timestamp) {
+    try {
+      date = new Date(raw.timestamp).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      // keep original string
+    }
+  }
+
+  // Relevance / risk score based on dimension or default
+  const totalDim = raw.dimension
+    ? Object.values(raw.dimension).reduce((acc, val) => acc + val, 0)
+    : 0;
+  const score = totalDim > 0 ? Math.min(99, totalDim * 15 + 10) : 12;
+
+  return {
+    ticker: primarySymbol,
+    company,
+    date: date || "Recent",
+    title: raw.title || "(No title)",
+    excerpt: raw.body
+      ? raw.body.slice(0, 220) + (raw.body.length > 220 ? "..." : "")
+      : "",
+    detail: raw.body,
+    tags,
+    tagsTone,
+    score,
+    url: raw.source,
+  };
+}
+
 const NEWS_TABS = [
   "Updated News",
   "Financial News",
@@ -180,7 +265,7 @@ const NewsDetailModal = ({
           <p>{item.excerpt}</p>
         </div>
 
-        <div className="mt-5 space-y-4 text-[14px] leading-7 text-[#334155]">
+        <div className="mt-5 space-y-4 text-[14px] leading-7 text-[#334155] dark:text-slate-300">
           {(item.detail ?? item.excerpt)
             .split(/\n+/)
             .filter(Boolean)
@@ -188,6 +273,29 @@ const NewsDetailModal = ({
               <p key={`${item.title}-${index}`}>{paragraph}</p>
             ))}
         </div>
+
+        {item.url && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-[#d9d5d1] pt-4 dark:border-slate-700">
+            <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">
+              Source: {(() => {
+                try {
+                  return new URL(item.url).hostname;
+                } catch {
+                  return "Original Publisher";
+                }
+              })()}
+            </span>
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition"
+            >
+              <span>Read Full Article on Source</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -203,11 +311,35 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
     (typeof FILTER_BUTTONS)[number] | null
   >(null);
   const [page, setPage] = useState(1);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(NEWS_ITEMS);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch live news from Sectors API on mount
+  useEffect(() => {
+    let cancelled = false;
+    fetchSectorsNews()
+      .then((apiItems) => {
+        if (cancelled) return;
+        if (apiItems.length > 0) {
+          setNewsItems(apiItems.map(mapApiNewsItem));
+        }
+        // else: keep baseline NEWS_ITEMS as fallback
+      })
+      .catch(() => {
+        // silently keep baseline data
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredNews = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
 
-    return NEWS_ITEMS.filter((item) => {
+    return newsItems.filter((item) => {
       const matchesSearch =
         !query ||
         `${item.title} ${item.company} ${item.ticker} ${item.excerpt} ${item.tags.join(" ")}`
@@ -245,7 +377,7 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
 
       return matchesSearch && matchesTab && matchesFilter;
     });
-  }, [activeFilter, activeTab, searchTerm]);
+  }, [activeFilter, activeTab, searchTerm, newsItems]);
 
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / 5));
 
@@ -283,6 +415,12 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
                 </div>
 
                 <div className="flex items-center gap-3">
+                  {isLoading && (
+                    <div
+                      className="h-2 w-2 animate-pulse rounded-full bg-amber-400"
+                      title="Fetching live news..."
+                    />
+                  )}
                   <button
                     type="button"
                     onClick={() => setSearchTerm("")}
@@ -364,10 +502,17 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
 
               <div className="space-y-3">
                 {paginatedNews.length > 0 ? (
-                  paginatedNews.map((item) => (
+                  paginatedNews.map((item, index) => (
                     <article
-                      key={`${item.ticker}-${item.title}`}
-                      className="flex gap-3 rounded-xl border border-[#d9d5d1] bg-[#fbfaf9] p-3 shadow-[0_1px_0_rgba(15,23,42,0.02)] dark:border-slate-700 dark:bg-slate-800/80"
+                      key={`${item.ticker}-${item.title}-${index}`}
+                      onClick={() => {
+                        if (item.url) {
+                          window.open(item.url, "_blank", "noopener,noreferrer");
+                        } else {
+                          setSelectedItem(item);
+                        }
+                      }}
+                      className="group flex gap-3 rounded-xl border border-[#d9d5d1] bg-[#fbfaf9] p-3 shadow-[0_1px_0_rgba(15,23,42,0.02)] transition hover:border-red-400/80 hover:bg-white hover:shadow-md cursor-pointer dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-red-500/50 dark:hover:bg-slate-800"
                     >
                       <div className="flex min-w-27.5 items-start justify-between gap-3 pt-1">
                         <div className="flex items-center gap-2">
@@ -390,9 +535,14 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
                           <span>{item.company}</span>
                         </div>
 
-                        <h3 className="text-[15px] font-semibold leading-snug text-[#1d2430] dark:text-slate-100 sm:text-[17px]">
-                          {item.title}
-                        </h3>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-[15px] font-semibold leading-snug text-[#1d2430] group-hover:text-red-600 dark:text-slate-100 dark:group-hover:text-red-400 sm:text-[17px] transition-colors">
+                            {item.title}
+                          </h3>
+                          {item.url && (
+                            <ExternalLink className="h-4 w-4 shrink-0 text-slate-400 group-hover:text-red-500 transition-colors mt-0.5" />
+                          )}
+                        </div>
 
                         <p className="mt-2 text-[12px] leading-relaxed text-[#5a6674] dark:text-slate-300">
                           {item.excerpt}
@@ -411,19 +561,29 @@ const NewsPage = ({ onNavigate }: NewsPageProps) => {
                       </div>
 
                       <div className="flex items-center gap-2 pt-2 text-[#5a6674] dark:text-slate-300">
-                        <button
-                          type="button"
-                          aria-label={`Open ${item.ticker}`}
-                          onClick={() => setSelectedItem(item)}
-                          className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </button>
+                        {item.url && (
+                          <button
+                            type="button"
+                            aria-label={`Open external article for ${item.ticker}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(item.url, "_blank", "noopener,noreferrer");
+                            }}
+                            className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] hover:text-red-600 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700 transition"
+                            title="Open original article"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           type="button"
                           aria-label={`Open details for ${item.ticker}`}
-                          onClick={() => setSelectedItem(item)}
-                          className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedItem(item);
+                          }}
+                          className="rounded-md border border-[#d9d5d1] bg-white p-2 hover:bg-[#f3f0ee] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-700 transition"
+                          title="Read summary & detail"
                         >
                           <FileText className="h-4 w-4" />
                         </button>

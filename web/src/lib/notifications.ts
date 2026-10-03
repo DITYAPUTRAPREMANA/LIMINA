@@ -19,7 +19,7 @@ export function isNotificationSupported(): boolean {
   return typeof window !== "undefined" && "Notification" in window;
 }
 
-export function isServiceWorkerSupported(): boolean {
+function isServiceWorkerSupported(): boolean {
   return typeof navigator !== "undefined" && "serviceWorker" in navigator;
 }
 
@@ -192,26 +192,4 @@ export async function sendTestRiskAlert(): Promise<{ success: boolean; message: 
     success: false,
     message: "Failed to display notification. Make sure 'Do Not Disturb' or 'Focus Assist' mode on Windows is not blocking Google Chrome notifications.",
   };
-}
-
-export async function notifyStockRisk(stock: {
-  symbol: string;
-  name?: string;
-  riskScore: number;
-  reason?: string;
-}): Promise<boolean> {
-  if (!areDeviceAlertsEnabled()) return false;
-
-  const threshold = getNotificationThreshold();
-  if (threshold === "critical_only" && stock.riskScore < 7.5) {
-    return false;
-  }
-
-  const severityIcon = stock.riskScore >= 8.0 ? "🚨" : "⚠️";
-  return sendDeviceNotification({
-    title: `${severityIcon} ${stock.symbol}: High Risk Detected (${stock.riskScore.toFixed(1)}/10)`,
-    body: stock.reason || `Issuer ${stock.symbol} ${stock.name ? `(${stock.name})` : ""} is showing a significant anomalous transaction spike.`,
-    url: "/dashboard",
-    tag: `stock-alert-${stock.symbol}`,
-  });
 }
