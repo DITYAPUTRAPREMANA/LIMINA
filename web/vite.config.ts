@@ -5,6 +5,14 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
+  // VITE_MODEL_API_URL may be either the base URL or the full .../scores URL.
+  const modelUrl = new URL(
+    env.VITE_MODEL_API_URL || "http://127.0.0.1:8000",
+  );
+  const modelBasePath = modelUrl.pathname
+    .replace(/\/+$/, "")
+    .replace(/\/scores$/, "");
+
   return {
     plugins: [react(), tailwindcss()],
 
@@ -29,11 +37,10 @@ export default defineConfig(({ mode }) => {
           },
         },
         "/api/model": {
-          target:
-            env.VITE_MODEL_API_URL,
+          target: modelUrl.origin,
           changeOrigin: true,
           secure: true,
-          rewrite: (path) => path.replace(/^\/api\/model/, ""),
+          rewrite: (path) => path.replace(/^\/api\/model/, modelBasePath),
           configure: (proxy) => {
             proxy.on("error", (_err, _req, res) => {
               if (res && "writeHead" in res && !res.headersSent) {

@@ -110,11 +110,11 @@ export async function fetchLiveModelRankings(): Promise<{
   isFromRemoteModel: boolean;
   asOfDate?: string;
 }> {
-  try {
+  for (let attempt = 0; attempt < 2; attempt++) try {
     // GET /scores without `tickers` returns all issuers
     const res = await fetch(`${MODEL_API_BASE}/scores`, {
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(30000),
     });
 
     if (res.ok) {
