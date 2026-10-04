@@ -1,5 +1,4 @@
 import { BASELINE_STOCKS, type DashboardStockItem } from "./sectorsApi";
-import modelScoresJson from "./modelScoresData.json";
 
 export interface SkorEmiten {
   symbol: string;
@@ -16,8 +15,6 @@ export interface SkorEmiten {
   indikator_dominan: string;
   kontribusi: Record<string, number>;
 }
-
-const RAW_MODEL_SCORES: SkorEmiten[] = modelScoresJson as SkorEmiten[];
 
 const MODEL_API_BASE = "/api/model";
 const CRITICAL_PERCENTILE = 85;
@@ -107,18 +104,6 @@ function toStockItem(
   };
 }
 
-// Build initial map of all 95 real model scores
-export const ALL_MODEL_SCORES: Record<string, SkorEmiten> = {};
-for (const item of RAW_MODEL_SCORES) {
-  const clean = stripSuffix(item.symbol);
-  ALL_MODEL_SCORES[clean] = item;
-  ALL_MODEL_SCORES[item.symbol] = item;
-}
-
-export const INITIAL_MODEL_STOCKS: DashboardStockItem[] = [...RAW_MODEL_SCORES]
-  .sort((a, b) => b.persentil - a.persentil)
-  .map((item, idx) => toStockItem(item, idx + 1));
-
 export async function fetchLiveModelRankings(): Promise<{
   stocks: DashboardStockItem[];
   scores: Record<string, SkorEmiten>;
@@ -126,11 +111,8 @@ export async function fetchLiveModelRankings(): Promise<{
   asOfDate?: string;
 }> {
   try {
-    const query = BASELINE_STOCKS.map(
-      (s) => `tickers=${encodeURIComponent(s.ticker)}`,
-    ).join("&");
-
-    const res = await fetch(`${MODEL_API_BASE}/scores?${query}`, {
+    // GET /scores without `tickers` returns all issuers
+    const res = await fetch(`${MODEL_API_BASE}/scores`, {
       headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(6000),
     });
@@ -139,7 +121,7 @@ export async function fetchLiveModelRankings(): Promise<{
       const json: SkorEmiten[] = await res.json();
       if (Array.isArray(json) && json.length > 0) {
         const sorted = [...json].sort((a, b) => b.persentil - a.persentil);
-        const scores: Record<string, SkorEmiten> = { ...ALL_MODEL_SCORES };
+        const scores: Record<string, SkorEmiten> = {};
         for (const item of sorted) {
           const clean = stripSuffix(item.symbol);
           scores[clean] = item;
@@ -155,16 +137,9 @@ export async function fetchLiveModelRankings(): Promise<{
       }
     }
   } catch {
-    // Model server offline or timing out; proceed to authentic dataset
+    // Model server offline or timing out
   }
 
-  // Use authentic model training scoring results
-  const sorted = [...RAW_MODEL_SCORES].sort((a, b) => b.persentil - a.persentil);
-  return {
-    stocks: sorted.map((item, idx) => toStockItem(item, idx + 1)),
-    scores: ALL_MODEL_SCORES,
-    isFromRemoteModel: false,
-    asOfDate: sorted[0]?.as_of_date,
-  };
+  return { stocks: [], scores: {}, isFromRemoteModel: false };
 }
 

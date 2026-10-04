@@ -25,8 +25,6 @@ import {
 import {
   fetchLiveModelRankings,
   getFactorLabel,
-  ALL_MODEL_SCORES,
-  INITIAL_MODEL_STOCKS,
   type SkorEmiten,
 } from "../lib/modelApi";
 import {
@@ -61,11 +59,11 @@ type SortOption =
 
 const DashboardPage = ({ onNavigate }: DashboardPageProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [stocks, setStocks] = useState<DashboardStockItem[]>(INITIAL_MODEL_STOCKS);
+  const [stocks, setStocks] = useState<DashboardStockItem[]>([]);
   const [loadingApi, setLoadingApi] = useState(false);
   const [isRemoteModelOnline, setIsRemoteModelOnline] = useState(false);
   const [modelScores, setModelScores] =
-    useState<Record<string, SkorEmiten>>(ALL_MODEL_SCORES);
+    useState<Record<string, SkorEmiten>>({});
 
   const [searchQuery, setSearchQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState<RiskCategory>("all");
