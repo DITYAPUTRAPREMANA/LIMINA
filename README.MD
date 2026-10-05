@@ -120,6 +120,6 @@ Limina is not investment advice. All figures and scores are informational, calcu
 
 ---
 
-## License
+## Website
 
-Not yet determined.
+https://limina-sigma.vercel.app
