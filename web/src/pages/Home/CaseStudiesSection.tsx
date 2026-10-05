@@ -185,8 +185,8 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
                           </div>
                           <div
                             className={`text-[0.7rem] font-bold ${ranking.changePercent.startsWith("-")
-                                ? "text-red-500"
-                                : "text-emerald-500"
+                              ? "text-red-500"
+                              : "text-emerald-500"
                               }`}
                           >
                             {ranking.changePercent}
