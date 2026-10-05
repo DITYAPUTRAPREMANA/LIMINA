@@ -186,7 +186,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onNavigate }) => {
                 Backtest Validated
               </div>
               <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                89.4% Precision
+                95% Precision
               </div>
             </div>
           </div>

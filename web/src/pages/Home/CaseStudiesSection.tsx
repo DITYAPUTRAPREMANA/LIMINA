@@ -184,11 +184,10 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
                             {ranking.priceFormatted}
                           </div>
                           <div
-                            className={`text-[0.7rem] font-bold ${
-                              ranking.changePercent.startsWith("-")
+                            className={`text-[0.7rem] font-bold ${ranking.changePercent.startsWith("-")
                                 ? "text-red-500"
                                 : "text-emerald-500"
-                            }`}
+                              }`}
                           >
                             {ranking.changePercent}
                           </div>
@@ -230,7 +229,7 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({
                   BACKTEST PRECISION
                 </div>
                 <div className="text-5xl font-extrabold text-red-500 mb-3 flex items-baseline gap-2">
-                  <span>89.4%</span>
+                  <span>95%</span>
                   <span className="text-xs font-medium text-emerald-400">
                     Validated
                   </span>
