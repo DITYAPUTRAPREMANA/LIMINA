@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-10-04T18:37:48.438208",
+  "model_selected": "Blend LR+RF",
+  "metrics": {
+    "auc": 0.9213,
+    "average_precision": 0.4588,
+    "precision": 0.5385,
+    "recall": 0.5,
+    "f1_score": 0.5185,
+    "precision_at_20": 0.0,
+    "recall_90h": 0.5,
+    "alarm_palsu": 12,
+    "ambang_keputusan": 0.8362,
+    "akurasi_internal_only": 0.9544
+  },
+  "comparison_table": [
+    {
+      "Model": "Baseline Logistic Regression",
+      "ROC-AUC": 0.9014797845896853,
+      "Avg Precision": 0.40831472831282783,
+      "Precision@Top20%": 0.20175438596491227,
+      "Precision": 0.19319137909849982,
+      "Recall": 0.7415873015873016,
+      "F1-Score": 0.30117748797361854,
+      "Accuracy": 0.8473684210526315
+    },
+    {
+      "Model": "Logistic Regression (Balanced)",
+      "ROC-AUC": 0.9229491053506969,
+      "Avg Precision": 0.4560060015287376,
+      "Precision@Top20%": 0.18421052631578946,
+      "Precision": 0.20352459277011709,
+      "Recall": 0.7885714285714285,
+      "F1-Score": 0.3091272711284344,
+      "Accuracy": 0.8245614035087719
+    },
+    {
+      "Model": "Random Forest (Balanced Bootstrap)",
+      "ROC-AUC": 0.8813601242243875,
+      "Avg Precision": 0.2949821556468379,
+      "Precision@Top20%": 0.17543859649122806,
+      "Precision": 0.14937132126599761,
+      "Recall": 0.8507936507936508,
+      "F1-Score": 0.24956650951173442,
+      "Accuracy": 0.7684210526315789
+    },
+    {
+      "Model": "Blend LR+RF",
+      "ROC-AUC": 0.9214665198213916,
+      "Avg Precision": 0.45875464281099354,
+      "Precision@Top20%": 0.21052631578947367,
+      "Precision": 0.21093310460532114,
+      "Recall": 0.8003174603174603,
+      "F1-Score": 0.3219782650261236,
+      "Accuracy": 0.8333333333333334
+    }
+  ]
+}
