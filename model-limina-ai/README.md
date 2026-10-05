@@ -10,6 +10,11 @@ dan bukan pengganti pengumuman resmi BEI.
 
 Dibuat untuk Sectors Hackathon 2026, Track 03 Market Intelligence.
 
+> **Catatan repositori.** Repositori ini merupakan salinan dari repositori
+> utama proyek LIMINA. Seluruh riwayat pengembangan, pembaruan terbaru, serta
+> pelacakan isu dapat dilihat pada repositori asli di
+> [github.com/maniikambara/LIMINA-model-train](https://github.com/maniikambara/LIMINA-model-train).
+
 ## Dua pipeline
 
 | | **Produksi** (utama) | **Arsip** |
